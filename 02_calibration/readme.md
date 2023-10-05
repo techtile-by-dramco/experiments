@@ -87,38 +87,32 @@ $\underbrace{e^{j \phi_{i,ch}}}_{\text{Channel}}$
 $\underbrace{e^{-j\phi_{i,r}}e^{+2 \pi f \tau_{i,r}}}_{\text{RX chain}}$
 
 
-
  $$ e^{2 \pi f t + \phi_{UE}} e^{j \phi_{i,ch}} e^{-j\phi_{i,r}}e^{+2 \pi f \tau_{i,r}} $$
 
 
- Given that $\phi_{UE}$ is independent of the CSP, we can discard this term as long as all CSPs have this same unknown but common phase rotation.
+Given that $\phi_{UE}$ is independent of the CSP, we can discard this term as long as all CSPs have this same unknown but common phase rotation.
 We are now looking for a phase rotation ($phi_{i,\text{coh}}$) to precode the transmit signal from each CSP in order to coherently combine all signals at the UE.
 
-What we want: $e^{-2j \pi f t}  e^{phi_{\text{fixed}}}$
+What we want at the UE: $e^{-2j \pi f t}  e^{phi_{\text{fixed}}}$
+This requires us to transmit a signal cancelling out the phase rotations of the PLLs and the channel.
 
-Received signal at the UE from USRP $i$: 
-$$e^{+j\phi_{i,t}}  e^{-2j \pi f t} e^{phi_{i,\text{coh}}} e^{j \phi_{i,ch}}$$
+$$ e^{phi_{\text{fixed}}} = e^{phi_{i,\text{coh}}} e^{j \phi_{i,ch}} e^{+j\phi_t}$$
 
-This requires us to solve the following:
-$$e^{-2 \pi f t}  e^{phi_{\text{fixed}}} = e^{+j\phi_{i,t}}  e^{-2 \pi f t} e^{phi_{i,\text{coh}}} e^{j \phi_{i,ch}}$$
 
-$$ e^{phi_{i,\text{coh}}} = e^{-j\phi_{i,t}} e^{-j \phi_{i,ch}}  e^{phi_{\text{fixed}}} $$
+
+$$ e^{phi_{i,\text{coh}}} = e^{phi_{\text{fixed}}} e^{-j\phi_t} e^{-j \phi_{i,ch}}$$
+
 
 What do we know:
-- (1) $\Delta\phi_i = \phi_{i,t} - \phi_{i,r}$
-- (2) $e^{-j\phi_r}$
-- (3) $s_{i, rx} = e^{2j \pi f t + \phi_{UE}} e^{j \phi_{i,ch}} e^{-j\phi_{i,r}}e^{+2 \pi f \tau_{i,r}}$
+- (1) $e^{j\phi_1} = e^{\phi_{i,t}} e^{-\phi_{i,r}}$ (loopback)
+- (2) $e^{j\phi_2} = e^{-j\phi_r}$ (abs. PLL calibration)
+- (3) $e^{j\phi_3} = e^{j\phi_{UE}} e^{j \phi_{i,ch}} e^{-j\phi_{i,r}}$ (received UL signal)
 
-From (1) and (2) we can obtain $\phi_{i,t} = \Delta\phi_i + \phi_{i,r} $. From (2) and (3) we can obtain $e^{j \phi_{i,ch}}=s_{i, rx} e^{+j\phi_{i,r}} e^{-\phi_{UE}}$.
-Given that $\phi_{UE}$ is fixed for all CSPs, this can be part of $ e^{phi_{\text{fixed}}}$ and has no effect on the coherency.
+Discarting everything that is fixed, this becomes:
 
----
+$$ e^{phi_{i,\text{coh}}} = e^{-j\phi_1} e^{j2\phi_2} $e^{-j\phi_3}$$
 
-$$ e^{\phi_{i,\text{coh}}} = e^{-j(\Delta\phi_i + \phi_{i,r})} s_{i, rx} e^{+j\phi_{i,r}} e^{-j\phi_{UE}} $$
 
-$$ e^{\phi_{i,\text{coh}}} = e^{-j(\Delta\phi_i)} s_{i, rx}  e^{-j\phi_{UE}} $$
-
----
 
 [1]:  Nissel, Ronald. "Correctly Modeling TX and RX Chain in (Distributed) Massive MIMO—New Fundamental Insights on Coherency." IEEE Communications Letters 26.10 (2022): 2465-2469. https://arxiv.org/abs/2206.14752
 
