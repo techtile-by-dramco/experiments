@@ -95,7 +95,7 @@ $\underbrace{e^{-j\phi_{i,r}}e^{+2 \pi f \tau_{i,r}}}_{\text{RX chain}}$
  Given that $\phi_{UE}$ is independent of the CSP, we can discard this term as long as all CSPs have this same unknown but common phase rotation.
 We are now looking for a phase rotation ($phi_{i,\text{coh}}$) to precode the transmit signal from each CSP in order to coherently combine all signals at the UE.
 
-What we want: $ e^{-2j \pi f t}  e^{phi_{\text{fixed}}} $
+What we want: $e^{-2j \pi f t}  e^{phi_{\text{fixed}}}$
 
 Received signal at the UE from USRP $i$: 
 $$e^{+j\phi_{i,t}}  e^{-2j \pi f t} e^{phi_{i,\text{coh}}} e^{j \phi_{i,ch}}$$
