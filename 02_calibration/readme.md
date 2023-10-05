@@ -52,7 +52,7 @@ C. Determine the relative phase differences between the two PLLs, i.e., $\Delta\
 #### A. Transmit the PLL carrier
 
 To transmit the PLL carrier a real-valued sample is being transmitted (0.8). This means that the I component is 0.8, while the Q is 0.
-In essence, we transmit $\cos(2 \pi f t + \phi_t)$. We omit the amplitude term as this won't change the calibration phase.
+In essence, we transmit $\cos(2 \pi f t + \phi_{i,t})$. We omit the amplitude term as this won't change the calibration phase.
 
 #### B. Receive the TX-PLL at the RX
 At the receiver, we receive the TX-PLL carrier including the TX and RX chain effects (omitting the effect of the cable). Writing this in complex notation:
@@ -61,11 +61,11 @@ $$s_{rx}(f) = t_i(f) *  r_i(f)$$
 
 Neglecting the time delays originating from the DACs/ADCs, this can be rewritten as:
 
-$$s_{rx}(f) = e^{+j\phi_t} *  e^{-j\phi_r}$$
+$$s_{i,rx}(f) = e^{+j\phi_{i,t}} *  e^{-j\phi_{i,r}}$$
 
 #### C. Relative phase differences between the two PLLs 
 
-$$ \Delta\phi_i = \phi_i,t - \phi_i,r $$
+$$ \Delta\phi_i = \phi_{i,t} - \phi_{i,r} $$
 
 We thus now know the relative phase difference between the RX and TX PLLs on the same CSP.
 
@@ -78,13 +78,46 @@ The received signal from this PLL at CSP $i$ we obtain the relative phase differ
 
 ### 3. Reciprocity-based operation
 
-To estimate the channel $H_i=e^{j \phi_{ch}}$ between the user and CSP $i$
+To estimate the channel $H_i=e^{j \phi_{i,ch}}$ between the user and CSP $i$
+
+$s_{i, rx} = $
+$\underbrace{e^{2j \pi f t + \phi_{UE}}}_{\text{TX signal}}$ 
+
+$\underbrace{e^{j \phi_{i,ch}}}_{\text{Channel}}$ 
+
+$\underbrace{e^{-j\phi_{i,r}}e^{+2 \pi f \tau_{i,r}}}_{\text{RX chain}}$
 
 
-$$\underbrace{e^{2 \pi f t + \phi_{UE}}}_{\text{TX signal}} \underbrace{e^{j \phi_{ch}}}_{\text{Channel}} \underbrace{e^{-j\phi_r}e^{+2 \pi f \tau_r}}_{\text{RX chain}}$$
+
+ $$ e^{2 \pi f t + \phi_{UE}} e^{j \phi_{i,ch}} e^{-j\phi_{i,r}}e^{+2 \pi f \tau_{i,r}} $$
 
 
+ Given that $\phi_{UE}$ is independent of the CSP, we can discard this term as long as all CSPs have this same unknown but common phase rotation.
+We are now looking for a phase rotation ($phi_{i,\text{coh}}$) to precode the transmit signal from each CSP in order to coherently combine all signals at the UE.
 
+What we want: $$ e^{-2j \pi f t}  e^{phi_{\text{fixed}}} $$
+
+Received signal at the UE from USRP $i$: 
+$$e^{+j\phi_{i,t}}  e^{-2j \pi f t} e^{phi_{i,\text{coh}}} e^{j \phi_{i,ch}}$$
+
+This requires us to solve the following:
+$$e^{-2 \pi f t}  e^{phi_{\text{fixed}}} = e^{+j\phi_{i,t}}  e^{-2 \pi f t} e^{phi_{i,\text{coh}}} e^{j \phi_{i,ch}}$$
+
+$$ e^{phi_{i,\text{coh}}} = e^{-j\phi_{i,t}} e^{-j \phi_{i,ch}}  e^{phi_{\text{fixed}}} $$
+
+What do we know:
+- (1) $ \Delta\phi_i = \phi_{i,t} - \phi_{i,r} $
+- (2) $e^{-j\phi_r}$
+- (3) $s_{i, rx} = e^{2j \pi f t + \phi_{UE}} e^{j \phi_{i,ch}} e^{-j\phi_{i,r}}e^{+2 \pi f \tau_{i,r}}$
+
+From (1) and (2) we can obtain $\phi_{i,t} = \Delta\phi_i + \phi_{i,r} $. From (2) and (3) we can obtain $e^{j \phi_{i,ch}}=s_{i, rx} e^{+j\phi_{i,r}} e^{-\phi_{UE}}$.
+Given that $\phi_{UE}$ is fixed for all CSPs, this can be part of $ e^{phi_{\text{fixed}}}$ and has no effect on the coherency.
+
+---
+
+$$ e^{phi_{i,\text{coh}}} = e^{-j(\Delta\phi_i + \phi_{i,r})} s_{i, rx} e^{+j\phi_{i,r}} e^{-j\phi_{UE}} $$
+
+---
 
 [1]:  Nissel, Ronald. "Correctly Modeling TX and RX Chain in (Distributed) Massive MIMO—New Fundamental Insights on Coherency." IEEE Communications Letters 26.10 (2022): 2465-2469. https://arxiv.org/abs/2206.14752
 
