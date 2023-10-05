@@ -45,7 +45,6 @@ The problem with this approach is that it scales with the number of CSPs. Our ap
 A loopback is provided between the RX and TX chains on each CSP. 
 
 A. Transmit the PLL carrier (without any precoding)
-
 B. Receive the TX-PLL at the RX
 C. Determine the relative phase differences between the two PLLs, i.e., $\Delta\phi_i$
 
