@@ -115,7 +115,7 @@ Given that $\phi_{UE}$ is fixed for all CSPs, this can be part of $ e^{phi_{\tex
 
 ---
 
-$$ e^{phi_{i,\text{coh}}} = e^{-j(\Delta\phi_i + \phi_{i,r})} s_{i, rx} e^{+j\phi_{i,r}} e^{-j\phi_{UE}} $$
+$$ e^{\phi_{i,\text{coh}}} = e^{-j(\Delta\phi_i + \phi_{i,r})} s_{i, rx} e^{+j\phi_{i,r}} e^{-j\phi_{UE}} $$
 
 ---
 
