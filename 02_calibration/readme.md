@@ -33,20 +33,25 @@ The problem with this approach is that it scales with the number of CSPs. Our ap
 
 > insert picture
 
-## Loopback
+1. In the loopback procedure the phase difference between the RX and TX RF chains is determined, i.e., $\Delta\phi_i$
+2. Absolute calibration retrieves the phase difference between the global ref clock and the RX PLL per CSP, i.e., $\phi_{i,r}$
+3. The phase received by the CSP coming from the user is determined with reference to the RX PLL of that CSP to estimate the channel state information, i.e.,  $\phi_{i,ch}$. 
+
+## 1. Loopback
 
 A loopback is provided between the RX and TX chains on each CSP. 
 
-1. Transmit the PLL carrier (without any precoding)
-2. Receive the TX-PLL at the RX
-3. Determine the relative phase differences between the two PLLs.
+A. Transmit the PLL carrier (without any precoding)
 
-### 1. Transmit the PLL carrier
+B. Receive the TX-PLL at the RX
+C. Determine the relative phase differences between the two PLLs, i.e., $\Delta\phi_i$
+
+### A. Transmit the PLL carrier
 
 To transmit the PLL carrier a real-valued sample is being transmitted (0.8). This means that the I component is 0.8, while the Q is 0.
 In essence, we transmit $\cos(2 \pi f t + \phi_t)$. We omit the amplitude term as this won't change the calibration phase.
 
-### 2. Receive the TX-PLL at the RX
+### B. Receive the TX-PLL at the RX
 At the receiver, we receive the TX-PLL carrier including the TX and RX chain effects (omitting the effect of the cable). Writing this in complex notation:
 
 $$s_{rx}(f) = t_i(f) *  r_i(f)$$
@@ -55,15 +60,27 @@ Neglecting the time delays originating from the DACs/ADCs, this can be rewritten
 
 $$s_{rx}(f) = e^{+j\phi_t} *  e^{-j\phi_r}$$
 
+### C. Relative phase differences between the two PLLs 
+
+$$ \Delta\phi_i = \phi_i,t - \phi_i,r $$
+
 We thus now know the relative phase difference between the RX and TX PLLs on the same CSP.
 
-## Absolute calibration
+## 2. Absolute calibration
 
 Instead of computing the relative calibration terms as done in most works, here we use dedicated PLLs having the same phase over all CSPs. This is done through **TODO provide a link**.
+As we distribute a global reference clock to all CSPs, we will define this clock as having zero phase, i.e., everything is relative to this clock.
+
+The received signal from this PLL at CSP $i$ we obtain the relative phase difference between the ref PLL and the RX PLL, i.e., $e^{-j\phi_r}$.
+
+## 3. Reciprocity-based operation
+
+To estimate the channel $H_i$ between the user and CSP $i$
 
 
+$$ \underbrace{e^{2 \pi f t + \phi_{UE}}}_{\text{TX signal}} \underbrace{e^{j \phi_{ch}}}_{\text{Channel}} \underbrace{e^{-j\phi_r} e^{+2 \pi f \tau_r}}_{\text{RX chain}$$
 
-## Reciprocity-based operation
+
 
 
 [1]:  Nissel, Ronald. "Correctly Modeling TX and RX Chain in (Distributed) Massive MIMO—New Fundamental Insights on Coherency." IEEE Communications Letters 26.10 (2022): 2465-2469. https://arxiv.org/abs/2206.14752
