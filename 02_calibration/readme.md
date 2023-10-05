@@ -113,7 +113,9 @@ Discarting everything that is fixed, this becomes:
 $$ e^{phi_{i,\text{coh}}} = e^{-j\phi_1} e^{j2\phi_2} $e^{-j\phi_3}$$
 
 ---
+
 $$ phi_{i,\text{coh}} = -\phi_1 2\phi_2 -\phi_3 $$
+
 ---
 
 
