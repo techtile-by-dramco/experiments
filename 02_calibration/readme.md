@@ -106,7 +106,7 @@ $$e^{-2 \pi f t}  e^{phi_{\text{fixed}}} = e^{+j\phi_{i,t}}  e^{-2 \pi f t} e^{p
 $$ e^{phi_{i,\text{coh}}} = e^{-j\phi_{i,t}} e^{-j \phi_{i,ch}}  e^{phi_{\text{fixed}}} $$
 
 What do we know:
-- (1) $ \Delta\phi_i = \phi_{i,t} - \phi_{i,r} $
+- (1) $\Delta\phi_i = \phi_{i,t} - \phi_{i,r}$
 - (2) $e^{-j\phi_r}$
 - (3) $s_{i, rx} = e^{2j \pi f t + \phi_{UE}} e^{j \phi_{i,ch}} e^{-j\phi_{i,r}}e^{+2 \pi f \tau_{i,r}}$
 
