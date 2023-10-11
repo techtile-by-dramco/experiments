@@ -104,17 +104,17 @@ $$ e^{phi_{i,\text{coh}}} = e^{phi_{\text{fixed}}} e^{-j\phi_t} e^{-j \phi_{i,ch
 
 
 What do we know:
-- (1) $e^{j\phi_1} = e^{\phi_{i,t}} e^{-\phi_{i,r}}$ (loopback)
-- (2) $e^{j\phi_2} = e^{-j\phi_r}$ (abs. PLL calibration)
-- (3) $e^{j\phi_3} = e^{j\phi_{UE}} e^{j \phi_{i,ch}} e^{-j\phi_{i,r}}$ (received UL signal)
+- (1) $e^{j\phi_{i,1}} = e^{\phi_{i,t}} e^{-\phi_{i,r}}$ (loopback)
+- (2) $e^{j\phi_{i,2}} = e^{-j\phi_{i,r}}$ (abs. PLL calibration)
+- (3) $e^{j\phi_{i,3}} = e^{j\phi_{UE}} e^{j \phi_{i,ch}} e^{-j\phi_{i,r}}$ (received UL signal)
 
 Discarting everything that is fixed, this becomes:
 
-$$ e^{phi_{i,\text{coh}}} = e^{-j\phi_1} e^{j2\phi_2} $e^{-j\phi_3}$$
+$$ e^{phi_{i,\text{coh}}} = e^{-j\phi_{i,1}} e^{j2\phi_{i,2}} $e^{-j\phi_{i,3}}$$
 
 ---
 
-$$ \phi_{i,\text{coh}} = -\phi_1 + 2\phi_2 -\phi_3 $$
+$$ \phi_{i,\text{coh}} = -\phi_{i,1} + 2\phi_{i,2} -\phi_{i,3} $$
 
 ---
 
