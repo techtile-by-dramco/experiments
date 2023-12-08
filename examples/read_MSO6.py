@@ -1,4 +1,5 @@
 
+# %%
 
 visa_address = 'TCPIP::192.108.0.251::INSTR'
 
@@ -6,6 +7,7 @@ import time # std module
 import pyvisa as visa # http://github.com/hgrecco/pyvisa
 import matplotlib.pyplot as plt # http://matplotlib.org/
 import numpy as np # http://www.numpy.org/
+from tqdm import tqdm
 
 rm = visa.ResourceManager()
 scope = rm.open_resource(visa_address)
@@ -36,6 +38,10 @@ scope.write("DISplay:SELect:SPECView1:SOUrce CH1")
 scope.write("CH1:SV:STATE ON")
 scope.write("CH1:SV:CENTERFrequency 910.0015E+06")
 scope.write("SV:SPAN 3.0E+03")
+
+scope.write("SV:RBWMode MANUAL")
+scope.write("SV:RBW 3.0E+00")
+
 scope.write("SV:CH1:UNIts DBM")
 
 # scope.write("SV:RBW 2.0E+06")
@@ -44,6 +50,7 @@ scope.write("DATa:SOUrce CH1_SV_NORMal")
 
 print(scope.query("DATa:SOUrce?"))
 
+scope.write("DATa:START 1")
 scope.write("DATa:STOP 1901")
 
 print(scope.query("DATa:STARt?"))
@@ -52,91 +59,80 @@ print(scope.query("DATa:STOP?"))
 time.sleep(2)
 
 print(scope.query("WFMOutpre:SPAN?"))
+scope.write("WFMOutpre:BYT_Or LSB")
 
 print(scope.query("DATA:WIDTH?"))
 print(scope.query(":WFMOutpre?"))
 
-time.sleep(1)
+print(scope.query("WFMOutpre:NR_Pt?"))
 
-pwr_dbm = scope.query_binary_values("CURVe?", datatype='d', container=np.array)
-power_linear = 10 ** (pwr_dbm / 10)
-pwr_sum_lin = np.sum(power_linear)
-tot_pwr_dbm = 10*np.log10(pwr_sum_lin)
-print(tot_pwr_dbm)
 
-# print(len(list))
-# print(list)
+time.sleep(2)
 
-x = np.linspace(1, len(pwr_dbm), len(pwr_dbm))
 
+r = scope.query('*opc?') # sync
+
+
+# %%
+positions = []
+measurements_per_pos = []
+
+
+cable_loss_dB = -10.3258123397827
+
+
+
+while True:
+    if not input("Next measurement? (True/False): ").lower() in ["true", "1"]:
+        break
+    
+    x = float(input("Enter the x coordinate in meters: "))
+    y = float(input("Enter the y coordinate in meters: "))
+    z = float(input("Enter the z coordinate in meters: "))
+
+    
+    measurements = [] #clear measurements
+
+    print(f"Coordinates: ({x}, {y}, {z})")
+
+    NUM_MEASURMENTS = 100
+
+    # try:
+    #     while 1:
+            
+    for i in tqdm(range(NUM_MEASURMENTS)):
+        time.sleep(0.5)
+        pwr_dbm = scope.query_binary_values("CURVe?", datatype='d', container=np.array)
+        power_linear = 10 ** (pwr_dbm / 10)
+        tot_pwr_dbm = float(10*np.log10(np.sum(power_linear))) #float to cast to single element
+        measurements.append(tot_pwr_dbm-cable_loss_dB)
+    positions.append((x,y,z))
+    measurements_per_pos.append(measurements)
+
+    # except KeyboardInterrupt:
+    #     positions.append((x,y,z))
+    #     measurements_per_pos.append(measurements)
+    #     print("\nCtrl+C detected. Exiting...")
+        
+
+# %%
+
+print(measurements_per_pos)
+print(positions)
+
+# x = np.linspace(1, len(pwr_dbm), len(pwr_dbm))
+# %%
 fig = plt.figure(figsize=(14, 7))
-plt.plot(x, pwr_dbm)
+plt.plot(pwr_dbm)
 plt.show()
 
-# scope.query_binary_values('fetch:avtime:first?', datatype='f', container=np.array)
-
-# for i in range(10):
-#     print(list[i])
-
-# arr = bytes(list, 'utf-8')
-#
-# print(arr)
-# print(len(arr))
-
-# print(scope.query("CURVe?"))
-
-# print(scope.query("CH1:SV?"))
-
-# print(scope.query("DISplay:SELect:SPECView1:SOUrce?"))
-
-exit()
-
-scope.write("SV:MARKER:PEAK:THReshold -80")
-
-print(scope.query("SV:MARKER:PEAK:THReshold?"))
+# %%
+fig = plt.figure(figsize=(14, 7))
+plt.plot(measurements_per_pos[0])
+plt.show()
 
 
-while 1:
-    time.sleep(0.5)
-    print(scope.query("SV:MARKER:PEAKS:AMPLITUDE?"))
-    print(scope.query("SV:MARKER:PEAKS:FREQuency?"))
-
-# print(scope.query("Curve?"))
-
-exit()
-
-scope.write("PEAKSTABLE:ADDNEW 'Table1'")
-
-scope.write("PEAKSTABle:TABle<x>:FRESolution PRECISE")
-
-time.sleep(1)
-
-while 1:
-    time.sleep(0.5)
-    print(scope.query("SV:MARKER:PEAKS:AMPLITUDE?"))
-    print(scope.query("SV:MARKER:PEAKS:FREQuency?"))
-
-# print(scope.query("MEASUrement:MEAS1:CCRESUlts:CURRentacq:MEAN?"))
-
-exit()
-
-scope.write("MEASUrement:ADDMEAS CPOWER")
-
-print(scope.query('MEASUrement?'))
-print('***** Measurement with unit and other tags:')
-print(scope.query('MEASUrement:MEAS1:VALUE?;YUNIT?;TYPE?;SOUR1?'))
-print('***** Measurement with unit and other tags:')
-meas = float(scope.query("MEASUrement:MEAS2:resu:curr:mean?"))
-print(meas)
-
-############ OUTPUT ##############
-# ***** Measurement with unit and other tags:
-# 9.91E+37;"";CPOWER;CH1_SV_NORMAL
-# ***** Measurement with unit and other tags:
-# 9.91e+37
-############ OUTPUT ##############
-
-
-
+# %%
 scope.close()
 rm.close()
+exit()
