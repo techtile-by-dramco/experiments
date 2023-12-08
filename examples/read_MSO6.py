@@ -78,7 +78,7 @@ positions = []
 measurements_per_pos = []
 
 
-cable_loss_dB = -10.3258123397827
+cable_loss_dB = -0.8 #10.3258123397827
 
 
 
@@ -95,13 +95,13 @@ while True:
 
     print(f"Coordinates: ({x}, {y}, {z})")
 
-    NUM_MEASURMENTS = 100
+    NUM_MEASURMENTS = 1000
 
     # try:
     #     while 1:
             
     for i in tqdm(range(NUM_MEASURMENTS)):
-        time.sleep(0.5)
+        # time.sleep(0.5)
         pwr_dbm = scope.query_binary_values("CURVe?", datatype='d', container=np.array)
         power_linear = 10 ** (pwr_dbm / 10)
         tot_pwr_dbm = float(10*np.log10(np.sum(power_linear))) #float to cast to single element
