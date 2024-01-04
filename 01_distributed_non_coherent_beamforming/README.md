@@ -6,8 +6,8 @@ Distributed non-coherent beamforming is a technique used in wireless communicati
 Max. 280 path antennas (917 MHz) can be used for these measurements
 
 ### Controlling Techtile transmitters (non coherent)
-Start transmitters: ```test```
-Stop transmitters: ```test```
+- Start transmitters: ```test```
+- Stop transmitters: ```test```
 
 **ToDo**
 - **@Gilles** Make script with adaptable gain
