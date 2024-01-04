@@ -13,13 +13,13 @@ ToDo
 - **@geoffrey @gilles** How changing gain flexible for all USRPs
 
 ## Receiver side
-Receiver device --> Tektronix MSO64B
-Receive antenna --> 917 MHz dipole antenna
+- Receiver device --> Tektronix MSO64B
+- Receive antenna --> 917 MHz dipole antenna
 
 ### Script the calculates receive power [dBm]
 @Gilles where did we placed this script???
 
 ### Script that decides location
-Location determined via acoustic system (DAQ + specific DAQ Windows PC)
-Running ZeroMQ script --> broadcasting 'timestamp' + 'xyz' location
-Receiving data via example code [receive location script](https://github.com/techtile-by-dramco/experiments/blob/main/01_distributed_non_coherent_beamforming/rx-loc-zmq.py)
+The location will be determined via acoustic system. Acoustic **transmitter** + **RX antenna** installed on same tripod.
+- (DAQ + specific DAQ Windows PC) Running ZeroMQ script --> broadcasting 'timestamp' + 'xyz' location
+- (Collecting locations via other PC) Receiving data via example code [receive location script](https://github.com/techtile-by-dramco/experiments/blob/main/01_distributed_non_coherent_beamforming/rx-loc-zmq.py)
