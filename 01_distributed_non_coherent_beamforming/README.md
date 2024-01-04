@@ -22,4 +22,4 @@ Receive antenna --> 917 MHz dipole antenna
 ### Script that decides location
 Location determined via acoustic system (DAQ + specific DAQ Windows PC)
 Running ZeroMQ script --> broadcasting 'timestamp' + 'xyz' location
-Receiving data via example code [Duck Duck Go](https://duckduckgo.com)
+Receiving data via example code [receive location script]([https://duckduckgo.com](https://github.com/techtile-by-dramco/experiments/blob/main/01_distributed_non_coherent_beamforming/rx-loc-zmq.py)https://github.com/techtile-by-dramco/experiments/blob/main/01_distributed_non_coherent_beamforming/rx-loc-zmq.py)
