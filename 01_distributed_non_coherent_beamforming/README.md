@@ -30,6 +30,7 @@ Equipment at the mobile receiver
 
 ### Script to calculate receive power [dBm]
 **@Gilles** where did we placed this script???
+[Example code](https://github.com/techtile-by-dramco/experiments/blob/main/examples/read_MSO6.py)
 
 ### Script to get location in Techtile
 The location will be determined via acoustic system. Acoustic **transmitter** + **RX antenna** installed on same tripod.
