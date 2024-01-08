@@ -12,9 +12,9 @@ Distributed non-coherent beamforming is a technique used in wireless communicati
 **INFO**
 
 1) Equipment
-  - Techtile base infrastructure N tile with RPI + USRP + PSU
-  - Max. 280 path antennas (917 MHz) can be used for these measurements.
-  - (PPS and 10 MHz are not used, thus no frequency synchronisation)
+- Techtile base infrastructure N tile with RPI + USRP + PSU
+- Max. 280 path antennas (917 MHz) can be used for these measurements.
+- (PPS and 10 MHz are not used, thus no frequency synchronisation)
 
 2) Controlling Techtile transmitters (non coherent)
 
@@ -34,15 +34,16 @@ ansible-playbook -i inventory/hosts.yaml kill-transmitter.yaml
 
 **INFO**
 1) Equipment at the mobile receiver
-  - Receiver device --> Tektronix MSO64B
-  - Receive antenna --> 917 MHz dipole antenna
-  - Acoustic transmitter
-  - Tripod
+- Receiver device --> Tektronix MSO64B
+- Receive antenna --> 917 MHz dipole antenna
+- Acoustic transmitter
+- Tripod
 
 2) Script to calculate receive power [dBm]
+
 [Example code](https://github.com/techtile-by-dramco/experiments/blob/main/examples/read_MSO6.py)
 
 3) Script to get location in Techtile
-  The location will be determined via acoustic system. Acoustic **transmitter** + **RX antenna** installed on same tripod.
-  - (DAQ + specific DAQ Windows PC) Running ZeroMQ script --> broadcasting 'timestamp' + 'xyz' location
-  - (Collecting locations via other PC) Receiving data via example code [receive location script](https://github.com/techtile-by-dramco/experiments/blob/main/01_distributed_non_coherent_beamforming/rx-loc-zmq.py)
+The location will be determined via acoustic system. Acoustic **transmitter** + **RX antenna** installed on same tripod.
+- (DAQ + specific DAQ Windows PC) Running ZeroMQ script --> broadcasting 'timestamp' + 'xyz' location
+- (Collecting locations via other PC) Receiving data via example code [receive location script](https://github.com/techtile-by-dramco/experiments/blob/main/01_distributed_non_coherent_beamforming/rx-loc-zmq.py)
