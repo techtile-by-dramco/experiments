@@ -4,7 +4,7 @@ Backscatter communication is a wireless communication technique that enables dev
 
 ## Why backscatter communication in Techtile?
 
-1) The reciprocity based approach seems to be the most suitable and feasible solution to enable coherent beamforming. For this to work, backscatter communication is required.
+1) The reciprocity based approach seems to be the most suitable and feasible solution to enable coherent beamforming. For this to work, backscatter communication is required. Potential implementation method explained in [experiment 3](https://github.com/techtile-by-dramco/experiments/tree/main/03_geometry_based_beamforming).
 
 2) **Optional** What data rates can be achieved, and is there an advantage to be gained from the radio wave infrastructure in terms of communication speed?
 
