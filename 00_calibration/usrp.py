@@ -16,12 +16,12 @@ import uhd
 import zmq
 
 CLOCK_TIMEOUT = 1000  # 1000mS timeout for external clock locking
-INIT_DELAY = 0.2  # 200mS initial delay before transmit
+INIT_DELAY = 0.2  # 200ms initial delay before transmit
 
 
 context = zmq.Context()
 socket = context.socket(zmq.PUB)
-socket.bind(f"tcp://*:{8080}")
+socket.bind(f"tcp://*:{50001}")
 
 class LogFormatter(logging.Formatter):
     """Log formatter which prints the timestamp with fractional seconds"""
@@ -41,43 +41,57 @@ class LogFormatter(logging.Formatter):
         return formatted_date
     
 def publish(data):
-    for val in data:
-        socket.send_string(str(val))
+    import struct
 
-def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, results):
+    print(f"sending data of size {len(data)}")
+    socket.send(data.tobytes())
+    # for val in data:
+    #     value_bytes = struct.pack('!d', val)  # Using double precision format
+    #     socket.send(value_bytes)
+
+def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate):
     
     # Make a receive buffer
     num_channels = rx_streamer.get_num_channels()
     max_samps_per_packet = rx_streamer.get_max_num_samps()
     # TODO: The C++ code uses rx_cpu type here. Do we want to use that to set dtype?
-    recv_buffer = np.empty((num_channels, max_samps_per_packet), dtype=np.complex64)
+    recv_buffer = np.zeros((num_channels, max_samps_per_packet), dtype=np.complex64)
     metadata = uhd.types.RXMetadata()
 
     # Craft and send the Stream Command
     stream_cmd = uhd.types.StreamCMD(uhd.types.StreamMode.start_cont)
-    stream_cmd.stream_now = (num_channels == 1) 
-    stream_cmd.time_spec = uhd.types.TimeSpec(usrp.get_time_now().get_real_secs() + 2*INIT_DELAY)
+    stream_cmd.stream_now = False
+    stream_cmd.time_spec = uhd.types.TimeSpec(usrp.get_time_now().get_real_secs() + 1.1*INIT_DELAY)
     rx_streamer.issue_stream_cmd(stream_cmd)
 
-    angles = []
-    powers = []
+    # iq_data_mean  = []
+    # powers = []
+    iq_data = []
 
     while not quit_event.is_set(): 
         try:
             rx_streamer.recv(recv_buffer, metadata)
-            powers.append(np.mean(np.abs(recv_buffer), axis=-1))
-            angles.append(np.mean(recv_buffer, axis=-1))
+            print(".", end="", flush=True)
+            # powers.append(np.mean(np.abs(recv_buffer), axis=-1))
+            # iq_data_mean.append(np.mean(recv_buffer, axis=-1))
+            iq_data.append(recv_buffer)
         except RuntimeError as ex:
             logger.error("Runtime error in receive: %s", ex)
             return
+        
+    iq_data = np.hstack(iq_data)
     
-    avg_angles =np.rad2deg(np.angle(np.mean(angles,axis=0)))
-    avg_power = np.mean(powers,axis=0)
-    print(f"Angle CH0:{avg_angles[0]:.2f} CH1:{avg_angles[1]:.2f}")
-    print(f"Power CH0:{avg_power[0]:.2f} CH1:{avg_power[1]:.2f}")
+    avg_angles = np.angle(np.sum(np.exp(np.angle(iq_data)*1j), axis=1)) # circular mean https://en.wikipedia.org/wiki/Circular_mean
+
+    avg_ampl = np.mean(np.abs(iq_data),axis=1)
+
+    print(f"Angle CH0:{np.rad2deg(avg_angles[0]):.2f} CH1:{np.rad2deg(avg_angles[1]):.2f}")
+    print(f"Amplitude CH0:{avg_ampl[0]:.2f} CH1:{avg_ampl[1]:.2f}")
     phase_to_compensate.extend(avg_angles)
     rx_streamer.issue_stream_cmd(uhd.types.StreamCMD(uhd.types.StreamMode.stop_cont))
-    publish(angles)
+
+    publish(np.rad2deg(np.angle(iq_data[0])))
+    publish(np.rad2deg(np.angle(iq_data[1])))
     
 
 def tx_ref(usrp, tx_streamer, quit_event, phase=[0,0], amplitude=[0.8, 0.8]):
@@ -119,10 +133,10 @@ def main():
     console.setFormatter(formatter)
 
     usrp = uhd.usrp.MultiUSRP("")
-    rate=250E3
-    tx_gain = 50 # TX gain 89.9dB
-    rx_gain = 45 # RX gain 76dB
-    rx_gain_pll = 22
+    rate=250e3
+    tx_gain = 60 # TX gain 89.9dB
+    rx_gain = 30 # RX gain 76dB
+    rx_gain_pll = 20
     channels = [0,1]
     duration = 10.0 # seconds
     freq=920E6
@@ -132,8 +146,8 @@ def main():
     usrp.set_time_source("external")
 
 
-    usrp.set_rx_dc_offset(False, 0);
-    usrp.set_rx_dc_offset(False, 1);
+    usrp.set_rx_dc_offset(False, 0)
+    usrp.set_rx_dc_offset(False, 1)
 
     usrp.set_time_unknown_pps(uhd.types.TimeSpec(0.0))
 
@@ -142,14 +156,14 @@ def main():
     usrp.set_tx_gain(tx_gain, 0)
     usrp.set_rx_rate(rate, 0)
     usrp.set_rx_freq(freq, 0)
-    usrp.set_rx_gain(rx_gain_pll, 0) # Ref PLL is 3dBm
+    usrp.set_rx_gain(rx_gain, 0) # Ref PLL is 3dBm
 
     usrp.set_tx_rate(rate, 1)
     usrp.set_tx_freq(freq, 1)
     usrp.set_tx_gain(tx_gain, 1)
     usrp.set_rx_rate(rate, 1)
     usrp.set_rx_freq(freq, 1)
-    usrp.set_rx_gain(rx_gain, 1) 
+    usrp.set_rx_gain(rx_gain_pll, 1) 
 
     threads = []
     # Make a signal for the threads to stop running
@@ -193,10 +207,13 @@ def main():
     
     print(phase_to_compensate)
 
-    pll_phase = phase_to_compensate[0]
-    tx_phase = phase_to_compensate[1]
+    tx_phase = phase_to_compensate[0]
+    
+    pll_phase = phase_to_compensate[1]
 
-    phase_comp = pll_phase-tx_phase
+    phase_comp = -tx_phase
+
+    print(np.rad2deg(phase_comp))
 
     threads = []
     phase_to_compensate = []
@@ -204,8 +221,13 @@ def main():
     quit_event = threading.Event()
     rx_thread = threading.Thread(target=rx_ref,
                                     args=(usrp, rx_streamer, quit_event, phase_to_compensate))
+    # tx_thread = threading.Thread(target=tx_ref,
+    #                                 args=(usrp, tx_streamer, quit_event, [phase_comp,0.0], [0.0,0.8]))
+
     tx_thread = threading.Thread(target=tx_ref,
-                                    args=(usrp, tx_streamer, quit_event, [phase_comp,0.0],[0.8,0.0]))
+                                    args=(usrp, tx_streamer, quit_event, [0.0,0.0],[0.0,0.8]))
+    
+
     threads.append(tx_thread)
     tx_thread.start()
     tx_thread.setName("TX_thread")
