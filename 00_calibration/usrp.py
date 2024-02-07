@@ -50,6 +50,8 @@ def publish(data):
     #     socket.send(value_bytes)
 
 def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate):
+    # https://files.ettus.com/manual/page_sync.html#sync_phase_cordics
+    # The CORDICs are reset at each start-of-burst command, so users should ensure that every start-of-burst also has a time spec set.
     
     # Make a receive buffer
     num_channels = rx_streamer.get_num_channels()
