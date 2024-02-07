@@ -122,6 +122,77 @@ def tx_ref(usrp, tx_streamer, quit_event, phase=[0,0], amplitude=[0.8, 0.8]):
     metadata.end_of_burst = True
     tx_streamer.send(np.zeros((num_channels, 0), dtype=np.complex64), metadata)
 
+def setup(usrp):
+    rate= 250e3
+    mcr = 16e6 
+    assert (rate/mcr).is_integer(), "The masterclock rate should be an integer multiple of the sampling rate"
+    
+    usrp.set_master_clock_rate(mcr) # Manual selection of master clock rate may also be required to synchronize multiple B200 units in time.
+    
+    tx_gain = 60 # TX gain 89.9dB
+    rx_gain = 30 # RX gain 76dB
+    rx_gain_pll = 20
+    channels = [0,1]
+    duration = 10.0 # seconds
+    rx_bw = 200e3 # smallest as possible (https://files.ettus.com/manual/page_usrp_b200.html#b200_fe_bw)
+    freq=920E6
+    
+    usrp.set_clock_source("external")
+    usrp.set_time_source("external")
+
+    usrp.set_rx_dc_offset(False, 0)
+    usrp.set_rx_dc_offset(False, 1)
+
+    usrp.set_time_unknown_pps(uhd.types.TimeSpec(0.0))
+
+    # Channel 0 settings
+    usrp.set_tx_rate(rate, 0)
+    usrp.set_tx_freq(freq, 0)
+    usrp.set_tx_gain(tx_gain, 0)
+    usrp.set_rx_rate(rate, 0)
+    usrp.set_rx_freq(freq, 0)
+    usrp.set_rx_gain(rx_gain, 0) # Ref PLL is 3dBm
+    usrp.set_rx_bandwidth(rx_bw, 0) 
+
+    # Channel 1 settings
+    usrp.set_tx_rate(rate, 1)
+    usrp.set_tx_freq(freq, 1)
+    usrp.set_tx_gain(tx_gain, 1)
+    usrp.set_rx_rate(rate, 1)
+    usrp.set_rx_freq(freq, 1)
+    usrp.set_rx_gain(rx_gain_pll, 1) 
+    usrp.set_rx_bandwidth(rx_bw, 1)
+
+
+    # streaming arguments
+    st_args = uhd.usrp.StreamArgs("fc32","fc32")
+    st_args.channels = channels
+    st_args.args = uhd.types.DeviceAddr()
+
+    # streamers
+    tx_streamer = usrp.get_tx_stream(st_args)
+    rx_streamer = usrp.get_rx_stream(st_args)
+
+    return tx_streamer, rx_streamer
+
+def tx_thread(usrp, rx_streamer, quit_event, phase=[0,0], amplitude=[0.8, 0.8]):
+    tx_thread = threading.Thread(target=tx_ref,
+                                    args=(usrp, tx_streamer, quit_event, phase, amplitude))
+    tx_thread.setName("TX_thread")
+    threads.append(tx_thread)
+    tx_thread.start()
+
+    return tx_thread
+
+def rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate):
+    rx_thread = threading.Thread(target=rx_ref,
+                                    args=(usrp, rx_streamer, quit_event, phase_to_compensate))
+    rx_thread.setName("RX_thread")
+    threads.append(rx_thread)
+    rx_thread.start()
+
+    return rx_thread
+
 def main():
     # Setup the logger with our custom timestamp formatting
     global logger
@@ -133,119 +204,73 @@ def main():
     console.setFormatter(formatter)
 
     usrp = uhd.usrp.MultiUSRP("")
-    rate=250e3
-    tx_gain = 60 # TX gain 89.9dB
-    rx_gain = 30 # RX gain 76dB
-    rx_gain_pll = 20
-    channels = [0,1]
-    duration = 10.0 # seconds
-    freq=920E6
-
-
-    usrp.set_clock_source("external")
-    usrp.set_time_source("external")
-
-
-    usrp.set_rx_dc_offset(False, 0)
-    usrp.set_rx_dc_offset(False, 1)
-
-    usrp.set_time_unknown_pps(uhd.types.TimeSpec(0.0))
-
-    usrp.set_tx_rate(rate, 0)
-    usrp.set_tx_freq(freq, 0)
-    usrp.set_tx_gain(tx_gain, 0)
-    usrp.set_rx_rate(rate, 0)
-    usrp.set_rx_freq(freq, 0)
-    usrp.set_rx_gain(rx_gain, 0) # Ref PLL is 3dBm
-
-    usrp.set_tx_rate(rate, 1)
-    usrp.set_tx_freq(freq, 1)
-    usrp.set_tx_gain(tx_gain, 1)
-    usrp.set_rx_rate(rate, 1)
-    usrp.set_rx_freq(freq, 1)
-    usrp.set_rx_gain(rx_gain_pll, 1) 
+    tx_streamer, rx_streamer = setup(usrp)
+    
 
     threads = []
+    
     # Make a signal for the threads to stop running
     quit_event = threading.Event()
 
-    ########### TX Thread ###########
-    usrp.set_tx_rate(rate)
-    st_args = uhd.usrp.StreamArgs("fc32","fc32")
-    st_args.channels = channels
-    st_args.args = uhd.types.DeviceAddr()
-    tx_streamer = usrp.get_tx_stream(st_args)
+    for _ in [0,1,2]:
+
+        ########### TX & RX Thread ###########
+        tx_thr = tx_thread(usrp, rx_streamer, quit_event)
+        phase_to_compensate = []
+        rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate)
     
-    tx_thread = threading.Thread(target=tx_ref,
-                                    args=(usrp, tx_streamer, quit_event, [0.0,0.0],[0.0,0.8]))
-    threads.append(tx_thread)
-    tx_thread.start()
-    tx_thread.setName("TX_thread")
+        time.sleep(duration)
+        
+        # Interrupt and join the threads
+        logger.debug("Sending signal to stop!")
+        quit_event.set()
+        
+        #wait till both threads are done before proceding
+        tx_thr.join()
+        rx_thr.join()
 
-    ########### RX Thread ###########
-
-    usrp.set_rx_rate(rate)
-    st_args = uhd.usrp.StreamArgs("fc32","fc32")
-    st_args.channels = channels
-    st_args.args = uhd.types.DeviceAddr()
-    rx_streamer = usrp.get_rx_stream(st_args)
-    phase_to_compensate = []
-    rx_thread = threading.Thread(target=rx_ref,
-                                    args=(usrp, rx_streamer, quit_event, phase_to_compensate))
     
-    threads.append(rx_thread)
-    rx_thread.start()
-    rx_thread.setName("RX_thread")
+    # print(phase_to_compensate)
 
-
-    time.sleep(duration)
-    # Interrupt and join the threads
-    logger.debug("Sending signal to stop!")
-    quit_event.set()
-    for thr in threads:
-        thr.join()
+    # tx_phase = phase_to_compensate[0]
     
-    print(phase_to_compensate)
+    # pll_phase = phase_to_compensate[1]
 
-    tx_phase = phase_to_compensate[0]
-    
-    pll_phase = phase_to_compensate[1]
+    # phase_comp = -tx_phase
 
-    phase_comp = -tx_phase
+    # print(np.rad2deg(phase_comp))
 
-    print(np.rad2deg(phase_comp))
+    # threads = []
+    # phase_to_compensate = []
+    # # Make a signal for the threads to stop running
+    # quit_event = threading.Event()
+    # rx_thread = threading.Thread(target=rx_ref,
+    #                                 args=(usrp, rx_streamer, quit_event, phase_to_compensate))
+    # # tx_thread = threading.Thread(target=tx_ref,
+    # #                                 args=(usrp, tx_streamer, quit_event, [phase_comp,0.0], [0.0,0.8]))
 
-    threads = []
-    phase_to_compensate = []
-    # Make a signal for the threads to stop running
-    quit_event = threading.Event()
-    rx_thread = threading.Thread(target=rx_ref,
-                                    args=(usrp, rx_streamer, quit_event, phase_to_compensate))
     # tx_thread = threading.Thread(target=tx_ref,
-    #                                 args=(usrp, tx_streamer, quit_event, [phase_comp,0.0], [0.0,0.8]))
-
-    tx_thread = threading.Thread(target=tx_ref,
-                                    args=(usrp, tx_streamer, quit_event, [0.0,0.0],[0.0,0.8]))
+    #                                 args=(usrp, tx_streamer, quit_event, [0.0,0.0],[0.0,0.8]))
     
 
-    threads.append(tx_thread)
-    tx_thread.start()
-    tx_thread.setName("TX_thread")
-    threads.append(rx_thread)
-    rx_thread.start()
-    rx_thread.setName("RX_thread")
+    # threads.append(tx_thread)
+    # tx_thread.start()
+    # tx_thread.setName("TX_thread")
+    # threads.append(rx_thread)
+    # rx_thread.start()
+    # rx_thread.setName("RX_thread")
 
-    time.sleep(duration)
-    # Interrupt and join the threads
-    logger.debug("Sending signal to stop!")
-    quit_event.set()
-    for thr in threads:
-        thr.join()
+    # time.sleep(duration)
+    # # Interrupt and join the threads
+    # logger.debug("Sending signal to stop!")
+    # quit_event.set()
+    # for thr in threads:
+    #     thr.join()
 
-    print(phase_to_compensate)
+    # print(phase_to_compensate)
 
-    pll_phase = phase_to_compensate[0]
-    tx_phase = phase_to_compensate[1]
+    # pll_phase = phase_to_compensate[0]
+    # tx_phase = phase_to_compensate[1]
 
     socket.close()
     context.term()
