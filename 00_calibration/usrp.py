@@ -13,13 +13,14 @@ import threading
 import logging
 import numpy as np
 import uhd
+import os
 import zmq
 
 CLOCK_TIMEOUT = 1000  # 1000mS timeout for external clock locking
 INIT_DELAY = 0.2  # 200ms initial delay before transmit
 
 RATE = 250e3
-DURATION = 60*10
+DURATION = 60
 
 
 context = zmq.Context()
@@ -60,7 +61,7 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate):
     num_channels = rx_streamer.get_num_channels()
     max_samps_per_packet = rx_streamer.get_max_num_samps()
     # TODO: The C++ code uses rx_cpu type here. Do we want to use that to set dtype?
-    recv_buffer = np.zeros((num_channels, 100*max_samps_per_packet), dtype=np.complex64)
+    recv_buffer = np.zeros((num_channels, 1000*max_samps_per_packet), dtype=np.complex64)
     rx_md = uhd.types.RXMetadata()
 
     # Craft and send the Stream Command
@@ -170,7 +171,7 @@ def setup(usrp):
     usrp.set_rx_rate(rate, 0)
     usrp.set_rx_freq(freq, 0)
     usrp.set_rx_gain(rx_gain, 0) # Ref PLL is 3dBm
-    usrp.set_rx_bandwidth(rx_bw, 0) 
+    usrp.set_rx_bandwidth(rx_bw, 0)
 
     # Channel 1 settings
     usrp.set_tx_rate(rate, 1)
@@ -246,21 +247,34 @@ def main():
 
     # Make a signal for the threads to stop running
     quit_event = threading.Event()
-
-    ########### TX & RX Thread ###########
-    tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=[0.0,0.8])
-    phase_to_compensate = []
-    rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate)
-
-    time.sleep(DURATION)
     
-    # Interrupt and join the threads
-    logger.debug("Sending signal to stop!")
-    quit_event.set()
     
-    #wait till both threads are done before proceding
-    tx_thr.join()
-    rx_thr.join()
+    try:
+
+        ########### TX & RX Thread ###########
+        tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=[0.0,0.8])
+        phase_to_compensate = []
+        rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate)
+    except KeyboardInterrupt:
+        print('Interrupted')
+        try:
+            # Interrupt and join the threads
+            logger.debug("Sending signal to stop!")
+            quit_event.set()
+            
+            #wait till both threads are done before proceding
+            tx_thr.join()
+            rx_thr.join()
+            
+            socket.close()
+            context.term()
+            sys.exit(130)
+        except SystemExit:
+            os._exit(130)
+
+    # time.sleep(DURATION)
+    
+    
 
     
     # print(phase_to_compensate)
@@ -305,8 +319,7 @@ def main():
     # pll_phase = phase_to_compensate[0]
     # tx_phase = phase_to_compensate[1]
 
-    socket.close()
-    context.term()
+    
 
 if __name__ == "__main__":
     main()
