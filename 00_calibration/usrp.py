@@ -18,6 +18,9 @@ import zmq
 CLOCK_TIMEOUT = 1000  # 1000mS timeout for external clock locking
 INIT_DELAY = 0.2  # 200ms initial delay before transmit
 
+RATE = 250e3
+DURATION = 60*10
+
 
 context = zmq.Context()
 socket = context.socket(zmq.PUB)
@@ -57,8 +60,8 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate):
     num_channels = rx_streamer.get_num_channels()
     max_samps_per_packet = rx_streamer.get_max_num_samps()
     # TODO: The C++ code uses rx_cpu type here. Do we want to use that to set dtype?
-    recv_buffer = np.zeros((num_channels, max_samps_per_packet), dtype=np.complex64)
-    metadata = uhd.types.RXMetadata()
+    recv_buffer = np.zeros((num_channels, 100*max_samps_per_packet), dtype=np.complex64)
+    rx_md = uhd.types.RXMetadata()
 
     # Craft and send the Stream Command
     stream_cmd = uhd.types.StreamCMD(uhd.types.StreamMode.start_cont)
@@ -68,20 +71,31 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate):
 
     # iq_data_mean  = []
     # powers = []
-    iq_data = []
+
+    # todo ensure thqt we stop RX before TX ends
+    data_buffer = np.zeros((num_channels, int(RATE*DURATION)*2), dtype=np.complex64)
+
+    num_rx = 0
 
     while not quit_event.is_set(): 
         try:
-            rx_streamer.recv(recv_buffer, metadata)
+            num_rx_i  = rx_streamer.recv(recv_buffer, rx_md, 1.0)
             print(".", end="", flush=True)
+            if rx_md.error_code != uhd.types.RXMetadataErrorCode.none:
+                print(rx_md.error_code)
             # powers.append(np.mean(np.abs(recv_buffer), axis=-1))
             # iq_data_mean.append(np.mean(recv_buffer, axis=-1))
-            iq_data.append(recv_buffer)
+            data_buffer[:,num_rx:num_rx+num_rx_i] = recv_buffer[:,:num_rx_i]
+            num_rx += num_rx_i
         except RuntimeError as ex:
             logger.error("Runtime error in receive: %s", ex)
             return
-        
-    iq_data = np.hstack(iq_data)
+    # keep this just below this loop
+    rx_streamer.issue_stream_cmd(uhd.types.StreamCMD(uhd.types.StreamMode.stop_cont))
+
+    marge = int(250e3) # remove prepending and appending second
+
+    iq_data = data_buffer[:,marge:num_rx-marge]
     
     avg_angles = np.angle(np.sum(np.exp(np.angle(iq_data)*1j), axis=1)) # circular mean https://en.wikipedia.org/wiki/Circular_mean
 
@@ -90,10 +104,12 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate):
     print(f"Angle CH0:{np.rad2deg(avg_angles[0]):.2f} CH1:{np.rad2deg(avg_angles[1]):.2f}")
     print(f"Amplitude CH0:{avg_ampl[0]:.2f} CH1:{avg_ampl[1]:.2f}")
     phase_to_compensate.extend(avg_angles)
-    rx_streamer.issue_stream_cmd(uhd.types.StreamCMD(uhd.types.StreamMode.stop_cont))
+    
 
     publish(np.rad2deg(np.angle(iq_data[0])))
     publish(np.rad2deg(np.angle(iq_data[1])))
+
+    
     
 
 def tx_ref(usrp, tx_streamer, quit_event, phase=[0,0], amplitude=[0.8, 0.8]):
@@ -125,17 +141,17 @@ def tx_ref(usrp, tx_streamer, quit_event, phase=[0,0], amplitude=[0.8, 0.8]):
     tx_streamer.send(np.zeros((num_channels, 0), dtype=np.complex64), metadata)
 
 def setup(usrp):
-    rate= 250e3
+    rate= RATE
     mcr = 16e6 
-    assert (rate/mcr).is_integer(), "The masterclock rate should be an integer multiple of the sampling rate"
+    #assert (rate/mcr).is_integer(), "The masterclock rate should be an integer multiple of the sampling rate"
     
     usrp.set_master_clock_rate(mcr) # Manual selection of master clock rate may also be required to synchronize multiple B200 units in time.
     
-    tx_gain = 60 # TX gain 89.9dB
+    tx_gain = 80 # TX gain 89.9dB
     rx_gain = 30 # RX gain 76dB
     rx_gain_pll = 20
     channels = [0,1]
-    duration = 10.0 # seconds
+
     rx_bw = 200e3 # smallest as possible (https://files.ettus.com/manual/page_usrp_b200.html#b200_fe_bw)
     freq=920E6
     
@@ -177,11 +193,10 @@ def setup(usrp):
 
     return tx_streamer, rx_streamer
 
-def tx_thread(usrp, rx_streamer, quit_event, phase=[0,0], amplitude=[0.8, 0.8]):
+def tx_thread(usrp, tx_streamer, quit_event, phase=[0,0], amplitude=[0.8, 0.8]):
     tx_thread = threading.Thread(target=tx_ref,
                                     args=(usrp, tx_streamer, quit_event, phase, amplitude))
     tx_thread.setName("TX_thread")
-    threads.append(tx_thread)
     tx_thread.start()
 
     return tx_thread
@@ -190,7 +205,6 @@ def rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate):
     rx_thread = threading.Thread(target=rx_ref,
                                     args=(usrp, rx_streamer, quit_event, phase_to_compensate))
     rx_thread.setName("RX_thread")
-    threads.append(rx_thread)
     rx_thread.start()
 
     return rx_thread
@@ -209,27 +223,44 @@ def main():
     tx_streamer, rx_streamer = setup(usrp)
     
 
-    threads = []
-    
     # Make a signal for the threads to stop running
     quit_event = threading.Event()
 
-    for _ in [0,1,2]:
+    ########### TX & RX Thread ###########
+    tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=[0.0,0.8])
+    phase_to_compensate = []
+    rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate)
 
-        ########### TX & RX Thread ###########
-        tx_thr = tx_thread(usrp, rx_streamer, quit_event)
-        phase_to_compensate = []
-        rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate)
+    time.sleep(DURATION)
     
-        time.sleep(duration)
-        
-        # Interrupt and join the threads
-        logger.debug("Sending signal to stop!")
-        quit_event.set()
-        
-        #wait till both threads are done before proceding
-        tx_thr.join()
-        rx_thr.join()
+    # Interrupt and join the threads
+    logger.debug("Sending signal to stop!")
+    quit_event.set()
+    
+    #wait till both threads are done before proceding
+    tx_thr.join()
+    rx_thr.join()
+
+
+    # time.sleep(DURATION) #sleep between two measurements
+
+    # Make a signal for the threads to stop running
+    quit_event = threading.Event()
+
+    ########### TX & RX Thread ###########
+    tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=[0.0,0.8])
+    phase_to_compensate = []
+    rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate)
+
+    time.sleep(DURATION)
+    
+    # Interrupt and join the threads
+    logger.debug("Sending signal to stop!")
+    quit_event.set()
+    
+    #wait till both threads are done before proceding
+    tx_thr.join()
+    rx_thr.join()
 
     
     # print(phase_to_compensate)

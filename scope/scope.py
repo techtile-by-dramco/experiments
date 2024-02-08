@@ -1,8 +1,6 @@
 import time # std module
 import pyvisa as visa # http://github.com/hgrecco/pyvisa
-import matplotlib.pyplot as plt # http://matplotlib.org/
 import numpy as np # http://www.numpy.org/
-from tqdm import tqdm
 
 from enum import Enum
 class ScopeMode(Enum):
@@ -16,7 +14,7 @@ class Scope:
         scope = Scope("192.108.0.251")
         power_dBm = scope.get_power_dBm()
     """
-    def __init__(self, ip:str, mode:ScopeMode) -> None:
+    def __init__(self, ip:str, mode:ScopeMode=ScopeMode.POWER) -> None:
         self.visa_address = f'TCPIP::{ip}::INSTR'
     
         self.setup()

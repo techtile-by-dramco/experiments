@@ -1,8 +1,28 @@
 import zmq
 import threading
+import json
 
 from datetime import datetime,timezone
 
+
+class Position(object):
+    def __init__(self, t, x, y, z):
+        self.t=t
+        self.x=x
+        self.y=y
+        self.z=z
+    
+    def json_decoder(obj):
+        if obj is not None:
+            return Position(t=obj["t"], x=obj["x"],y=obj["y"],z=obj["z"])
+    
+    def __str__(self) -> str:
+        return f"@({self.x},{self.y},{self.z}) utc={self.t}"
+    
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Position):
+            return False
+        return self.x==other.x and self.y==other.y and self.z==other.z
 
 
 
@@ -18,16 +38,19 @@ class AcousticPositioner():
         self.pos_thread.start()
 
         self.last_pos = None
-        self.last_pos_time = None
 
         self.ttl = ttl
 
+    def stop(self):
+        self.pos_thread.stop()
 
-    def get_pos(self):
+
+    def get_pos(self) -> Position:
         #return last position if its fresh enough
         now = datetime.now(timezone.utc)
         # TODO implement the freshness with the ttl param
         return self.last_pos
+
 
         
 
@@ -36,8 +59,8 @@ class AcousticPositioner():
         while True:
             # Receive the reply from the server for the first request
             message = self.socket.recv_string()
-            #TODO parse value
-            print(f"Received reply from server: {message}")
+            self.last_pos = json.loads(message, object_hook=Position.json_decoder)
+            # print(self.last_pos)
 
 
 
