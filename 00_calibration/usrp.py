@@ -99,7 +99,10 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate):
 
     #TODO phase_to_compensate implementation
 
+    iq_data = np.empty((num_channels, int(DURATION*RATE*1.5)), dtype=np.complex64)
+
     try:
+        num_rx = 0
         while not quit_event.is_set(): 
             try:
                 num_rx_i  = rx_streamer.recv(recv_buffer, rx_md, 1.0)
@@ -107,17 +110,29 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate):
                     print(rx_md.error_code)
                 else:
                     if num_rx_i > 0:
-                        samples = recv_buffer[:,:num_rx_i]
-                        send_rx(samples)
+                        # samples = recv_buffer[:,:num_rx_i]
+                        # send_rx(samples)
+                        iq_data[:,num_rx:num_rx+num_rx_i] = recv_buffer[:,:num_rx_i]
+                        num_rx += num_rx_i
             except RuntimeError as ex:
                 logger.error("Runtime error in receive: %s", ex)
                 return
     except KeyboardInterrupt:
         pass
     finally:    
-        logger.debug("CTRL+C is pressed, closing off")
+        logger.debug("CTRL+C is pressed or duration is reached, closing off ")
+        samples = iq_data[:, :num_rx]
+        avg_angles = np.angle(np.sum(np.exp(np.angle(samples)*1j), axis=1)) # circular mean https://en.wikipedia.org/wiki/Circular_mean
+        phase_to_compensate = avg_angles
+
+        avg_ampl = np.mean(np.abs(samples),axis=1)
+
+        print(f"Angle CH0:{np.rad2deg(avg_angles[0]):.2f} CH1:{np.rad2deg(avg_angles[1]):.2f}")
+        print(f"Amplitude CH0:{avg_ampl[0]:.2f} CH1:{avg_ampl[1]:.2f}")
         # keep this just below this loop
         rx_streamer.issue_stream_cmd(uhd.types.StreamCMD(uhd.types.StreamMode.stop_cont))
+        
+
         
         
 
@@ -294,12 +309,15 @@ def main():
         phase_to_compensate = []
         rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate)
 
+        time.sleep(DURATION)
+        quit_event.set()
+
         #wait till both threads are done before proceding
         tx_thr.join()
         rx_thr.join()
+        logger.debug(phase_to_compensate)
         tx_meta_thr.join()
     except KeyboardInterrupt:
-        print('Interrupted')
         # Interrupt and join the threads
         logger.debug("Sending signal to stop!")
         quit_event.set()
