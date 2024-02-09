@@ -117,7 +117,7 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate):
     finally:    
         logger.debug("CTRL+C is pressed or duration is reached, closing off ")
         rx_streamer.issue_stream_cmd(uhd.types.StreamCMD(uhd.types.StreamMode.stop_cont))
-        
+
         samples = iq_data[:, :num_rx]
         avg_angles = np.angle(np.sum(np.exp(np.angle(samples)*1j), axis=1)) # circular mean https://en.wikipedia.org/wiki/Circular_mean
         phase_to_compensate.extend(avg_angles)
@@ -298,11 +298,12 @@ def main():
     try:
 
         ########### TX & RX Thread ###########
+        phase_to_compensate = [0.0, 0.0]
         while True:
             # Make a signal for the threads to stop running
             quit_event = threading.Event()
 
-            tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=[0.8,0.8])
+            tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=[0.8,0.8], phase=phase_to_compensate)
             tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
             
             phase_to_compensate = []
@@ -315,6 +316,9 @@ def main():
             tx_thr.join()
             rx_thr.join()
             logger.debug(f"Phases to compensate: {phase_to_compensate}")
+            tx_phase = phase_to_compensate[0]
+            pll_phase = phase_to_compensate[1]
+            phase_to_compensate = [pll_phase-tx_phase, -tx_phase]
             tx_meta_thr.join()
     except KeyboardInterrupt:
         # Interrupt and join the threads
