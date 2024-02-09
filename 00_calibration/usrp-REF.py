@@ -47,7 +47,19 @@ class LogFormatter(logging.Formatter):
             formatted_date = LogFormatter.pp_now()
         return formatted_date
        
+def tx_async_th(tx_streamer, quit_event):
+    async_metadata = uhd.types.TXAsyncMetadata()
 
+    try:
+        while not quit_event.is_set():
+            if not tx_streamer.recv_async_msg(async_metadata, 0.01):
+                continue
+            else:
+                logger.error(async_metadata.event_code)
+    except KeyboardInterrupt:
+        pass
+
+    
 def tx_ref(usrp, tx_streamer, quit_event):
     # TODO 
     num_channels = tx_streamer.get_num_channels()
@@ -69,7 +81,7 @@ def tx_ref(usrp, tx_streamer, quit_event):
     tx_md.time_spec = uhd.types.TimeSpec(usrp.get_time_now().get_real_secs()+ INIT_DELAY)
     tx_md.has_time_spec = bool(num_channels)
 
-    async_metadata = uhd.types.TXAsyncMetadata()
+   
 
     transmit_buffer = np.ones((num_channels, 1000*max_samps_per_packet), dtype=np.complex64)*0.8
 
@@ -77,10 +89,6 @@ def tx_ref(usrp, tx_streamer, quit_event):
         while not quit_event.is_set():
             tx_streamer.send(transmit_buffer, tx_md)
             tx_md.has_time_spec = False # need to be false in order for the following samples to start immediatly following the prev.
-            if not tx_streamer.recv_async_msg(async_metadata, 0.1):
-                continue
-            else:
-                logger.error(async_metadata.event_code)
     except KeyboardInterrupt:
         pass
     finally: 
@@ -158,6 +166,10 @@ def main():
 
         ########### TX & RX Thread ###########
         tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=[0.8,0.8])
+        tx_meta_thr = threading.Thread(target=tx_async_th,
+                                    args=(tx_streamer, quit_event))
+        tx_meta_thr.setName("TX_META_thread")
+        tx_meta_thr.start()
         #wait till both threads are done before proceding
         tx_thr.join()
     except KeyboardInterrupt:
