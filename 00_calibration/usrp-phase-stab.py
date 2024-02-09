@@ -77,7 +77,7 @@ def send_rx(samples):
         
 
 
-def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration):
+def rx_ref(usrp, rx_streamer, quit_event):
     # https://files.ettus.com/manual/page_sync.html#sync_phase_cordics
     # The CORDICs are reset at each start-of-burst command, so users should ensure that every start-of-burst also has a time spec set.
 
