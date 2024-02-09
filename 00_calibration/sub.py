@@ -11,10 +11,12 @@ FILE_CH0_prefix = "received_data_CH0"  # Binary file for topic CH0
 FILE_CH1_prefix = "received_data_CH1"  # Binary file for topic CH1
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
+print(f"Saving to dir {script_dir}")
 
 def receive_numpy_array(ip):
     context = zmq.Context()
     socket = context.socket(zmq.SUB)
+
     socket.connect(f"tcp://{ip}:{50001}")  # Connect to the publisher's address
     
     # Subscribe to topics
@@ -23,6 +25,8 @@ def receive_numpy_array(ip):
 
     # Get current UTC timestamp
     timestamp = datetime.utcnow().strftime("%Y-%m-%d_%H-%M-%S")
+
+    
 
     # Construct file names with UTC timestamp
     file0 = os.path.join(script_dir, f"{FILE_CH0_prefix}_{timestamp}.dat")
