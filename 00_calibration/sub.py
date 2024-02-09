@@ -1,6 +1,7 @@
 import zmq
 import numpy as np
 from datetime import datetime
+import sys
 
 TOPIC_CH0 = b"CH0"
 TOPIC_CH1 = b"CH1"
@@ -8,10 +9,10 @@ TOPIC_CH1 = b"CH1"
 FILE_CH0_prefix = "received_data_CH0"  # Binary file for topic CH0
 FILE_CH1_prefix = "received_data_CH1"  # Binary file for topic CH1
 
-def receive_numpy_array():
+def receive_numpy_array(ip):
     context = zmq.Context()
     socket = context.socket(zmq.SUB)
-    socket.connect(f"tcp://localhost:{50001}")  # Connect to the publisher's address
+    socket.connect(f"tcp://{ip}:{50001}")  # Connect to the publisher's address
     
     # Subscribe to topics
     socket.subscribe(TOPIC_CH0)
@@ -59,4 +60,5 @@ def receive_numpy_array():
             context.term()
 
 if __name__ == "__main__":
-    receive_numpy_array()
+    ip = sys.argv[1]
+    receive_numpy_array(ip)
