@@ -341,6 +341,7 @@ def main():
 
 
         logger.debug("########### STEP 3 - TX with adjusted phases ###########")
+        quit_event = threading.Event()
         phase_to_compensate = [pll_phase-tx_phase, -tx_phase]
 
         tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=[0.8,0.8], phase=phase_to_compensate)
