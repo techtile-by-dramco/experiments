@@ -22,6 +22,9 @@ INIT_DELAY = 0.2  # 200ms initial delay before transmit
 RATE = 250e3
 DURATION = 60
 
+TOPIC_CH0 = b"CH0"
+TOPIC_CH1 = b"CH1"
+
 
 context = zmq.Context()
 socket = context.socket(zmq.PUB)
@@ -44,11 +47,20 @@ class LogFormatter(logging.Formatter):
             formatted_date = LogFormatter.pp_now()
         return formatted_date
     
-def publish(data):
+def publish(data, channel:int):
     import struct
 
-    print(f"sending data of size {len(data)}")
-    socket.send(data.tobytes())
+    logger.debug(f"sending data of size {len(data)}")
+
+    if channel==0:
+        topic = TOPIC_CH0
+    elif channel==1:
+        topic==TOPIC_CH1
+    else:
+        logger.error(f"Channel should be 0 or 1, not {channel}")
+
+    socket.send_multipart([topic.encode(), data.tobytes()])
+
     # for val in data:
     #     value_bytes = struct.pack('!d', val)  # Using double precision format
     #     socket.send(value_bytes)
@@ -224,26 +236,26 @@ def main():
     tx_streamer, rx_streamer = setup(usrp)
     
 
-    # Make a signal for the threads to stop running
-    quit_event = threading.Event()
+    # # Make a signal for the threads to stop running
+    # quit_event = threading.Event()
 
-    ########### TX & RX Thread ###########
-    tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=[0.0,0.8])
-    phase_to_compensate = []
-    rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate)
+    # ########### TX & RX Thread ###########
+    # tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=[0.0,0.8])
+    # phase_to_compensate = []
+    # rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate)
 
-    time.sleep(DURATION)
+    # time.sleep(DURATION)
     
-    # Interrupt and join the threads
-    logger.debug("Sending signal to stop!")
-    quit_event.set()
+    # # Interrupt and join the threads
+    # logger.debug("Sending signal to stop!")
+    # quit_event.set()
     
-    #wait till both threads are done before proceding
-    tx_thr.join()
-    rx_thr.join()
+    # #wait till both threads are done before proceding
+    # tx_thr.join()
+    # rx_thr.join()
 
 
-    # time.sleep(DURATION) #sleep between two measurements
+    # # time.sleep(DURATION) #sleep between two measurements
 
     # Make a signal for the threads to stop running
     quit_event = threading.Event()
