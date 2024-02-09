@@ -135,7 +135,7 @@ def tx_ref(usrp, tx_streamer, quit_event, phase=[0,0], amplitude=[0.8, 0.8]):
 
     # transmit_buffer = np.ones((num_channels, 1000*max_samps_per_packet), dtype=np.complex64) * sample[:, np.newaxis]
 
-    transmit_buffer = np.ones((num_channels, 1000*max_samps_per_packet), dtype=np.complex64)*0.8
+    transmit_buffer = np.ones((num_channels, 1000*max_samps_per_packet), dtype=np.complex64) * amplitude[:,np.newaxis]
 
     # print(transmit_buffer.shape)
 
@@ -162,7 +162,7 @@ def setup(usrp):
     
     usrp.set_master_clock_rate(mcr) # Manual selection of master clock rate may also be required to synchronize multiple B200 units in time.
     
-    tx_gain = 80 # TX gain 89.9dB
+    tx_gain = 60 # TX gain 89.9dB
     rx_gain = 30 # RX gain 76dB
     rx_gain_pll = 20
     channels = [0,1]
