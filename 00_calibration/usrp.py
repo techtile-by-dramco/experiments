@@ -273,22 +273,22 @@ def main():
         tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=[0.0,0.8])
         phase_to_compensate = []
         rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate)
+
+        #wait till both threads are done before proceding
+        tx_thr.join()
+        rx_thr.join()
     except KeyboardInterrupt:
         print('Interrupted')
-        try:
-            # Interrupt and join the threads
-            logger.debug("Sending signal to stop!")
-            quit_event.set()
-            
-            #wait till both threads are done before proceding
-            tx_thr.join()
-            rx_thr.join()
-            
-            socket.close()
-            context.term()
-            sys.exit(130)
-        except SystemExit:
-            os._exit(130)
+        # Interrupt and join the threads
+        logger.debug("Sending signal to stop!")
+        quit_event.set()
+        # wait till finished before closing of
+        tx_thr.join()
+        rx_thr.join()
+    finally: 
+        socket.close()
+        context.term()
+        sys.exit(130)
 
     # time.sleep(DURATION)
     
