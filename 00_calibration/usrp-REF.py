@@ -76,6 +76,7 @@ def tx_ref(usrp, tx_streamer, quit_event):
     try:
         while not quit_event.is_set():
             tx_streamer.send(transmit_buffer, tx_md)
+            tx_md.has_time_spec = False # need to be false in order for the following samples to start immediatly following the prev.
             if not tx_streamer.recv_async_msg(async_metadata, 0.1):
                 continue
             else:
