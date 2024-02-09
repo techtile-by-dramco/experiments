@@ -2,12 +2,15 @@ import zmq
 import numpy as np
 from datetime import datetime
 import sys
+import os
 
 TOPIC_CH0 = b"CH0"
 TOPIC_CH1 = b"CH1"
 
 FILE_CH0_prefix = "received_data_CH0"  # Binary file for topic CH0
 FILE_CH1_prefix = "received_data_CH1"  # Binary file for topic CH1
+
+script_dir = os.path.dirname(os.path.realpath(__file__))
 
 def receive_numpy_array(ip):
     context = zmq.Context()
