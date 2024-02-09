@@ -122,8 +122,8 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate):
         phase_to_compensate.extend(avg_angles)
         
 
-        publish(np.rad2deg(np.angle(iq_data[0])))
-        publish(np.rad2deg(np.angle(iq_data[1])))
+        publish(np.rad2deg(np.angle(iq_data[0])), 0)
+        publish(np.rad2deg(np.angle(iq_data[1])), 1)
 
     
     
@@ -265,7 +265,6 @@ def main():
 
     # Make a signal for the threads to stop running
     quit_event = threading.Event()
-    
     
     try:
 
