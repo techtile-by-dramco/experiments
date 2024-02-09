@@ -22,6 +22,9 @@ INIT_DELAY = 0.2  # 200ms initial delay before transmit
 RATE = 250e3
 DURATION = 60
 
+TOPIC_CH0 = b"CH0"
+TOPIC_CH1 = b"CH1"
+
 
 context = zmq.Context()
 socket = context.socket(zmq.PUB)
@@ -43,10 +46,10 @@ class LogFormatter(logging.Formatter):
         else:
             formatted_date = LogFormatter.pp_now()
         return formatted_date
-   
+       
 
 def tx_ref(usrp, tx_streamer, quit_event, phase=[0,0], amplitude=[0.8, 0.8]):
-    # TODO
+    # TODO 
     num_channels = tx_streamer.get_num_channels()
     max_samps_per_packet = tx_streamer.get_max_num_samps()
 
@@ -66,12 +69,16 @@ def tx_ref(usrp, tx_streamer, quit_event, phase=[0,0], amplitude=[0.8, 0.8]):
     metadata.time_spec = uhd.types.TimeSpec(usrp.get_time_now().get_real_secs()+ INIT_DELAY)
     metadata.has_time_spec = bool(num_channels)
 
-    while not quit_event.is_set():
-        tx_streamer.send(transmit_buffer, metadata)
-    
-    # Send a mini EOB packet
-    metadata.end_of_burst = True
-    tx_streamer.send(np.zeros((num_channels, 0), dtype=np.complex64), metadata)
+    try:
+        while not quit_event.is_set():
+            tx_streamer.send(transmit_buffer, metadata)
+    except KeyboardInterrupt:
+        pass
+    finally: 
+        # Send a mini EOB packet
+        logger.debug("CTRL+C is pressed, closing off")
+        metadata.end_of_burst = True
+        tx_streamer.send(np.zeros((num_channels, 0), dtype=np.complex64), metadata)
 
 def setup(usrp):
     rate= RATE
@@ -134,29 +141,29 @@ def main():
     usrp = uhd.usrp.MultiUSRP("")
     tx_streamer = setup(usrp)
     
+
     # Make a signal for the threads to stop running
     quit_event = threading.Event()
     
     try:
+
         ########### TX & RX Thread ###########
         tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=[0.8,0.8])
+        #wait till both threads are done before proceding
+        tx_thr.join()
     except KeyboardInterrupt:
         print('Interrupted')
-        try:
-            # Interrupt and join the threads
-            logger.debug("Sending signal to stop!")
-            quit_event.set()
-            
-            #wait till both threads are done before proceding
-            tx_thr.join()
-            
-            socket.close()
-            context.term()
-            sys.exit(130)
-        except SystemExit:
-            os._exit(130)
+        # Interrupt and join the threads
+        logger.debug("Sending signal to stop!")
+        quit_event.set()
+        # wait till finished before closing of
+        tx_thr.join()
+    finally: 
+        socket.close()
+        context.term()
+        sys.exit(130)
 
-    
+
 
 if __name__ == "__main__":
     main()
