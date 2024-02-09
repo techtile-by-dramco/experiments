@@ -54,7 +54,7 @@ def publish(data, channel:int):
     if channel==0:
         topic = TOPIC_CH0
     elif channel==1:
-        topic==TOPIC_CH1
+        topic=TOPIC_CH1
     else:
         logger.error(f"Channel should be 0 or 1, not {channel}")
 
