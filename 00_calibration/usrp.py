@@ -97,6 +97,7 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate):
     # iq_data_mean  = []
     # powers = []
 
+    #TODO phase_to_compensate implementation
 
     try:
         while not quit_event.is_set(): 
@@ -112,11 +113,11 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate):
                 logger.error("Runtime error in receive: %s", ex)
                 return
     except KeyboardInterrupt:
-        logger.debug("CTRL+C is pressed, closing off")
+        pass
     finally:    
+        logger.debug("CTRL+C is pressed, closing off")
         # keep this just below this loop
         rx_streamer.issue_stream_cmd(uhd.types.StreamCMD(uhd.types.StreamMode.stop_cont))
-
         
         
 
@@ -145,8 +146,9 @@ def tx_ref(usrp, tx_streamer, quit_event, phase=[0,0], amplitude=[0.8, 0.8]):
         while not quit_event.is_set():
             tx_streamer.send(transmit_buffer, metadata)
     except KeyboardInterrupt:
-        logger.debug("CTRL+C is pressed, closing off")
+        pass
     finally: 
+        logger.debug("CTRL+C is pressed, closing off")
         # Send a mini EOB packet
         metadata.end_of_burst = True
         tx_streamer.send(np.zeros((num_channels, 0), dtype=np.complex64), metadata)
