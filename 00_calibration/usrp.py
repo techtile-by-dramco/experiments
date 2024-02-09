@@ -297,13 +297,14 @@ def main():
 
     # # time.sleep(DURATION) #sleep between two measurements
 
-    # Make a signal for the threads to stop running
-    quit_event = threading.Event()
-    
+
     try:
 
         ########### TX & RX Thread ###########
         while True:
+            # Make a signal for the threads to stop running
+            quit_event = threading.Event()
+
             tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=[0.8,0.8])
             tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
             
