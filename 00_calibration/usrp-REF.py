@@ -122,7 +122,7 @@ def setup(usrp):
 
 def tx_thread(usrp, tx_streamer, quit_event, phase=[0,0], amplitude=[0.8, 0.8]):
     tx_thread = threading.Thread(target=tx_ref,
-                                    args=(usrp, tx_streamer, quit_event, phase, amplitude))
+                                    args=(usrp, tx_streamer, quit_event))
     tx_thread.setName("TX_thread")
     tx_thread.start()
 
