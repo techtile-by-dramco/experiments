@@ -145,8 +145,6 @@ def tx_ref(usrp, tx_streamer, quit_event, phase=[0,0], amplitude=[0.8, 0.8]):
     try:
         while not quit_event.is_set():
             tx_streamer.send(transmit_buffer, tx_md)
-            if tx_md.error_code != uhd.types.TXMetadataErrorCode.none:
-                    print(tx_md.error_code)
     except KeyboardInterrupt:
         pass
     finally: 
@@ -224,6 +222,26 @@ def rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate):
 
     return rx_thread
 
+def tx_async_th(tx_streamer, quit_event):
+    async_metadata = uhd.types.TXAsyncMetadata()
+
+    try:
+        while not quit_event.is_set():
+            if not tx_streamer.recv_async_msg(async_metadata, 0.01):
+                continue
+            else:
+                logger.error(async_metadata.event_code)
+    except KeyboardInterrupt:
+        pass
+
+
+def tx_meta_thread(tx_streamer, quit_event):
+    tx_meta_thr = threading.Thread(target=tx_async_th,
+                                    args=(tx_streamer, quit_event))
+    tx_meta_thr.setName("TX_META_thread")
+    tx_meta_thr.start()
+    return tx_meta_thr
+
 def main():
     # Setup the logger with our custom timestamp formatting
     global logger
@@ -266,12 +284,15 @@ def main():
 
         ########### TX & RX Thread ###########
         tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=[0.0,0.8])
+        tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
+        
         phase_to_compensate = []
         rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate)
 
         #wait till both threads are done before proceding
         tx_thr.join()
         rx_thr.join()
+        tx_meta_thr.join()
     except KeyboardInterrupt:
         print('Interrupted')
         # Interrupt and join the threads

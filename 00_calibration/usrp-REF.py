@@ -145,6 +145,13 @@ def tx_thread(usrp, tx_streamer, quit_event, phase=[0,0], amplitude=[0.8, 0.8]):
 
     return tx_thread
 
+def tx_meta_thread(tx_streamer, quit_event):
+    tx_meta_thr = threading.Thread(target=tx_async_th,
+                                    args=(tx_streamer, quit_event))
+    tx_meta_thr.setName("TX_META_thread")
+    tx_meta_thr.start()
+    return tx_meta_thr
+
 def main():
     # Setup the logger with our custom timestamp formatting
     global logger
@@ -166,12 +173,10 @@ def main():
 
         ########### TX & RX Thread ###########
         tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=[0.8,0.8])
-        tx_meta_thr = threading.Thread(target=tx_async_th,
-                                    args=(tx_streamer, quit_event))
-        tx_meta_thr.setName("TX_META_thread")
-        tx_meta_thr.start()
+        tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
         #wait till both threads are done before proceding
         tx_thr.join()
+        tx_meta_thr.join()
     except KeyboardInterrupt:
         print('Interrupted')
         # Interrupt and join the threads
@@ -179,6 +184,7 @@ def main():
         quit_event.set()
         # wait till finished before closing of
         tx_thr.join()
+        tx_meta_thr.join()
     finally: 
         socket.close()
         context.term()
