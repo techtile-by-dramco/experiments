@@ -48,7 +48,6 @@ class LogFormatter(logging.Formatter):
         return formatted_date
     
 def publish(data, channel:int):
-    import struct
 
     logger.debug(f"sending data of size {len(data)}")
 
@@ -130,7 +129,7 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate):
     
 
 def tx_ref(usrp, tx_streamer, quit_event, phase=[0,0], amplitude=[0.8, 0.8]):
-    # TODO
+    # TODO 
     num_channels = tx_streamer.get_num_channels()
     max_samps_per_packet = tx_streamer.get_max_num_samps()
 
