@@ -77,17 +77,17 @@ def send_rx(samples):
         
 
 
-def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate):
+def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration):
     # https://files.ettus.com/manual/page_sync.html#sync_phase_cordics
     # The CORDICs are reset at each start-of-burst command, so users should ensure that every start-of-burst also has a time spec set.
 
     num_channels = rx_streamer.get_num_channels()
     max_samps_per_packet = rx_streamer.get_max_num_samps()
-    iq_data = np.empty((num_channels, int(DURATION*RATE*1.5)), dtype=np.complex64)
+    iq_data = np.empty((num_channels, int(duration*RATE*1.5)), dtype=np.complex64)
     # Make a receive buffer
     
     # TODO: The C++ code uses rx_cpu type here. Do we want to use that to set dtype?
-    recv_buffer = np.zeros((num_channels, min([1000*max_samps_per_packet,int(DURATION*RATE*1.5)])), dtype=np.complex64)
+    recv_buffer = np.zeros((num_channels, min([1000*max_samps_per_packet,int(duration*RATE*1.5)])), dtype=np.complex64)
     rx_md = uhd.types.RXMetadata()
 
     # Craft and send the Stream Command
@@ -231,9 +231,9 @@ def tx_thread(usrp, tx_streamer, quit_event, phase=[0,0], amplitude=[0.8, 0.8]):
 
     return tx_thread
 
-def rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate):
+def rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate, duration):
     rx_thread = threading.Thread(target=rx_ref,
-                                    args=(usrp, rx_streamer, quit_event, phase_to_compensate))
+                                    args=(usrp, rx_streamer, quit_event, phase_to_compensate, duration))
     rx_thread.setName("RX_thread")
     rx_thread.start()
 
@@ -308,7 +308,7 @@ def main():
         tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
 
         phase_to_compensate = []
-        rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate)
+        rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate, duration=DURATION)
 
         time.sleep(DURATION)
         quit_event.set()
@@ -327,7 +327,7 @@ def main():
         quit_event = threading.Event()
 
         phase_to_compensate = []
-        rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate)
+        rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate ,duration=DURATION*6)
 
         time.sleep(DURATION*6)
         quit_event.set()
