@@ -25,8 +25,8 @@ def receive_numpy_array(ip):
     timestamp = datetime.utcnow().strftime("%Y-%m-%d_%H-%M-%S")
 
     # Construct file names with UTC timestamp
-    file0 = f"{FILE_CH0_prefix}_{timestamp}.dat"
-    file1 = f"{FILE_CH1_prefix}_{timestamp}.dat"
+    file0 = os.path.join(script_dir, f"{FILE_CH0_prefix}_{timestamp}.dat")
+    file1 = os.path.join(script_dir, f"{FILE_CH1_prefix}_{timestamp}.dat")
     
     with open(file0, 'ab') as file_ch0, open(file1, 'ab') as file_ch1:
         try:
