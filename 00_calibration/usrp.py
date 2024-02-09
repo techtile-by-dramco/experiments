@@ -90,37 +90,41 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate):
 
     num_rx = 0
 
-    while not quit_event.is_set(): 
-        try:
-            num_rx_i  = rx_streamer.recv(recv_buffer, rx_md, 1.0)
-            print(".", end="", flush=True)
-            if rx_md.error_code != uhd.types.RXMetadataErrorCode.none:
-                print(rx_md.error_code)
-            # powers.append(np.mean(np.abs(recv_buffer), axis=-1))
-            # iq_data_mean.append(np.mean(recv_buffer, axis=-1))
-            data_buffer[:,num_rx:num_rx+num_rx_i] = recv_buffer[:,:num_rx_i]
-            num_rx += num_rx_i
-        except RuntimeError as ex:
-            logger.error("Runtime error in receive: %s", ex)
-            return
-    # keep this just below this loop
-    rx_streamer.issue_stream_cmd(uhd.types.StreamCMD(uhd.types.StreamMode.stop_cont))
+    try:
+        while not quit_event.is_set(): 
+            try:
+                num_rx_i  = rx_streamer.recv(recv_buffer, rx_md, 1.0)
+                print(".", end="", flush=True)
+                if rx_md.error_code != uhd.types.RXMetadataErrorCode.none:
+                    print(rx_md.error_code)
+                # powers.append(np.mean(np.abs(recv_buffer), axis=-1))
+                # iq_data_mean.append(np.mean(recv_buffer, axis=-1))
+                data_buffer[:,num_rx:num_rx+num_rx_i] = recv_buffer[:,:num_rx_i]
+                num_rx += num_rx_i
+            except RuntimeError as ex:
+                logger.error("Runtime error in receive: %s", ex)
+                return
+    except KeyboardInterrupt:
+        logger.debug("CTRL+C is pressed, closing off")
+    finally:    
+        # keep this just below this loop
+        rx_streamer.issue_stream_cmd(uhd.types.StreamCMD(uhd.types.StreamMode.stop_cont))
 
-    marge = int(250e3) # remove prepending and appending second
+        marge = int(250e3) # remove prepending and appending second
 
-    iq_data = data_buffer[:,marge:num_rx-marge]
-    
-    avg_angles = np.angle(np.sum(np.exp(np.angle(iq_data)*1j), axis=1)) # circular mean https://en.wikipedia.org/wiki/Circular_mean
+        iq_data = data_buffer[:,marge:num_rx-marge]
+        
+        avg_angles = np.angle(np.sum(np.exp(np.angle(iq_data)*1j), axis=1)) # circular mean https://en.wikipedia.org/wiki/Circular_mean
 
-    avg_ampl = np.mean(np.abs(iq_data),axis=1)
+        avg_ampl = np.mean(np.abs(iq_data),axis=1)
 
-    print(f"Angle CH0:{np.rad2deg(avg_angles[0]):.2f} CH1:{np.rad2deg(avg_angles[1]):.2f}")
-    print(f"Amplitude CH0:{avg_ampl[0]:.2f} CH1:{avg_ampl[1]:.2f}")
-    phase_to_compensate.extend(avg_angles)
-    
+        print(f"Angle CH0:{np.rad2deg(avg_angles[0]):.2f} CH1:{np.rad2deg(avg_angles[1]):.2f}")
+        print(f"Amplitude CH0:{avg_ampl[0]:.2f} CH1:{avg_ampl[1]:.2f}")
+        phase_to_compensate.extend(avg_angles)
+        
 
-    publish(np.rad2deg(np.angle(iq_data[0])))
-    publish(np.rad2deg(np.angle(iq_data[1])))
+        publish(np.rad2deg(np.angle(iq_data[0])))
+        publish(np.rad2deg(np.angle(iq_data[1])))
 
     
     
@@ -146,12 +150,15 @@ def tx_ref(usrp, tx_streamer, quit_event, phase=[0,0], amplitude=[0.8, 0.8]):
     metadata.time_spec = uhd.types.TimeSpec(usrp.get_time_now().get_real_secs()+ INIT_DELAY)
     metadata.has_time_spec = bool(num_channels)
 
-    while not quit_event.is_set():
-        tx_streamer.send(transmit_buffer, metadata)
-    
-    # Send a mini EOB packet
-    metadata.end_of_burst = True
-    tx_streamer.send(np.zeros((num_channels, 0), dtype=np.complex64), metadata)
+    try:
+        while not quit_event.is_set():
+            tx_streamer.send(transmit_buffer, metadata)
+    except KeyboardInterrupt:
+        logger.debug("CTRL+C is pressed, closing off")
+    finally: 
+        # Send a mini EOB packet
+        metadata.end_of_burst = True
+        tx_streamer.send(np.zeros((num_channels, 0), dtype=np.complex64), metadata)
 
 def setup(usrp):
     rate= RATE
