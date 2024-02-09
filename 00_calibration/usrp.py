@@ -294,7 +294,6 @@ def main():
 
     # # time.sleep(DURATION) #sleep between two measurements
 
-    first = True
     try:
         
         phase_to_compensate = [0.0, 0.0]
@@ -302,10 +301,12 @@ def main():
 
         ########### STEP 1 - measure self TX-RX phase ###########
         # Make a signal for the threads to stop running
+        logger.debug(" ########### STEP 1 - measure self TX-RX phase ###########")
         quit_event = threading.Event()
 
         tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=[0.0,0.8], phase=[0.0, 0.0])
         tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
+
         phase_to_compensate = []
         rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate)
 
@@ -322,6 +323,7 @@ def main():
 
         ########### STEP 2 - measure self REF phase ###########
         # Make a signal for the threads to stop running
+        logger.debug("########### STEP 2 - measure self REF phase ###########")
         quit_event = threading.Event()
 
         phase_to_compensate = []
@@ -338,7 +340,7 @@ def main():
         tx_meta_thr.join()
 
 
-
+        logger.debug("########### STEP 3 - TX with adjusted phases ###########")
         phase_to_compensate = [pll_phase-tx_phase, -tx_phase]
 
         tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=[0.8,0.8], phase=phase_to_compensate)
