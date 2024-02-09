@@ -65,22 +65,24 @@ def tx_ref(usrp, tx_streamer, quit_event):
     # print(transmit_buffer.shape)
 
     # transmit_buffer = np.ones((num_channels, max_samps_per_packet), dtype=np.complex64)*sample
-    metadata = uhd.types.TXMetadata()
-    metadata.time_spec = uhd.types.TimeSpec(usrp.get_time_now().get_real_secs()+ INIT_DELAY)
-    metadata.has_time_spec = bool(num_channels)
+    tx_md = uhd.types.TXMetadata()
+    tx_md.time_spec = uhd.types.TimeSpec(usrp.get_time_now().get_real_secs()+ INIT_DELAY)
+    tx_md.has_time_spec = bool(num_channels)
 
     transmit_buffer = np.ones((num_channels, 1000*max_samps_per_packet), dtype=np.complex64)*0.8
 
     try:
         while not quit_event.is_set():
-            tx_streamer.send(transmit_buffer, metadata)
+            tx_streamer.send(transmit_buffer, tx_md)
+            if tx_md.error_code != uhd.types.TXMetadataErrorCode.none:
+                print(tx_md.error_code)
     except KeyboardInterrupt:
         pass
     finally: 
         # Send a mini EOB packet
         logger.debug("CTRL+C is pressed, closing off")
-        metadata.end_of_burst = True
-        tx_streamer.send(np.zeros((num_channels, 0), dtype=np.complex64), metadata)
+        tx_md.end_of_burst = True
+        tx_streamer.send(np.zeros((num_channels, 0), dtype=np.complex64), tx_md)
 
 def setup(usrp):
     rate= RATE
