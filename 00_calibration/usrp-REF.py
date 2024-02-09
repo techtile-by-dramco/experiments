@@ -104,7 +104,7 @@ def setup(usrp):
     
     usrp.set_master_clock_rate(mcr) # Manual selection of master clock rate may also be required to synchronize multiple B200 units in time.
     
-    tx_gain = 60 # TX gain 89.9dB
+    tx_gain = 80 # TX gain 89.9dB
     channels = [0,1]
 
     freq=920E6
