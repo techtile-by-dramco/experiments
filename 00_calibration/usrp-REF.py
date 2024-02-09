@@ -69,7 +69,7 @@ def tx_ref(usrp, tx_streamer, quit_event):
     metadata.time_spec = uhd.types.TimeSpec(usrp.get_time_now().get_real_secs()+ INIT_DELAY)
     metadata.has_time_spec = bool(num_channels)
 
-    transmit_buffer = np.ones((num_channels, 1000*max_samps_per_packet), dtype=np.complex64)
+    transmit_buffer = np.ones((num_channels, 1000*max_samps_per_packet), dtype=np.complex64)*0.8
 
     try:
         while not quit_event.is_set():
