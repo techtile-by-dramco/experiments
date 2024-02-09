@@ -346,6 +346,9 @@ def main():
         tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=[0.8,0.8], phase=phase_to_compensate)
         tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
 
+        tx_thr.join()
+        tx_meta_thr.join()
+
     except KeyboardInterrupt:
         # Interrupt and join the threads
         logger.debug("Sending signal to stop!")
