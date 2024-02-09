@@ -80,7 +80,8 @@ def send_rx(samples):
 def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate):
     # https://files.ettus.com/manual/page_sync.html#sync_phase_cordics
     # The CORDICs are reset at each start-of-burst command, so users should ensure that every start-of-burst also has a time spec set.
-    
+
+    iq_data = np.empty((num_channels, int(DURATION*RATE*1.5)), dtype=np.complex64)
     # Make a receive buffer
     num_channels = rx_streamer.get_num_channels()
     max_samps_per_packet = rx_streamer.get_max_num_samps()
@@ -93,13 +94,6 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate):
     stream_cmd.stream_now = False
     stream_cmd.time_spec = uhd.types.TimeSpec(usrp.get_time_now().get_real_secs() + 1.1*INIT_DELAY)
     rx_streamer.issue_stream_cmd(stream_cmd)
-
-    # iq_data_mean  = []
-    # powers = []
-
-    #TODO phase_to_compensate implementation
-
-    iq_data = np.empty((num_channels, int(DURATION*RATE*1.5)), dtype=np.complex64)
 
     try:
         num_rx = 0
