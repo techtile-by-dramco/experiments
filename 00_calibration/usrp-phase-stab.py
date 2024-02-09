@@ -91,7 +91,7 @@ def rx_ref(usrp, rx_streamer, quit_event):
     # Craft and send the Stream Command
     stream_cmd = uhd.types.StreamCMD(uhd.types.StreamMode.start_cont)
     stream_cmd.stream_now = False
-    stream_cmd.time_spec = uhd.types.TimeSpec(usrp.get_time_now().get_real_secs() + 1.1*INIT_DELAY)
+    stream_cmd.time_spec = uhd.types.TimeSpec(usrp.get_time_now().get_real_secs() + 2.0*INIT_DELAY)
     rx_streamer.issue_stream_cmd(stream_cmd)
 
     try:
