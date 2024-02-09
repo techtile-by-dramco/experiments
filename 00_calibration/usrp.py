@@ -116,6 +116,8 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate):
         pass
     finally:    
         logger.debug("CTRL+C is pressed or duration is reached, closing off ")
+        rx_streamer.issue_stream_cmd(uhd.types.StreamCMD(uhd.types.StreamMode.stop_cont))
+        
         samples = iq_data[:, :num_rx]
         avg_angles = np.angle(np.sum(np.exp(np.angle(samples)*1j), axis=1)) # circular mean https://en.wikipedia.org/wiki/Circular_mean
         phase_to_compensate.extend(avg_angles)
@@ -125,7 +127,7 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate):
         print(f"Angle CH0:{np.rad2deg(avg_angles[0]):.2f} CH1:{np.rad2deg(avg_angles[1]):.2f}")
         print(f"Amplitude CH0:{avg_ampl[0]:.2f} CH1:{avg_ampl[1]:.2f}")
         # keep this just below this loop
-        rx_streamer.issue_stream_cmd(uhd.types.StreamCMD(uhd.types.StreamMode.stop_cont))
+        
         
 
         
