@@ -20,7 +20,7 @@ CLOCK_TIMEOUT = 1000  # 1000mS timeout for external clock locking
 INIT_DELAY = 0.2  # 200ms initial delay before transmit
 
 RATE = 250e3
-DURATION = 5
+DURATION = 10
 
 TOPIC_CH0 = b"CH0"
 TOPIC_CH1 = b"CH1"
