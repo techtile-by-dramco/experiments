@@ -70,7 +70,7 @@ def send_rx(samples):
 
         print(f"Angle CH0:{np.rad2deg(avg_angles[0]):.2f} CH1:{np.rad2deg(avg_angles[1]):.2f}")
         print(f"Amplitude CH0:{avg_ampl[0]:.2f} CH1:{avg_ampl[1]:.2f}")
-        
+
         angles = np.rad2deg(np.angle(samples))
         publish(angles[0], 0)
         publish(angles[1], 1)
@@ -102,12 +102,12 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate):
         while not quit_event.is_set(): 
             try:
                 num_rx_i  = rx_streamer.recv(recv_buffer, rx_md, 1.0)
-                print(".", end="", flush=True)
                 if rx_md.error_code != uhd.types.RXMetadataErrorCode.none:
                     print(rx_md.error_code)
-                samples = recv_buffer[:,:num_rx_i]
-                send_rx(samples)
-
+                else:
+                    if num_rx_i > 0:
+                        samples = recv_buffer[:,:num_rx_i]
+                        send_rx(samples)
             except RuntimeError as ex:
                 logger.error("Runtime error in receive: %s", ex)
                 return
