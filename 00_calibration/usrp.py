@@ -58,7 +58,7 @@ def publish(data, channel:int):
     else:
         logger.error(f"Channel should be 0 or 1, not {channel}")
 
-    socket.send_multipart([topic.encode(), data.tobytes()])
+    socket.send_multipart([topic, data.tobytes()])
 
     # for val in data:
     #     value_bytes = struct.pack('!d', val)  # Using double precision format
