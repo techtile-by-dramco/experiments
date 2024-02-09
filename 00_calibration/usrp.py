@@ -20,7 +20,7 @@ CLOCK_TIMEOUT = 1000  # 1000mS timeout for external clock locking
 INIT_DELAY = 0.2  # 200ms initial delay before transmit
 
 RATE = 250e3
-DURATION = 60
+DURATION = 5
 
 TOPIC_CH0 = b"CH0"
 TOPIC_CH1 = b"CH1"
@@ -303,20 +303,21 @@ def main():
     try:
 
         ########### TX & RX Thread ###########
-        tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=[0.8,0.8])
-        tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
-        
-        phase_to_compensate = []
-        rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate)
+        while True:
+            tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=[0.8,0.8])
+            tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
+            
+            phase_to_compensate = []
+            rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate)
 
-        time.sleep(DURATION)
-        quit_event.set()
+            time.sleep(DURATION)
+            quit_event.set()
 
-        #wait till both threads are done before proceding
-        tx_thr.join()
-        rx_thr.join()
-        logger.debug(phase_to_compensate)
-        tx_meta_thr.join()
+            #wait till both threads are done before proceding
+            tx_thr.join()
+            rx_thr.join()
+            logger.debug(phase_to_compensate)
+            tx_meta_thr.join()
     except KeyboardInterrupt:
         # Interrupt and join the threads
         logger.debug("Sending signal to stop!")
