@@ -17,7 +17,7 @@ import os
 import zmq
 
 CLOCK_TIMEOUT = 1000  # 1000mS timeout for external clock locking
-INIT_DELAY = 0.2  # 200ms initial delay before transmit
+INIT_DELAY = 1.2 # 1200ms initial delay before transmit
 
 RATE = 250e3
 DURATION = 60
