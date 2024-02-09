@@ -60,14 +60,16 @@ def tx_ref(usrp, tx_streamer, quit_event):
 
     # print(sample)
 
-    transmit_buffer = np.tile(np.asarray([1.0, 1.0], dtype=np.complex32), (1000*max_samps_per_packet, 1)).transpose()
+    # transmit_buffer = np.tile(np.asarray([1.0, 1.0], dtype=np.complex64), (1000*max_samps_per_packet, 1)).transpose()
 
-    print(transmit_buffer.shape)
+    # print(transmit_buffer.shape)
 
     # transmit_buffer = np.ones((num_channels, max_samps_per_packet), dtype=np.complex64)*sample
     metadata = uhd.types.TXMetadata()
     metadata.time_spec = uhd.types.TimeSpec(usrp.get_time_now().get_real_secs()+ INIT_DELAY)
     metadata.has_time_spec = bool(num_channels)
+
+    transmit_buffer = np.ones((num_channels, 1000*max_samps_per_packet), dtype=np.complex64)
 
     try:
         while not quit_event.is_set():
