@@ -85,7 +85,7 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate):
     num_channels = rx_streamer.get_num_channels()
     max_samps_per_packet = rx_streamer.get_max_num_samps()
     # TODO: The C++ code uses rx_cpu type here. Do we want to use that to set dtype?
-    recv_buffer = np.zeros((num_channels, 1000*max_samps_per_packet), dtype=np.complex64)
+    recv_buffer = np.zeros((num_channels, 100*max_samps_per_packet), dtype=np.complex64)
     rx_md = uhd.types.RXMetadata()
 
     # Craft and send the Stream Command
