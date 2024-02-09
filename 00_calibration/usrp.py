@@ -135,7 +135,7 @@ def tx_ref(usrp, tx_streamer, quit_event, phase=[0,0], amplitude=[0.8, 0.8]):
 
     # transmit_buffer = np.ones((num_channels, 1000*max_samps_per_packet), dtype=np.complex64) * sample[:, np.newaxis]
 
-    transmit_buffer = np.ones((num_channels, 1000*max_samps_per_packet), dtype=np.complex64) * amplitude[:,np.newaxis]
+    transmit_buffer = np.ones((num_channels, 1000*max_samps_per_packet), dtype=np.complex64) * 0.8 #amplitude[:,np.newaxis]
 
     # print(transmit_buffer.shape)
 
