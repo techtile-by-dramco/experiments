@@ -20,7 +20,7 @@ CLOCK_TIMEOUT = 1000  # 1000mS timeout for external clock locking
 INIT_DELAY = 0.2  # 200ms initial delay before transmit
 
 RATE = 250e3
-DURATION = 10
+DURATION = 20
 
 TOPIC_CH0 = b"CH0"
 TOPIC_CH1 = b"CH1"
@@ -294,9 +294,8 @@ def main():
 
     # # time.sleep(DURATION) #sleep between two measurements
 
-
+    first = True
     try:
-
         ########### TX & RX Thread ###########
         phase_to_compensate = [0.0, 0.0]
         while True:
@@ -309,8 +308,10 @@ def main():
             phase_to_compensate = []
             rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate)
 
-            time.sleep(DURATION)
-            quit_event.set()
+            if first: 
+                time.sleep(DURATION)
+                quit_event.set()
+            first = False
 
             #wait till both threads are done before proceding
             tx_thr.join()
