@@ -65,11 +65,11 @@ def publish(data, channel:int):
     #     socket.send(value_bytes)
 
 def send_rx(samples):
-        avg_angles = np.angle(np.sum(np.exp(np.angle(samples)*1j), axis=1)) # circular mean https://en.wikipedia.org/wiki/Circular_mean
-        avg_ampl = np.mean(np.abs(samples),axis=1)
+        # avg_angles = np.angle(np.sum(np.exp(np.angle(samples)*1j), axis=1)) # circular mean https://en.wikipedia.org/wiki/Circular_mean
+        # avg_ampl = np.mean(np.abs(samples),axis=1)
 
-        print(f"Angle CH0:{np.rad2deg(avg_angles[0]):.2f} CH1:{np.rad2deg(avg_angles[1]):.2f}")
-        print(f"Amplitude CH0:{avg_ampl[0]:.2f} CH1:{avg_ampl[1]:.2f}")
+        # print(f"Angle CH0:{np.rad2deg(avg_angles[0]):.2f} CH1:{np.rad2deg(avg_angles[1]):.2f}")
+        # print(f"Amplitude CH0:{avg_ampl[0]:.2f} CH1:{avg_ampl[1]:.2f}")
 
         angles = np.rad2deg(np.angle(samples))
         publish(angles[0], 0)
