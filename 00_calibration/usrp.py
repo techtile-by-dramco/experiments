@@ -296,31 +296,54 @@ def main():
 
     first = True
     try:
-        ########### TX & RX Thread ###########
+        
         phase_to_compensate = [0.0, 0.0]
-        while True:
-            # Make a signal for the threads to stop running
-            quit_event = threading.Event()
 
-            tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=[0.8,0.8], phase=phase_to_compensate)
-            tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
-            
-            phase_to_compensate = []
-            rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate)
 
-            if first: 
-                time.sleep(DURATION)
-                quit_event.set()
-            first = False
+        ########### STEP 1 - measure self TX-RX phase ###########
+        # Make a signal for the threads to stop running
+        quit_event = threading.Event()
 
-            #wait till both threads are done before proceding
-            tx_thr.join()
-            rx_thr.join()
-            logger.debug(f"Phases to compensate: {phase_to_compensate}")
-            tx_phase = phase_to_compensate[0]
-            pll_phase = phase_to_compensate[1]
-            phase_to_compensate = [pll_phase-tx_phase, -tx_phase]
-            tx_meta_thr.join()
+        tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=[0.0,0.8], phase=[0.0, 0.0])
+        tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
+        phase_to_compensate = []
+        rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate)
+
+        time.sleep(DURATION)
+        quit_event.set()
+
+        #wait till both threads are done before proceding
+        tx_thr.join()
+        rx_thr.join()
+        logger.debug(f"Phases to compensate: {phase_to_compensate}")
+        tx_phase = phase_to_compensate[0]
+        tx_meta_thr.join()
+
+
+        ########### STEP 2 - measure self REF phase ###########
+        # Make a signal for the threads to stop running
+        quit_event = threading.Event()
+
+        phase_to_compensate = []
+        rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate)
+
+        time.sleep(DURATION)
+        quit_event.set()
+
+        #wait till both threads are done before proceding
+        tx_thr.join()
+        rx_thr.join()
+        logger.debug(f"Phases to compensate: {phase_to_compensate}")
+        pll_phase = phase_to_compensate[1]
+        tx_meta_thr.join()
+
+
+
+        phase_to_compensate = [pll_phase-tx_phase, -tx_phase]
+
+        tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=[0.8,0.8], phase=phase_to_compensate)
+        tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
+
     except KeyboardInterrupt:
         # Interrupt and join the threads
         logger.debug("Sending signal to stop!")
