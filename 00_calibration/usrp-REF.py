@@ -48,19 +48,19 @@ class LogFormatter(logging.Formatter):
         return formatted_date
        
 
-def tx_ref(usrp, tx_streamer, quit_event, phase=[0,0], amplitude=[0.8, 0.8]):
+def tx_ref(usrp, tx_streamer, quit_event):
     # TODO 
     num_channels = tx_streamer.get_num_channels()
     max_samps_per_packet = tx_streamer.get_max_num_samps()
 
-    amplitude = np.asarray(amplitude)
-    phase = np.asarray(phase)
+    # amplitude = np.asarray(amplitude)
+    # phase = np.asarray(phase)
 
-    sample = amplitude*np.exp(phase*1j)
+    # sample = amplitude*np.exp(phase*1j)
 
-    print(sample)
+    # print(sample)
 
-    transmit_buffer = np.tile(sample, (max_samps_per_packet, 1)).transpose()
+    transmit_buffer = np.tile(complex(1.0), (1000*max_samps_per_packet, 1)).transpose()
 
     print(transmit_buffer.shape)
 
