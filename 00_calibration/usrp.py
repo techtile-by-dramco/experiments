@@ -123,7 +123,7 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate):
         logger.debug("CTRL+C is pressed or duration is reached, closing off ")
         samples = iq_data[:, :num_rx]
         avg_angles = np.angle(np.sum(np.exp(np.angle(samples)*1j), axis=1)) # circular mean https://en.wikipedia.org/wiki/Circular_mean
-        phase_to_compensate = avg_angles
+        phase_to_compensate.extend(avg_angles)
 
         avg_ampl = np.mean(np.abs(samples),axis=1)
 
@@ -160,7 +160,7 @@ def tx_ref(usrp, tx_streamer, quit_event, phase=[0,0], amplitude=[0.8, 0.8]):
     # transmit_buffer = np.ones((num_channels, max_samps_per_packet), dtype=np.complex64)*sample
     tx_md = uhd.types.TXMetadata()
     tx_md.time_spec = uhd.types.TimeSpec(usrp.get_time_now().get_real_secs() + INIT_DELAY)
-    tx_md.has_time_spec = bool(num_channels)
+    tx_md.has_time_spec = True
 
     try:
         while not quit_event.is_set():
