@@ -64,6 +64,19 @@ def publish(data, channel:int):
     #     value_bytes = struct.pack('!d', val)  # Using double precision format
     #     socket.send(value_bytes)
 
+def send_rx(samples):
+        avg_angles = np.angle(np.sum(np.exp(np.angle(samples)*1j), axis=1)) # circular mean https://en.wikipedia.org/wiki/Circular_mean
+        avg_ampl = np.mean(np.abs(samples),axis=1)
+
+        print(f"Angle CH0:{np.rad2deg(avg_angles[0]):.2f} CH1:{np.rad2deg(avg_angles[1]):.2f}")
+        print(f"Amplitude CH0:{avg_ampl[0]:.2f} CH1:{avg_ampl[1]:.2f}")
+        
+        angles = np.rad2deg(np.angle(samples))
+        publish(angles[0], 0)
+        publish(angles[1], 1)
+        
+
+
 def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate):
     # https://files.ettus.com/manual/page_sync.html#sync_phase_cordics
     # The CORDICs are reset at each start-of-burst command, so users should ensure that every start-of-burst also has a time spec set.
@@ -84,10 +97,6 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate):
     # iq_data_mean  = []
     # powers = []
 
-    # todo ensure thqt we stop RX before TX ends
-    data_buffer = np.zeros((num_channels, int(RATE*DURATION)*2), dtype=np.complex64)
-
-    num_rx = 0
 
     try:
         while not quit_event.is_set(): 
@@ -96,10 +105,9 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate):
                 print(".", end="", flush=True)
                 if rx_md.error_code != uhd.types.RXMetadataErrorCode.none:
                     print(rx_md.error_code)
-                # powers.append(np.mean(np.abs(recv_buffer), axis=-1))
-                # iq_data_mean.append(np.mean(recv_buffer, axis=-1))
-                data_buffer[:,num_rx:num_rx+num_rx_i] = recv_buffer[:,:num_rx_i]
-                num_rx += num_rx_i
+                samples = recv_buffer[:,:num_rx_i]
+                send_rx(samples)
+
             except RuntimeError as ex:
                 logger.error("Runtime error in receive: %s", ex)
                 return
@@ -109,24 +117,8 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate):
         # keep this just below this loop
         rx_streamer.issue_stream_cmd(uhd.types.StreamCMD(uhd.types.StreamMode.stop_cont))
 
-        marge = int(250e3) # remove prepending and appending second
-
-        iq_data = data_buffer[:,marge:num_rx-marge]
         
-        avg_angles = np.angle(np.sum(np.exp(np.angle(iq_data)*1j), axis=1)) # circular mean https://en.wikipedia.org/wiki/Circular_mean
-
-        avg_ampl = np.mean(np.abs(iq_data),axis=1)
-
-        print(f"Angle CH0:{np.rad2deg(avg_angles[0]):.2f} CH1:{np.rad2deg(avg_angles[1]):.2f}")
-        print(f"Amplitude CH0:{avg_ampl[0]:.2f} CH1:{avg_ampl[1]:.2f}")
-        phase_to_compensate.extend(avg_angles)
         
-
-        publish(np.rad2deg(np.angle(iq_data[0])), 0)
-        publish(np.rad2deg(np.angle(iq_data[1])), 1)
-
-    
-    
 
 def tx_ref(usrp, tx_streamer, quit_event, phase=[0,0], amplitude=[0.8, 0.8]):
     # TODO 
