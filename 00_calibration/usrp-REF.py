@@ -60,7 +60,7 @@ def tx_ref(usrp, tx_streamer, quit_event):
 
     # print(sample)
 
-    transmit_buffer = np.tile(complex(1.0), (1000*max_samps_per_packet, 1)).transpose()
+    transmit_buffer = np.tile(np.asarray([1.0, 1.0], dtype=np.complex32), (1000*max_samps_per_packet, 1)).transpose()
 
     print(transmit_buffer.shape)
 
