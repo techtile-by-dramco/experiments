@@ -317,7 +317,7 @@ def main():
             #wait till both threads are done before proceding
             tx_thr.join()
             rx_thr.join()
-            logger.debug(phase_to_compensate)
+            logger.debug(f"Phases to compensate: {phase_to_compensate}")
             tx_meta_thr.join()
     except KeyboardInterrupt:
         # Interrupt and join the threads
