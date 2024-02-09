@@ -104,7 +104,7 @@ def rx_ref(usrp, rx_streamer, quit_event):
                     if num_rx_i > 0:
                         samples = recv_buffer[:,:num_rx_i]
                         threading.Thread(target=send_rx,
-                                    args=(samples)).start()
+                                    args=(samples,)).start()
             except RuntimeError as ex:
                 logger.error("Runtime error in receive: %s", ex)
                 return
