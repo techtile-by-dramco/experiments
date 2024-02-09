@@ -71,7 +71,7 @@ def tx_ref(usrp, tx_streamer, quit_event):
 
     async_metadata = uhd.types.TXAsyncMetadata()
 
-    transmit_buffer = np.ones((num_channels, 10*max_samps_per_packet), dtype=np.complex64)*0.8
+    transmit_buffer = np.ones((num_channels, 1000*max_samps_per_packet), dtype=np.complex64)*0.8
 
     try:
         while not quit_event.is_set():
@@ -79,7 +79,7 @@ def tx_ref(usrp, tx_streamer, quit_event):
             if not tx_streamer.recv_async_msg(async_metadata, 0.1):
                 continue
             else:
-                print(async_metadata.event_code)
+                logger.error(async_metadata.event_code)
     except KeyboardInterrupt:
         pass
     finally: 
