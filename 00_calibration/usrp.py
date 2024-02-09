@@ -71,9 +71,9 @@ def send_rx(samples):
         # print(f"Angle CH0:{np.rad2deg(avg_angles[0]):.2f} CH1:{np.rad2deg(avg_angles[1]):.2f}")
         # print(f"Amplitude CH0:{avg_ampl[0]:.2f} CH1:{avg_ampl[1]:.2f}")
 
-        angles = np.rad2deg(np.angle(samples))
-        publish(angles[0], 0)
-        publish(angles[1], 1)
+    angles = np.rad2deg(np.angle(samples))
+    publish(angles[0], 0)
+    publish(angles[1], 1)
         
 
 
@@ -139,7 +139,7 @@ def tx_ref(usrp, tx_streamer, quit_event, phase=[0,0], amplitude=[0.8, 0.8]):
 
     # transmit_buffer = np.ones((num_channels, max_samps_per_packet), dtype=np.complex64)*sample
     tx_md = uhd.types.TXMetadata()
-    tx_md.time_spec = uhd.types.TimeSpec(usrp.get_time_now().get_real_secs()+ INIT_DELAY)
+    tx_md.time_spec = uhd.types.TimeSpec(usrp.get_time_now().get_real_secs() + INIT_DELAY)
     tx_md.has_time_spec = bool(num_channels)
 
     try:
@@ -283,7 +283,7 @@ def main():
     try:
 
         ########### TX & RX Thread ###########
-        tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=[0.0,0.8])
+        tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=[0.8,0.8])
         tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
         
         phase_to_compensate = []
