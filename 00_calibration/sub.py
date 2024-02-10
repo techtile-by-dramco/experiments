@@ -50,8 +50,15 @@ def receive_numpy_array(ip):
                 
                 # Determine the number of elements and element size
                 num_elements = len(data_bytes) // np.dtype(np.float32).itemsize
+
+                phases = np.frombuffer(data_bytes, dtype=np.float32)
+                avg_angles = np.angle(np.sum(np.exp(np.deg2rad(phases)*1j))) # circular mean https://en.wikipedia.org/wiki/Circular_mean
+
+                std_angles = np.std(phases)
+
                 # Write data to file
-                file.write(data_bytes)
+                file.write(avg_angles.tobytes())
+                file.write(std_angles.tobytes())
                 file.flush()  # Flush the changes to disk
                 
                 print(f"Received and saved data ({topic}): {num_elements} samples")

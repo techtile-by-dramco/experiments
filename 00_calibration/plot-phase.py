@@ -24,9 +24,13 @@ for file_path in file_paths:
 
     # Read the binary file and cast to np.float32
     data = np.fromfile(file_path, dtype=np.float32)
+
+    avg_phase = np.rad2deg(data[::2])
+    std_phase = np.rad2deg(data[1::2])
     
     # Now you can work with your data as np.float32 array
     print("Data from file:", file_path)
     plt.title(file_path)
-    plt.plot(data)
+    plt.plot(avg_phase)
+    plt.fill_between(np.arange(len(avg_phase)),avg_phase-std_phase, avg_phase+std_phase, facecolor='blue', alpha=0.5)
     plt.show()
