@@ -219,7 +219,7 @@ def setup(usrp):
     usrp.set_rx_gain(rx_gain_pll, 1) 
     usrp.set_rx_bandwidth(rx_bw, 1)
     
-    usrp.set_tx_gain(LOOPBACK_RX_GAIN, LOOPBACK_RX_CH)
+    usrp.set_rx_gain(LOOPBACK_RX_GAIN, LOOPBACK_RX_CH)
 
 
     # streaming arguments
