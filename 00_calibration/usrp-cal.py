@@ -25,10 +25,9 @@ DURATION = 8
 TOPIC_CH0 = b"CH0"
 TOPIC_CH1 = b"CH1"
 
-REF_RX_CH = 0
-LOOPBACK_RX_CH = 1
-LOOPBACK_TX_CH = 1
-FREE_TX_CH = 0
+REF_RX_CH = FREE_TX_CH = 0
+LOOPBACK_RX_CH = LOOPBACK_TX_CH = 1
+LOOPBACK_TX_GAIN = 80
 
 
 context = zmq.Context()
@@ -207,6 +206,8 @@ def setup(usrp):
     usrp.set_rx_freq(freq, 0)
     usrp.set_rx_gain(rx_gain, 0) # Ref PLL is 3dBm
     usrp.set_rx_bandwidth(rx_bw, 0)
+    
+    usrp.set_tx_gain(LOOPBACK_TX_GAIN, LOOPBACK_TX_CH)
 
     # Channel 1 settings
     usrp.set_tx_rate(rate, 1)
