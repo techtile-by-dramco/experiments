@@ -28,6 +28,7 @@ TOPIC_CH1 = b"CH1"
 REF_RX_CH = FREE_TX_CH = 0
 LOOPBACK_RX_CH = LOOPBACK_TX_CH = 1
 LOOPBACK_TX_GAIN = 80
+LOOPBACK_RX_GAIN = 60
 
 
 context = zmq.Context()
@@ -217,6 +218,8 @@ def setup(usrp):
     usrp.set_rx_freq(freq, 1)
     usrp.set_rx_gain(rx_gain_pll, 1) 
     usrp.set_rx_bandwidth(rx_bw, 1)
+    
+    usrp.set_tx_gain(LOOPBACK_RX_GAIN, LOOPBACK_RX_CH)
 
 
     # streaming arguments
