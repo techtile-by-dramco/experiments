@@ -20,7 +20,7 @@ CLOCK_TIMEOUT = 1000  # 1000mS timeout for external clock locking
 INIT_DELAY = 0.2  # 200ms initial delay before transmit
 
 RATE = 250e3
-DURATION = 5
+DURATION = 8
 
 TOPIC_CH0 = b"CH0"
 TOPIC_CH1 = b"CH1"
@@ -328,7 +328,7 @@ def main():
         quit_event = threading.Event()
 
         phase_to_compensate = []
-        rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate ,duration=DURATION*6)
+        rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate, duration=DURATION*6)
 
         time.sleep(DURATION*6)
         quit_event.set()
@@ -339,11 +339,31 @@ def main():
         logger.debug(f"Phases to compensate: {phase_to_compensate}")
         pll_phase = phase_to_compensate[1]
         tx_meta_thr.join()
+        
+        
+        logger.debug(" ########### STEP 3 - Check self-correction TX-RX phase ###########")
+        quit_event = threading.Event()
+
+        tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=[0.0,0.8], phase=[0.0, -tx_phase])
+        tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
+
+        phase_to_compensate = []
+        rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate, duration=DURATION)
+
+        time.sleep(DURATION)
+        quit_event.set()
+
+        #wait till both threads are done before proceding
+        tx_thr.join()
+        rx_thr.join()
+        tx_meta_thr.join()
 
 
-        logger.debug("########### STEP 3 - TX with adjusted phases ###########")
+        logger.debug("########### STEP 4 - TX with adjusted phases ###########")
         quit_event = threading.Event()
         phase_to_compensate = [pll_phase-tx_phase, -tx_phase]
+        
+        logger.debug(f"Applying phase correction CH0:{np.rad2deg(phase_to_compensate[0]):.2f} and CH1:{np.rad2deg(phase_to_compensate[1]):.2f}")
 
         tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=[0.8,0.8], phase=phase_to_compensate)
         tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
