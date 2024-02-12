@@ -41,6 +41,13 @@ for file_path in file_paths:
     print("Data from file:", file_path)
     plt.title(file_path)
     plt.plot(dates, avg_phase)
+    plt.gcf().autofmt_xdate()  # Auto format x-axis date labels
+    
+    # Set major ticks to hours and minor ticks to minutes
+    plt.gca().xaxis.set_major_locator(plt.MultipleLocator(base=1))  # Major ticks every hour
+    plt.gca().xaxis.set_minor_locator(plt.MultipleLocator(base=60))  # Minor ticks every minute
     
     plt.fill_between(dates, avg_phase-std_phase, avg_phase+std_phase, facecolor='blue', alpha=0.5)
+    plt.grid(which='both', axis='x')  # Show both major and minor grid lines
+
     plt.show()
