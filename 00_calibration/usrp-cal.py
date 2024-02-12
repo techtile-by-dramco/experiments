@@ -25,6 +25,11 @@ DURATION = 8
 TOPIC_CH0 = b"CH0"
 TOPIC_CH1 = b"CH1"
 
+REF_RX_CH = 0
+LOOPBACK_RX_CH = 1
+LOOPBACK_TX_CH = 1
+FREE_TX_CH = 0
+
 
 context = zmq.Context()
 socket = context.socket(zmq.PUB)
@@ -304,8 +309,11 @@ def main():
         # Make a signal for the threads to stop running
         logger.debug(" ########### STEP 1 - measure self TX-RX phase ###########")
         quit_event = threading.Event()
+        
+        amplitudes = [0.0,0.0]
+        amplitudes[LOOPBACK_TX_CH] = 0.8
 
-        tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=[0.0,0.8], phase=[0.0, 0.0])
+        tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=amplitudes, phase=[0.0, 0.0])
         tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
 
         phase_to_compensate = []
@@ -318,7 +326,7 @@ def main():
         tx_thr.join()
         rx_thr.join()
         logger.debug(f"Phases to compensate: {phase_to_compensate}")
-        tx_phase = phase_to_compensate[0]
+        tx_phase = phase_to_compensate[LOOPBACK_RX_CH]
         tx_meta_thr.join()
 
 
@@ -337,14 +345,19 @@ def main():
         tx_thr.join()
         rx_thr.join()
         logger.debug(f"Phases to compensate: {phase_to_compensate}")
-        pll_phase = phase_to_compensate[1]
+        pll_phase = phase_to_compensate[REF_RX_CH]
         tx_meta_thr.join()
         
         
         logger.debug(" ########### STEP 3 - Check self-correction TX-RX phase ###########")
         quit_event = threading.Event()
+        
+        amplitudes = [0.0,0.0]
+        amplitudes[LOOPBACK_TX_CH] = 0.8
+        phases = [0.0,0.0]
+        phases[LOOPBACK_TX_CH] = -tx_phase
 
-        tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=[0.0,0.8], phase=[0.0, -tx_phase])
+        tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=amplitudes, phase=phases)
         tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
 
         phase_to_compensate = []
@@ -361,11 +374,15 @@ def main():
 
         logger.debug("########### STEP 4 - TX with adjusted phases ###########")
         quit_event = threading.Event()
-        phase_to_compensate = [pll_phase-tx_phase, -tx_phase]
+        
+        phases = [0.0,0.0]
+        phases[LOOPBACK_TX_CH] = -tx_phase
+        phases[FREE_TX_CH] = pll_phase-tx_phase
+        
         
         logger.debug(f"Applying phase correction CH0:{np.rad2deg(phase_to_compensate[0]):.2f} and CH1:{np.rad2deg(phase_to_compensate[1]):.2f}")
 
-        tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=[0.8,0.8], phase=phase_to_compensate)
+        tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=[0.8,0.8], phase=phases)
         tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
 
         tx_thr.join()
