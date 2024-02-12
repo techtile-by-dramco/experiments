@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import os
 import re
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # Define the pattern to match the file names
 file_pattern = 'received_data_CH1_*\.dat'
@@ -34,7 +34,9 @@ for file_path in file_paths:
     milli_seconds_array = np.arange(len(avg_phase))*(1020000.0/250000.0)*1000.0
     print(milli_seconds_array)
     
-    dates = np.datetime64('2024-02-10 10:22:15.0') +  np.timedelta64(milli_seconds_array, 'ms')
+    # dates = np.datetime64('2024-02-10 10:22:15.0') +  np.timedelta64(milli_seconds_array, 'ms')
+    
+    dates = datetime(2024,2,10,10,22,15) + timedelta(milliseconds = milli_seconds_array)
     
     print("Data from file:", file_path)
     plt.title(file_path)
