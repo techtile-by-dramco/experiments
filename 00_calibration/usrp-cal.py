@@ -20,7 +20,7 @@ CLOCK_TIMEOUT = 1000  # 1000mS timeout for external clock locking
 INIT_DELAY = 0.2  # 200ms initial delay before transmit
 
 RATE = 250e3
-DURATION = 20
+DURATION = 30
 
 TOPIC_CH0 = b"CH0"
 TOPIC_CH1 = b"CH1"
@@ -28,7 +28,7 @@ TOPIC_CH1 = b"CH1"
 REF_RX_CH = FREE_TX_CH = 0
 LOOPBACK_RX_CH = LOOPBACK_TX_CH = 1
 LOOPBACK_TX_GAIN = 80
-LOOPBACK_RX_GAIN = 60
+LOOPBACK_RX_GAIN = 70
 
 
 context = zmq.Context()
