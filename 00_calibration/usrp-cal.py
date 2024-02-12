@@ -330,30 +330,13 @@ def main():
         tx_thr.join()
         rx_thr.join()
         logger.debug(f"Phases to compensate: {phase_to_compensate}")
+       
+        tx_meta_thr.join()
+        
         tx_phase = phase_to_compensate[LOOPBACK_RX_CH]
-        tx_meta_thr.join()
-
-
-        ########### STEP 2 - measure self REF phase ###########
-        # Make a signal for the threads to stop running
-        logger.debug("########### STEP 2 - measure self REF phase ###########")
-        quit_event = threading.Event()
-
-        phase_to_compensate = []
-        rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate, duration=DURATION)
-
-        time.sleep(DURATION)
-        quit_event.set()
-
-        #wait till both threads are done before proceding
-        tx_thr.join()
-        rx_thr.join()
-        logger.debug(f"Phases to compensate: {phase_to_compensate}")
-        pll_phase = phase_to_compensate[REF_RX_CH]
-        tx_meta_thr.join()
         
         
-        logger.debug(" ########### STEP 3 - Check self-correction TX-RX phase ###########")
+        logger.debug(" ########### STEP 2 - Check self-correction TX-RX phase ###########")
         quit_event = threading.Event()
         
         amplitudes = [0.0,0.0]
@@ -375,7 +358,24 @@ def main():
         rx_thr.join()
         tx_meta_thr.join()
 
+        # Make a signal for the threads to stop running
+        logger.debug("########### STEP 3 - measure self REF phase ###########")
+        quit_event = threading.Event()
 
+        phase_to_compensate = []
+        rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate, duration=DURATION)
+
+        time.sleep(DURATION)
+        quit_event.set()
+
+        #wait till both threads are done before proceding
+        tx_thr.join()
+        rx_thr.join()
+        logger.debug(f"Phases to compensate: {phase_to_compensate}")
+        pll_phase = phase_to_compensate[REF_RX_CH]
+        tx_meta_thr.join()
+        
+        
         logger.debug("########### STEP 4 - TX with adjusted phases ###########")
         quit_event = threading.Event()
         
