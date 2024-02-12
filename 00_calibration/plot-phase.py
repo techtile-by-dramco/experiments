@@ -31,9 +31,9 @@ for file_path in file_paths:
     std_phase = np.rad2deg(data[1::2])
     
     # Now you can work with your data as np.float32 array
-    seconds_array = np.arange(len(avg_phase))*(1020000.0/250000.0)
+    milli_seconds_array = np.arange(len(avg_phase))*(1020000.0/250000.0)*1000.0
     
-    dates = datetime(2024, 2, 10, 10,22,15) +  np.timedelta64(seconds_array, 's')
+    dates = datetime(2024, 2, 10, 10,22,15) +  np.timedelta64(milli_seconds_array, 'ms')
     
     print("Data from file:", file_path)
     plt.title(file_path)
