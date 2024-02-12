@@ -36,7 +36,7 @@ for file_path in file_paths:
     
     # dates = np.datetime64('2024-02-10 10:22:15.0') +  np.timedelta64(milli_seconds_array, 'ms')
     
-    dates = datetime(2024,2,10,10,22,15) + timedelta(milliseconds = milli_seconds_array)
+    dates = [datetime(2024,2,10,10,22,15) + timedelta(milliseconds = ms) for ms in milli_seconds_array]
     
     print("Data from file:", file_path)
     plt.title(file_path)
