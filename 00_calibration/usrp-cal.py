@@ -20,7 +20,7 @@ CLOCK_TIMEOUT = 1000  # 1000mS timeout for external clock locking
 INIT_DELAY = 0.2  # 200ms initial delay before transmit
 
 RATE = 250e3
-DURATION = 8
+DURATION = 20
 
 TOPIC_CH0 = b"CH0"
 TOPIC_CH1 = b"CH1"
@@ -340,9 +340,9 @@ def main():
         quit_event = threading.Event()
 
         phase_to_compensate = []
-        rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate, duration=DURATION*6)
+        rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate, duration=DURATION)
 
-        time.sleep(DURATION*6)
+        time.sleep(DURATION)
         quit_event.set()
 
         #wait till both threads are done before proceding
