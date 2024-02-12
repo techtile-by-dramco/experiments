@@ -5,6 +5,7 @@ import os
 import re
 
 from datetime import datetime, timedelta
+from matplotlib.dates import HourLocator, MinuteLocator
 
 # Define the pattern to match the file names
 file_pattern = 'received_data_CH1_*\.dat'
@@ -44,8 +45,8 @@ for file_path in file_paths:
     plt.gcf().autofmt_xdate()  # Auto format x-axis date labels
     
     # Set major ticks to hours and minor ticks to minutes
-    plt.gca().xaxis.set_major_locator(plt.MultipleLocator(base=1))  # Major ticks every hour
-    plt.gca().xaxis.set_minor_locator(plt.MultipleLocator(base=60))  # Minor ticks every minute
+    plt.gca().xaxis.set_major_locator(plt.HourLocator(interval=1))  # Major ticks every hour
+    plt.gca().xaxis.set_minor_locator(plt.MinuteLocator(interval=15))  # Minor ticks every 15 minutes
     
     plt.fill_between(dates, avg_phase-std_phase, avg_phase+std_phase, facecolor='blue', alpha=0.5)
     plt.grid(which='both', axis='x')  # Show both major and minor grid lines
