@@ -1,45 +1,69 @@
 # /bin/python3 -m experiments.01_distributed_non_coherent_beamforming.main
 # see for relative import: https://stackoverflow.com/a/68315950/3590700
 
-from ..scope.scope import Scope
-from ..location.Position import AcousticPositioner
+user_name = "/jarne"
+path_to_repo = "/Documents/GitHub"
+scope_ip = "192.108.0.251"
+DAQ_server_ip = "192.108.0.15"
+
+import sys
+sys.path.append(f"/home{user_name}{path_to_repo}/experiments/location")
+from Position import AcousticPositioner
+sys.path.append(f"/home{user_name}{path_to_repo}/experiments/scope")
+from scope import Scope
 import time 
 import ansible_runner
-import sys
 import zmq
+import csv
+
+csv_file_path = f"/home{user_name}{path_to_repo}/experiments/01_distributed_non_coherent_beamforming/meas_data/{round(time.time())}_nc_data.csv"
 
 context = zmq.Context()
-socket = context.socket(zmq.SUB)
-socket.connect(f"tcp://localhost:5555")
-socket.setsockopt_string(zmq.SUBSCRIBE, "")
+sub_socket = context.socket(zmq.SUB)
+sub_socket.connect(f"tcp://localhost:5555")
+sub_socket.setsockopt_string(zmq.SUBSCRIBE, "")
 
+# pub_socket = context.socket(zmq.PUB)
+# pub_socket.bind("tcp://0.0.0.0:5555")
 
+scope = Scope(scope_ip)
+positioner = AcousticPositioner(DAQ_server_ip, ttl=2.0)
 
-
-scope = Scope("192.108.0.251")
-positioner = AcousticPositioner("192.108.0.15")
+ctrl_thread = None
 
 measurements = []
 current_meas = []
 
 current_pos = positioner.get_pos()
+import threading
 
 def clean_up():
     r = ansible_runner.run(
-        inventory='/home/gilles/ansible/inventory/hosts.yaml',
-        playbook='/home/gilles/ansible/kill-transmitter.yaml',
-        # host_pattern='G03'
+        inventory='/home/' + user_name + '/ansible/inventory/hosts.yaml',
+        # To change hosts !!! change in kill-transmitter.yaml file !!! current --> measnc
+        playbook='/home/' + user_name + '/ansible/kill-transmitter.yaml',
     )
     positioner.stop()
+    #ctrl_thread.stop()
     exit()
+
+def ctrl_thread(stop_event, start_event):
+    while True:
+        ctrl_msg = sub_socket.recv_string()
+        if  ctrl_msg == "STOP":
+            stop_event.set()
+            start_event.clear()
+        elif ctrl_msg == "START":
+            start_event.set()
+            stop_event.clear()
 
 
 if __name__ == '__main__':
     # todo resolve in python to absolute path
     r = ansible_runner.run(
-        inventory='/home/gilles/ansible/inventory/hosts.yaml',
-        playbook='/home/gilles/ansible/start_waveform.yaml',
-        # host_pattern='G03'
+        inventory=f'/home/{user_name}/ansible/inventory/hosts.yaml',
+        # To change hosts !!! change in waveform.yaml file !!! current --> measnc
+        playbook=f'/home/{user_name}/ansible/start_waveform.yaml',
     )
 
     print(r.stats)
@@ -50,29 +74,50 @@ if __name__ == '__main__':
     print(num_unreachable)
     print(num_processed)
 
+    stop_event = threading.Event()
+    start_event = threading.Event()
+
+    ctrl_thread = threading.Thread(target=ctrl_thread, args=(stop_event,start_event))
+    ctrl_thread.start()
+
+
     # blocking wait till start
 
-    while True:
-        while socket.recv_string() != "START":
-            if socket.recv_string() == "DONE":
-                clean_up()
+    def append_to_csv(csv_file_path, data):
+        # Open the CSV file in append mode
+        with open(csv_file_path, mode='a', newline='') as file:
+            # Create a CSV writer object
+            writer = csv.writer(file)
 
-        # we have a go
-        # get positions + power
+            # Write the data to the CSV file
+            writer.writerow(data)
 
-        positions= []
-        power = []
+    while not start_event.is_set():
+        pass
+    print("Start logging")
 
-        while socket.recv_string(flags=zmq.NOBLOCK) != "DONE" or "STOP":
-            positions.append(positioner.get_pos())
-            power_dBm = scope.get_power_dBm() 
-            power.append(power_dBm)
+    pos = None
+
+    data_start = time.time()
+
+    while not stop_event.is_set():
+        #   Get position
+        pos = positioner.get_pos()
+        while pos is None:
+            pos = positioner.get_pos()
+
+        #   Get rsv power via scope
+        power_dBm = scope.get_power_dBm() 
+
+        #   Print power
+        print(f"Power [dBm] {power_dBm}")
+
+        #   Save data
+        data_to_append = [round(time.time()-data_start), pos, power_dBm]
+        append_to_csv(csv_file_path, data_to_append)
+
+    clean_up()
+    print("DONE")
 
 
 
-
-
-
-
-    
-    

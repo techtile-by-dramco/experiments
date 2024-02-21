@@ -1,6 +1,7 @@
 import zmq
 import threading
 import json
+import time
 
 from datetime import datetime,timezone
 
@@ -33,23 +34,52 @@ class AcousticPositioner():
         self.socket.connect(f"tcp://{ip}:5555")
         self.socket.setsockopt_string(zmq.SUBSCRIBE, "")
 
+        # self.event = threading.Event()
+
         self.pos_thread = threading.Thread(target=self.position_thread)
 
         self.pos_thread.start()
 
         self.last_pos = None
+        self.last_sent = None
 
-        self.ttl = ttl
+        self.ttl = ttl # time to live before position gets outdated (in seconds)
+        self.prev_post_time = None
 
     def stop(self):
-        self.pos_thread.stop()
-
+        # if self.event.is_set():
+        #     self.event.clear()
+        self.pos_thread.join()
 
     def get_pos(self) -> Position:
-        #return last position if its fresh enough
-        now = datetime.now(timezone.utc)
-        # TODO implement the freshness with the ttl param
-        return self.last_pos
+        #return last position if its fresh enough or if its changed
+        if self.last_pos is None:
+            return None
+        
+        if self.last_sent is None:
+            self.last_sent = self.last_pos
+            return self.last_pos
+        
+        if self.last_sent is not self.last_pos:
+            self.last_sent = self.last_pos
+            return self.last_pos
+
+        # if self.prev_post_time is None:
+        #     self.last_sent = self.last_pos
+        #     print("new pos")
+        #     return self.last_pos
+        
+        # now = time.time()
+        # if now > self.prev_post_time + self.ttl:
+        #     self.last_sent = self.last_pos
+        #     print("timeout")
+        #     return self.last_pos
+        # elif self.last_pos != self.last_sent:
+        #     print("not the same")
+        #     self.last_sent = self.last_pos
+        #     return self.last_pos
+        
+        return None
 
 
         
