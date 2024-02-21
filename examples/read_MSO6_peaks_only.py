@@ -8,6 +8,7 @@ import pyvisa as visa # http://github.com/hgrecco/pyvisa
 import matplotlib.pyplot as plt # http://matplotlib.org/
 import numpy as np # http://www.numpy.org/
 from tqdm import tqdm
+from scipy.signal import find_peaks
 
 rm = visa.ResourceManager()
 scope = rm.open_resource(visa_address)
@@ -38,8 +39,10 @@ scope.write("DISplay:SELect:SPECView1:SOUrce CH1")
 scope.write("CH1:SV:STATE ON")
 scope.write("CH1:SV:CENTERFrequency 910.0015E+06")
 scope.write("SV:SPAN 3.0E+03")
+# scope.write("SV:SPAN 6.0E+03")
 
 scope.write("SV:RBWMode MANUAL")
+# scope.write("SV:RBW 3.0E+00")
 scope.write("SV:RBW 3.0E+00")
 
 scope.write("SV:CH1:UNIts DBM")
@@ -77,62 +80,16 @@ r = scope.query('*opc?') # sync
 positions = []
 measurements_per_pos = []
 
+pwr_dbm = scope.query_binary_values("CURVe?", datatype='d', container=np.array)
 
-cable_loss_dB = -0.8 #10.3258123397827
+power_linear = 10 ** (pwr_dbm / 10)
+tot_pwr_dbm = float(10*np.log10(np.sum(power_linear))) #float to cast to single element
+print(tot_pwr_dbm)
 
-
-
-while True:
-    if not input("Next measurement? (True/False): ").lower() in ["true", "1"]:
-        break
-    
-    x = float(input("Enter the x coordinate in meters: "))
-    y = float(input("Enter the y coordinate in meters: "))
-    z = float(input("Enter the z coordinate in meters: "))
-
-    
-    measurements = [] #clear measurements
-
-    print(f"Coordinates: ({x}, {y}, {z})")
-
-    NUM_MEASURMENTS = 1000
-
-    # try:
-    #     while 1:
-            
-    for i in tqdm(range(NUM_MEASURMENTS)):
-        # time.sleep(0.5)
-        pwr_dbm = scope.query_binary_values("CURVe?", datatype='d', container=np.array)
-        power_linear = 10 ** (pwr_dbm / 10)
-        tot_pwr_dbm = float(10*np.log10(np.sum(power_linear))) #float to cast to single element
-        measurements.append(tot_pwr_dbm-cable_loss_dB)
-    positions.append((x,y,z))
-    measurements_per_pos.append(measurements)
-
-    # except KeyboardInterrupt:
-    #     positions.append((x,y,z))
-    #     measurements_per_pos.append(measurements)
-    #     print("\nCtrl+C detected. Exiting...")
-        
-
-# %%
-
-print(measurements_per_pos)
-print(positions)
-
-# x = np.linspace(1, len(pwr_dbm), len(pwr_dbm))
-# %%
-fig = plt.figure(figsize=(14, 7))
-plt.plot(pwr_dbm)
-plt.show()
-
-# %%
-fig = plt.figure(figsize=(14, 7))
-plt.plot(measurements_per_pos[0])
-plt.show()
-
-
-# %%
-scope.close()
-rm.close()
-exit()
+# Only peaks
+pwr_dbm_filter = pwr_dbm[pwr_dbm > -80]
+peaks,_ = find_peaks(pwr_dbm_filter)
+power_linear = 10 ** (pwr_dbm_filter[peaks] / 10)
+tot_pwr_dbm = float(10*np.log10(np.sum(power_linear))) #float to cast to single element
+print(f"NO peaks: {len(peaks)} - Pwr [dBm]: {tot_pwr_dbm}")
+print(pwr_dbm_filter[peaks])
