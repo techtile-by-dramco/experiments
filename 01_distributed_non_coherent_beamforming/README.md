@@ -6,6 +6,8 @@ Distributed non-coherent beamforming is a technique used in wireless communicati
 
 ▶️ First test exectuted with vitual machine (Jarne)
 
+✔️ First test executed --> see here for example plot
+
 ## Transmitter side 
 
 **ToDo**
