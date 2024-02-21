@@ -3,6 +3,7 @@
 Distributed non-coherent beamforming is a technique used in wireless communication and signal processing where multiple transmitters or antennas collaborate to transmit a signal without precise phase synchronization or coherent processing. In non-coherent beamforming, the individual transmitters or antennas do not need to have perfect knowledge of each other's phases or timing. This is in contrast to coherent beamforming, where the phase and timing of the signals from different transmitters are carefully synchronized to maximize constructive interference.
 
 ❗❗ script should be exectuted in Python on LINUX server
+
 ▶️ First test exectuted with vitual machine (Jarne)
 
 ## Transmitter side 
@@ -34,6 +35,9 @@ ansible-playbook -i inventory/hosts.yaml kill-transmitter.yaml
 
 ### Setup
 
+The following image provides an overview of the acoustic transmitter for determining the location and the receiving antenna. The scope in the background receives the RF signals and determines the received power.
+
+<img src="images/setup-photo-1.jpg" height="300">
 
 ### More information
 
