@@ -1,6 +1,7 @@
 import time # std module
 import pyvisa as visa # http://github.com/hgrecco/pyvisa
 import numpy as np # http://www.numpy.org/
+from scipy.signal import find_peaks
 
 from enum import Enum
 class ScopeMode(Enum):
@@ -63,9 +64,17 @@ class Scope:
         _ = self.query('*opc?') # sync
 
 
-    def get_power_dBm(self) -> float:
+    def get_power_dBm(self, cable_loss) -> float:
         pwr_dbm = self.scope.query_binary_values("CURVe?", datatype='d', container=np.array)
         pwr_lin = 10 ** (pwr_dbm / 10)
         tot_pwr_dbm = float(10*np.log10(np.sum(pwr_lin))) #float to cast to single element
-        return tot_pwr_dbm
+        return tot_pwr_dbm + cable_loss
 
+
+    def get_power_dBm_peaks(self, cable_loss) -> float:
+        pwr_dbm = self.scope.query_binary_values("CURVe?", datatype='d', container=np.array)
+        pwr_dbm_filter = pwr_dbm[pwr_dbm > -80]
+        peaks,_ = find_peaks(pwr_dbm_filter)
+        power_linear = 10 ** (pwr_dbm_filter[peaks] / 10)
+        tot_pwr_dbm = float(10*np.log10(np.sum(power_linear))) #float to cast to single element
+        return tot_pwr_dbm + cable_loss, peaks        

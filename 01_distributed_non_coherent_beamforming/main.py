@@ -5,6 +5,7 @@ user_name = "/jarne"
 path_to_repo = "/Documents/GitHub"
 scope_ip = "192.108.0.251"
 DAQ_server_ip = "192.108.0.15"
+cable_loss = 10 
 
 import sys
 sys.path.append(f"/home{user_name}{path_to_repo}/experiments/location")
@@ -107,13 +108,14 @@ if __name__ == '__main__':
             pos = positioner.get_pos()
 
         #   Get rsv power via scope
-        power_dBm = scope.get_power_dBm() 
+        # power_dBm = scope.get_power_dBm(cable_loss) 
+        power_dBm, peaks = scope.get_power_dBm_peaks(cable_loss) 
 
         #   Print power
-        print(f"Power [dBm] {power_dBm}")
+        print(f"Power [dBm] {power_dBm:.2f} - NO Peaks {len(peaks)}")
 
         #   Save data
-        data_to_append = [round(time.time()-data_start), pos, power_dBm]
+        data_to_append = [round(time.time()-data_start), *pos.to_csv(), power_dBm]
         append_to_csv(csv_file_path, data_to_append)
 
     clean_up()

@@ -20,6 +20,12 @@ class Position(object):
     def __str__(self) -> str:
         return f"@({self.x},{self.y},{self.z}) utc={self.t}"
     
+    def to_csv(self):
+        return [self.x,self.y,self.z,self.t]
+    
+    def get_csv_header(self):
+        return ["x","y","z","utc"]
+    
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Position):
             return False
