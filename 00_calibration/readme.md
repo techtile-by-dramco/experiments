@@ -6,8 +6,15 @@
 - ⬛ USRP Phase Stability Test   
   * ⬛ USRP CH0-CH1 Phase stability
   * ⬛ USRP0 CH0 USRP1 CH0 Phase stability
- 
-  
+- ⬛ PLL-USRP Sync
+  * ⬛ PLL-RX CH0 Phase stability
+- ⬛ USRP Loopback Sync
+  * ⬛ TX CH0-RX CH0 Phase stability
+- ⬛ USRP Ref Sync
+  * ⬛ PLL + loopback
+
+
+
 ## PLL Phase Stability Test
 
 ### PLL Phase when clocked from the same Octoclock
