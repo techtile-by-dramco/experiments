@@ -252,7 +252,7 @@ def main():
     formatter = LogFormatter(fmt='[%(asctime)s] [%(levelname)s] (%(threadName)s) %(message)s')
     console.setFormatter(formatter)
 
-    usrp = uhd.usrp.MultiUSRP("")
+    usrp = uhd.usrp.MultiUSRP("mode_n=integer")
     tx_streamer, rx_streamer = setup(usrp)
     
 
