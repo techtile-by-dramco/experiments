@@ -8,12 +8,7 @@ Distributed non-coherent beamforming is a technique used in wireless communicati
 
 ✔️ First test executed --> [see here](https://techtile-by-dramco.github.io/experiments/01_distributed_non_coherent_beamforming/plot/1708519348_plot.html) for example plot
 
-## Transmitter side 
-
-**ToDo**
-- **@Gilles** Make script with adaptable gain
-- **@Gilles** Gain calibration (gain - tx power (dBm) ratio)
-- **@geoffrey @gilles** How changing gain flexible for all USRPs
+## Transmitter side
 
 ### 1️⃣ Equipment
 - Techtile base infrastructure N tile with RPI + USRP + PSU
@@ -30,15 +25,15 @@ Stop transmitters
 ```
 ansible-playbook -i inventory/hosts.yaml kill-transmitter.yaml
 ```
-### 3️⃣ Mapping USRP gain to output power
+### 3️⃣ Mapping USRP gain to output power (Gain calibration)
 
 | USRP Gain [dB] | 100 | 95 | 90 | 85 | 80 | 75 | 70 | 65 | 60 | 55 |
 |-|-|-|-|-|-|-|-|-|-|-|
-| Output power [dBm] | | | | | | | | | | |
+| Output power [dBm] |  18.2   |  18.0  |  18.4  |  17.4  |  13.4  |  9.1  |  4.6  |  -0.4  |  -5.6  |  -10.8  |
 
 | USRP Gain [dB] | 50 | 45 | 40 | 35 | 30 | 25 | 20 | 15 | 10 | 5 | 0 |
 |-|-|-|-|-|-|-|-|-|-|-|-|
-| Output power [dBm] | | | | | | | | | | | |
+| Output power [dBm] |  -15.7  |  -20.8  |  -26.4  |  -30.4  |  -37.0  |  -42.5  |  -46.5  |  -51.3  |  -56.3  |  -61.1  |  -67.4  |
 
 
 ## Receiver side
