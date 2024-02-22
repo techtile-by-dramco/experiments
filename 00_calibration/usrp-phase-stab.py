@@ -259,7 +259,7 @@ def main():
     try:
         quit_event = threading.Event()
 
-        tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=[0.0,0.8])
+        tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=[0.8,0.8])
         tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
         rx_thr = rx_thread(usrp, rx_streamer, quit_event)
 
