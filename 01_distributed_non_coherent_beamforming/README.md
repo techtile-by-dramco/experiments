@@ -30,6 +30,16 @@ Stop transmitters
 ```
 ansible-playbook -i inventory/hosts.yaml kill-transmitter.yaml
 ```
+### 3️⃣ Mapping USRP gain to output power
+
+| USRP Gain [dB] | 100 | 95 | 90 | 85 | 80 | 75 | 70 | 65 | 60 | 55 |
+|-|-|-|-|-|-|-|-|-|-|-|
+| Output power [dBm] | | | | | | | | | | |
+
+| USRP Gain [dB] | 50 | 45 | 40 | 35 | 30 | 25 | 20 | 15 | 10 | 5 | 0 |
+|-|-|-|-|-|-|-|-|-|-|-|-|
+| Output power [dBm] | | | | | | | | | | | |
+
 
 ## Receiver side
 
