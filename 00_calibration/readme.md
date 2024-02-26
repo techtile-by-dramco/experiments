@@ -19,8 +19,12 @@
 
 ### PLL Phase when clocked from the same Octoclock
 
-Start time: 22/02/2024 13:20
-PLL Frequency: 910MHz
+| Parameter | Value |
+|-|-|
+|Start time | 22/02/2024 14:16|
+|Stop time | 22/02/2024 14:20|
+|PLL Frequency|920MHz|
+
 
 ![PLL-PLL-phase](data/PLL-PLL-phase-plot.png)
 
