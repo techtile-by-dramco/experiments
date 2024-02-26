@@ -39,6 +39,6 @@ for file in files:
     plt.title(file)
     plt.grid(True)
     
-    out_file_path = os.path.join(script_dir, file[:-3]+"-plot.png")
+    out_file_path = os.path.join(script_dir, file[:-4]+"-plot.png")
     plt.savefig(out_file_path) 
     plt.show()
