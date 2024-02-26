@@ -59,12 +59,14 @@ python3 tx_waveforms.py -w const -f 910E6 -c 0 1 --wave-freq 0  --gain 50 --wave
 
 The phase stability is measured on the USRP by sampling the phase difference in base band between the incoming PLL signal and its own internal RF PLL and BB PLL.
 
+The stored data is plotted via [this script](data/plot-phase-USRP.py).
+
 
 Procedure:
 
 Where you want to store the phase values:
 ```python
-python3 sub.py 192.108.0.222
+python3 sub.py "192.108.0.222"
 ```
 
 Start script on the tile:
@@ -89,7 +91,10 @@ python3 plot-phase.py
 
 ## USRP Loopback Sync
 
+The stored data is plotted via [this script](data/plot-phase-USRP.py). The same procedure is followed as in [here](###PLL-RX-CH0-Phase-stability).
+
 ![LOOPBACK-USRP](data/received_data_CH1_ALL_2024-02-22_14-10-06.png)
+
 
 ## USRP Ref Sync
 
