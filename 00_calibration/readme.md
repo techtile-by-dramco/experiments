@@ -19,6 +19,10 @@
 
 ### PLL Phase when clocked from the same Octoclock
 
+The phase difference is measured on our Scope. Procedure is explained [here](###Scope-Phase-measurement-procedure).
+The stored data is plotted via [this script](data/plot-hist-scope.py).
+
+
 | Parameter | Value |
 |-|-|
 |Start time | 22/02/2024 14:16|
@@ -53,7 +57,11 @@ python3 tx_waveforms.py -w const -f 910E6 -c 0 1 --wave-freq 0  --gain 50 --wave
 
 ### PLL-RX CH0 Phase stability
 
-Proecure:
+The phase stability is measured on the USRP by sampling the phase difference in base band between the incoming PLL signal and its own internal RF PLL and BB PLL.
+
+
+Procedure:
+
 Where you want to store the phase values:
 ```python
 python3 sub.py 192.108.0.222
@@ -80,3 +88,10 @@ python3 plot-phase.py
 
 ## USRP Ref Sync
 
+
+### Scope Phase measurement procedure
+
+
+- Trigger on one channel (50%)
+- Phase is measured by a time phase measurement on the scope
+- Triggered by a rising edge
