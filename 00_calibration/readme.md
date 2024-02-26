@@ -22,10 +22,15 @@
 Start time: 22/02/2024 13:20
 PLL Frequency: 910MHz
 
+![PLL-PLL-phase](data/PLL-PLL-phase.png)
+
+
 ### PLL Phase when clocked from different Octoclock
 
 ## USRP Phase stability
 
 ### USRP CH0-CH1 Phase stability
+
+![CH0-CH1](data/CH0-CH1.png)
 
 ## USRP0 CH0 USRP1 CH0 Phase stability
