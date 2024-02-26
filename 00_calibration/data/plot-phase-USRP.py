@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 import re
+from scipy.stats import norm
 
 from datetime import datetime, timedelta
 from matplotlib.dates import HourLocator, MinuteLocator
@@ -12,7 +13,7 @@ file_pattern0 = 'received_data_CH0_ALL'
 file_pattern1 = 'received_data_CH1_ALL'
 
 # Get the directory where the script is located
-script_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "data")
+script_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)))
 
 print(script_dir)
 
@@ -32,11 +33,39 @@ for file_path in file_paths:
     # avg_phase = np.rad2deg(data[::2])
     # std_phase = np.rad2deg(data[1::2])
     
+    data = np.where(data < 0, data + 360, data)
+    
+    # median = np.median(data)
+    
+    # data = (data - median) + 180
+    
+    
+    
+    
     plt.figure()
     
     plt.title(file_path)
     
-    plt.hist(data,bins=1000)
+    hist, bins = np.histogram(data, density= True, bins=360*2)
+    
+    
+    plt.plot(bins[:-1], hist)
+    
+    
+    
+    
+    
+    # Plot the PDF.
+    xmin, xmax = plt.xlim()
+    mu, std = norm.fit(data) 
+    x = np.linspace(xmin, xmax, 1000)
+    p = norm.pdf(x, mu, std)
+    label = "Fit Values: mu={:.2f} and std={:.2f}".format(mu, std)
+    plt.plot(x, p, 'k', linewidth=2, label=label)
+    
+
+    plt.legend()
+    plt.savefig(file_path[:-4]+".png")
     plt.show()
     
     # # Now you can work with your data as np.float32 array
