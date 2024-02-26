@@ -84,7 +84,12 @@ python3 plot-phase.py
 |PLL Frequency|920MHz|
 
 
+![PLL-USRP](data/received_data_CH0_ALL_2024-02-22_14-10-06.png)
+
+
 ## USRP Loopback Sync
+
+![LOOPBACK-USRP](data/received_data_CH1_ALL_2024-02-22_14-10-06.png)
 
 ## USRP Ref Sync
 
