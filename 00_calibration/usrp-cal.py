@@ -78,7 +78,7 @@ RATE = 250e3
 CAPTURE_TIME = 5
 LOOPBACK_TX_GAIN = 70
 LOOPBACK_RX_GAIN = 23
-REF_RX_GAIN = 30 # emperical determined
+REF_RX_GAIN = 28 # emperical determined
 
 
 TOPIC_CH0 = b"CH0"
