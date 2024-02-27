@@ -16,6 +16,8 @@ import uhd
 import os
 import zmq
 
+from scipy.stats import norm, circmean, circstd
+
 CLOCK_TIMEOUT = 1000  # 1000mS timeout for external clock locking
 INIT_DELAY = 0.2  # 200ms initial delay before transmit
 

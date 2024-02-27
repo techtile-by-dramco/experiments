@@ -21,6 +21,8 @@ import numpy as np
 import uhd
 import os
 
+from scipy.stats import norm, circmean, circstd
+
 import zmq
 
  # Setup the logger with our custom timestamp formatting
@@ -229,7 +231,8 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration):
 
         samples = iq_data[:, :num_rx]
 
-        avg_angles = np.angle(np.sum(np.exp(np.angle(samples)*1j), axis=1)) # circular mean https://en.wikipedia.org/wiki/Circular_mean
+        # np.angle(np.sum(np.exp(np.angle(samples)*1j), axis=1)) # circular mean https://en.wikipedia.org/wiki/Circular_mean
+        avg_angles = circmean(np.angle(samples), axis=1)
 
         phase_to_compensate.extend(avg_angles)
 
