@@ -76,9 +76,9 @@ INIT_DELAY = 0.2  # 200ms initial delay before transmit
 
 RATE = 250e3
 CAPTURE_TIME = 10
-LOOPBACK_TX_GAIN = 40
+LOOPBACK_TX_GAIN = 50
 LOOPBACK_RX_GAIN = 10
-REF_RX_GAIN = 30
+REF_RX_GAIN = 30 # emperical determined
 
 
 TOPIC_CH0 = b"CH0"
