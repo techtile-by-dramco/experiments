@@ -166,7 +166,7 @@ def setup(usrp):
     channels = [0,1]
 
     rx_bw = 200e3 # smallest as possible (https://files.ettus.com/manual/page_usrp_b200.html#b200_fe_bw)
-    freq=920E6
+    freq=910E6
     
     usrp.set_clock_source("external")
     usrp.set_time_source("external")
