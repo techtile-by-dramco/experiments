@@ -96,8 +96,6 @@ else:
     REF_RX_CH = LOOPBACK_TX_CH = 1
     logger.debug("\nPLL REF-->CH1 RX\nCH1 TX-->CH0 RX\nCH0 TX -->")
 
-
-
 context = zmq.Context()
 
 socket = context.socket(zmq.PUB)
