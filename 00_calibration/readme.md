@@ -66,8 +66,9 @@ Procedure:
 
 Where you want to store the phase values:
 ```python
-python3 sub.py "192.108.0.222"
+python3 sub.py "192.108.0.222" 1
 ```
+The `1` indicates that we want to store all phase measurements.
 
 Start script on the tile:
 ```python
