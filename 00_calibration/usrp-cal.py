@@ -78,7 +78,7 @@ RATE = 250e3
 CAPTURE_TIME = 10
 LOOPBACK_TX_GAIN = 40
 LOOPBACK_RX_GAIN = 10
-REF_RX_GAIN = 30
+REF_RX_GAIN = 25
 
 
 TOPIC_CH0 = b"CH0"
@@ -372,7 +372,7 @@ def setup(usrp):
     usrp.set_tx_gain(LOOPBACK_TX_GAIN, LOOPBACK_TX_CH)
     usrp.set_rx_gain(LOOPBACK_RX_GAIN, LOOPBACK_RX_CH)
     usrp.set_rx_gain(REF_RX_GAIN, REF_RX_CH)
-    usrp.set_rx_gain(LOOPBACK_TX_GAIN, FREE_TX_CH) 
+    usrp.set_rx_gain(LOOPBACK_TX_GAIN, FREE_TX_CH)
 
 
     # streaming arguments
