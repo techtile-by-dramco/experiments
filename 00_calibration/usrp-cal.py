@@ -76,7 +76,7 @@ INIT_DELAY = 0.2  # 200ms initial delay before transmit
 
 RATE = 250e3
 CAPTURE_TIME = 20
-LOOPBACK_TX_GAIN = 60
+LOOPBACK_TX_GAIN = 50
 LOOPBACK_RX_GAIN = 30
 REF_RX_GAIN = 30
 
@@ -90,11 +90,11 @@ RX_TX_SAME_CHANNEL = False # if loopback is done from one channel to the other c
 if RX_TX_SAME_CHANNEL:
     REF_RX_CH = FREE_TX_CH = 0
     LOOPBACK_RX_CH = LOOPBACK_TX_CH = 1
-    logger.debug("PLL REF-->CH0 RX\nCH1 TX-->CH1 RX\nCH0 TX -->")
+    logger.debug("\nPLL REF-->CH0 RX\nCH1 TX-->CH1 RX\nCH0 TX -->")
 else:
     LOOPBACK_RX_CH = FREE_TX_CH = 0
     REF_RX_CH = LOOPBACK_TX_CH = 1
-    logger.debug("PLL REF-->CH1 RX\nCH1 TX-->CH0 RX\nCH0 TX -->")
+    logger.debug("\nPLL REF-->CH1 RX\nCH1 TX-->CH0 RX\nCH0 TX -->")
 
 
 
