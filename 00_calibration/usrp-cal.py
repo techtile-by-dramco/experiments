@@ -77,7 +77,7 @@ INIT_DELAY = 0.2  # 200ms initial delay before transmit
 
 
 RATE = 250e3
-CAPTURE_TIME = 10
+CAPTURE_TIME = 30
 LOOPBACK_TX_GAIN = 70  # emperical determined
 LOOPBACK_RX_GAIN = 23  # emperical determined
 REF_RX_GAIN = 28 # emperical determined
