@@ -23,50 +23,12 @@ import os
 
 import zmq
 
-
-CLOCK_TIMEOUT = 1000  # 1000mS timeout for external clock locking
-
-INIT_DELAY = 0.2  # 200ms initial delay before transmit
-
-
-RATE = 250e3
-CAPTURE_TIME = 20
-
-
-TOPIC_CH0 = b"CH0"
-
-TOPIC_CH1 = b"CH1"
-
-RX_TX_SAME_CHANNEL = False # if loopback is done from one channel to the other channel
-
-if RX_TX_SAME_CHANNEL:
-    REF_RX_CH = FREE_TX_CH = 0
-    LOOPBACK_RX_CH = LOOPBACK_TX_CH = 1
-else:
-    LOOPBACK_TX_CH = 1   
-    LOOPBACK_RX_CH = 0
-    REF_RX_CH = 1
-    FREE_TX_CH = 0
-    
-
-LOOPBACK_TX_GAIN = 60
-LOOPBACK_RX_GAIN = 30
-
-
-
-context = zmq.Context()
-
-socket = context.socket(zmq.PUB)
-
-socket.bind(f"tcp://*:{50001}")
-
-
+ # Setup the logger with our custom timestamp formatting
 class LogFormatter(logging.Formatter):
 
-    """Log formatter which prints the timestamp with fractional seconds"""
+"""Log formatter which prints the timestamp with fractional seconds"""
 
     @staticmethod
-
     def pp_now():
 
         """Returns a formatted string containing the time of day"""
@@ -92,6 +54,59 @@ class LogFormatter(logging.Formatter):
 
         return formatted_date
     
+
+global logger
+
+logger = logging.getLogger(__name__)
+
+logger.setLevel(logging.DEBUG)
+
+console = logging.StreamHandler()
+
+logger.addHandler(console)
+
+formatter = LogFormatter(fmt='[%(asctime)s] [%(levelname)s] (%(threadName)-10s) %(message)s')
+
+console.setFormatter(formatter)
+
+
+CLOCK_TIMEOUT = 1000  # 1000mS timeout for external clock locking
+
+INIT_DELAY = 0.2  # 200ms initial delay before transmit
+
+
+RATE = 250e3
+CAPTURE_TIME = 20
+LOOPBACK_TX_GAIN = 60
+LOOPBACK_RX_GAIN = 30
+REF_RX_GAIN = 30
+
+
+TOPIC_CH0 = b"CH0"
+
+TOPIC_CH1 = b"CH1"
+
+RX_TX_SAME_CHANNEL = False # if loopback is done from one channel to the other channel
+
+if RX_TX_SAME_CHANNEL:
+    REF_RX_CH = FREE_TX_CH = 0
+    LOOPBACK_RX_CH = LOOPBACK_TX_CH = 1
+    logger.debug("PLL REF-->CH0 RX\nCH1 TX-->CH1 RX\nCH0 TX -->")
+else:
+    LOOPBACK_RX_CH = FREE_TX_CH = 0
+    REF_RX_CH = LOOPBACK_TX_CH = 1
+    logger.debug("PLL REF-->CH1 RX\nCH1 TX-->CH0 RX\nCH0 TX -->")
+
+
+
+context = zmq.Context()
+
+socket = context.socket(zmq.PUB)
+
+socket.bind(f"tcp://*:{50001}")
+
+
+
 
 def publish(data, channel:int):
 
@@ -310,11 +325,11 @@ def setup(usrp):
     usrp.set_master_clock_rate(mcr) # Manual selection of master clock rate may also be required to synchronize multiple B200 units in time.
     
 
-    tx_gain = 60 # TX gain 89.9dB
+    # tx_gain = 60 # TX gain 89.9dB
 
-    rx_gain = 30 # RX gain 76dB
+    # rx_gain = 30 # RX gain 76dB
 
-    rx_gain_pll = 20
+    # rx_gain_pll = 20
 
     channels = [0,1]
 
@@ -340,41 +355,25 @@ def setup(usrp):
     # Channel 0 settings
 
     usrp.set_tx_rate(rate, 0)
-
     usrp.set_tx_freq(freq, 0)
-
-    usrp.set_tx_gain(tx_gain, 0)
-
     usrp.set_rx_rate(rate, 0)
-
     usrp.set_rx_freq(freq, 0)
-
-    usrp.set_rx_gain(rx_gain, 0) # Ref PLL is 3dBm
-
     usrp.set_rx_bandwidth(rx_bw, 0)
+    
+    # Channel 1 settings
+    usrp.set_tx_rate(rate, 1)
+    usrp.set_tx_freq(freq, 1)
+    usrp.set_rx_rate(rate, 1)
+    usrp.set_rx_freq(freq, 1)
+    usrp.set_rx_bandwidth(rx_bw, 1)
+    
+    # specific settings from loopback/REF PLL
     
 
     usrp.set_tx_gain(LOOPBACK_TX_GAIN, LOOPBACK_TX_CH)
-
-
-    # Channel 1 settings
-
-    usrp.set_tx_rate(rate, 1)
-
-    usrp.set_tx_freq(freq, 1)
-
-    usrp.set_tx_gain(tx_gain, 1)
-
-    usrp.set_rx_rate(rate, 1)
-
-    usrp.set_rx_freq(freq, 1)
-
-    usrp.set_rx_gain(rx_gain_pll, 1) 
-
-    usrp.set_rx_bandwidth(rx_bw, 1)
-    
-
     usrp.set_rx_gain(LOOPBACK_RX_GAIN, LOOPBACK_RX_CH)
+    usrp.set_rx_gain(REF_RX_GAIN, REF_RX_CH)
+    usrp.set_rx_gain(LOOPBACK_TX_GAIN, FREE_TX_CH) 
 
 
     # streaming arguments
@@ -449,21 +448,7 @@ def tx_meta_thread(tx_streamer, quit_event):
 
 def main():
 
-    # Setup the logger with our custom timestamp formatting
-
-    global logger
-
-    logger = logging.getLogger(__name__)
-
-    logger.setLevel(logging.DEBUG)
-
-    console = logging.StreamHandler()
-
-    logger.addHandler(console)
-
-    formatter = LogFormatter(fmt='[%(asctime)s] [%(levelname)s] (%(threadName)-10s) %(message)s')
-
-    console.setFormatter(formatter)
+   
 
 
     usrp = uhd.usrp.MultiUSRP("")
