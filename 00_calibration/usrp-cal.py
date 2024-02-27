@@ -37,13 +37,19 @@ TOPIC_CH0 = b"CH0"
 
 TOPIC_CH1 = b"CH1"
 
+RX_TX_SAME_CHANNEL = False # if loopback is done from one channel to the other channel
 
-REF_RX_CH = FREE_TX_CH = 0
-
-LOOPBACK_RX_CH = LOOPBACK_TX_CH = 1
+if RX_TX_SAME_CHANNEL:
+    REF_RX_CH = FREE_TX_CH = 0
+    LOOPBACK_RX_CH = LOOPBACK_TX_CH = 1
+else:
+    LOOPBACK_TX_CH = 1   
+    LOOPBACK_RX_CH = 0
+    REF_RX_CH = 1
+    FREE_TX_CH = 0
+    
 
 LOOPBACK_TX_GAIN = 60
-
 LOOPBACK_RX_GAIN = 30
 
 
