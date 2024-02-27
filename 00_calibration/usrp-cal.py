@@ -77,7 +77,7 @@ INIT_DELAY = 0.2  # 200ms initial delay before transmit
 
 
 RATE = 250e3
-CAPTURE_TIME = 30
+CAPTURE_TIME = 4
 LOOPBACK_TX_GAIN = 70  # emperical determined
 LOOPBACK_RX_GAIN = 23  # emperical determined
 REF_RX_GAIN = 28 # emperical determined
@@ -340,7 +340,6 @@ def setup(usrp):
     
 
     usrp.set_clock_source("external")
-
     usrp.set_time_source("external")
 
 
@@ -449,7 +448,7 @@ def tx_meta_thread(tx_streamer, quit_event):
 def main():
 
    
-    usrp = uhd.usrp.MultiUSRP("mode_n=integer")
+    usrp = uhd.usrp.MultiUSRP("") #usrp = uhd.usrp.MultiUSRP("mode_n=integer")
     tx_streamer, rx_streamer = setup(usrp)
 
 
