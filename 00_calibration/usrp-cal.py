@@ -20,7 +20,7 @@ CLOCK_TIMEOUT = 1000  # 1000mS timeout for external clock locking
 INIT_DELAY = 0.2  # 200ms initial delay before transmit
 
 RATE = 250e3
-DURATION = 60
+DURATION = 5
 
 TOPIC_CH0 = b"CH0"
 TOPIC_CH1 = b"CH1"
@@ -189,7 +189,7 @@ def setup(usrp):
     channels = [0,1]
 
     rx_bw = 200e3 # smallest as possible (https://files.ettus.com/manual/page_usrp_b200.html#b200_fe_bw)
-    freq=920E6
+    freq=910E6
     
     usrp.set_clock_source("external")
     usrp.set_time_source("external")
