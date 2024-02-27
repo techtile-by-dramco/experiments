@@ -76,9 +76,9 @@ INIT_DELAY = 0.2  # 200ms initial delay before transmit
 
 RATE = 250e3
 CAPTURE_TIME = 10
-LOOPBACK_TX_GAIN = 46
+LOOPBACK_TX_GAIN = 48
 LOOPBACK_RX_GAIN = 10
-REF_RX_GAIN = 30 # emperical determined
+REF_RX_GAIN = 28 # emperical determined
 
 
 TOPIC_CH0 = b"CH0"
@@ -580,7 +580,7 @@ def main():
 
         # Make a signal for the threads to stop running
 
-        logger.debug("########### STEP 3 - measure self REF phase ###########")
+        logger.debug("########### STEP 3 - measure PLL REF phase ###########")
 
         quit_event = threading.Event()
 
@@ -595,9 +595,6 @@ def main():
 
 
         #wait till both threads are done before proceding
-
-        tx_thr.join()
-
         rx_thr.join()
 
         logger.debug(f"Phases to compensate: {phase_to_compensate}")
@@ -619,8 +616,7 @@ def main():
 
         phases[FREE_TX_CH] = pll_phase-tx_phase
         
-        
-
+    
         logger.debug(f"Applying phase correction CH0:{np.rad2deg(phase_to_compensate[0]):.2f} and CH1:{np.rad2deg(phase_to_compensate[1]):.2f}")
 
 
