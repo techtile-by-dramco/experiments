@@ -25,8 +25,7 @@ import zmq
 
  # Setup the logger with our custom timestamp formatting
 class LogFormatter(logging.Formatter):
-
-"""Log formatter which prints the timestamp with fractional seconds"""
+    """Log formatter which prints the timestamp with fractional seconds"""
 
     @staticmethod
     def pp_now():
