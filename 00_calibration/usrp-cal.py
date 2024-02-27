@@ -381,7 +381,7 @@ def main():
         
         phases = [0.0,0.0]
         phases[LOOPBACK_TX_CH] = -tx_phase
-        phases[FREE_TX_CH] = pll_phase-tx_phase
+        phases[FREE_TX_CH] = pll_phase-tx_phase + np.pi
         
         
         logger.debug(f"Applying phase correction CH0:{np.rad2deg(phase_to_compensate[0]):.2f} and CH1:{np.rad2deg(phase_to_compensate[1]):.2f}")
