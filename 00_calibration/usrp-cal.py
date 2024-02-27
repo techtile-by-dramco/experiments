@@ -627,7 +627,7 @@ def main():
 
         phases[LOOPBACK_TX_CH] = -tx_phase
 
-        phases[FREE_TX_CH] = pll_phase-tx_phase + np.pi
+        phases[FREE_TX_CH] = pll_phase-tx_phase
         
         
 
