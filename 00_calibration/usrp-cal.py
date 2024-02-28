@@ -24,9 +24,10 @@ from scipy.stats import norm, circmean, circstd
 import zmq
 
 import yaml
-vars = yaml.load(os.path.join(os.path.dirname(__file__), "cal-settings.yml"))
-print(vars)
-globals().update(vars) # update the global variables with the vars in yaml
+with open(os.path.join(os.path.dirname(__file__), "cal-settings.yml"), 'r') as file:
+    vars = yaml.safe_load(file)
+    print(vars)
+    globals().update(vars) # update the global variables with the vars in yaml
 
 
 # Setup the logger with our custom timestamp formatting
