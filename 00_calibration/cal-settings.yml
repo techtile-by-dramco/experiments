@@ -9,4 +9,4 @@ REF_RX_GAIN: !!float 28  # empirical determined
 FREQ: !!float 910e6
 
 
-CAPTURE_TIME: !!float 10
+CAPTURE_TIME: !!float 20
