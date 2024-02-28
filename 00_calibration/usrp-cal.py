@@ -335,6 +335,16 @@ def setup(usrp):
     tx_streamer = usrp.get_tx_stream(st_args)
     rx_streamer = usrp.get_rx_stream(st_args)
 
+    while not usrp.get_rx_sensor("lo_locked").to_bool():
+        time.sleep(0.01)
+
+    logger.debug("RX LO is locked")
+
+    while not usrp.get_tx_sensor("lo_locked").to_bool():
+        time.sleep(0.01)
+
+    logger.debug("TX LO is locked")
+
     return tx_streamer, rx_streamer
 
 
