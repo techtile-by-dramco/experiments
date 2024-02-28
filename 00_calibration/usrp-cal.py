@@ -518,11 +518,14 @@ def main():
     try:
 
         tx_rx_phase = measure_loopback(usrp, tx_streamer, rx_streamer)
+        print("DONE")
         time.sleep(5)
         pll_rx_phase = measure_pll(usrp, rx_streamer)
+        print("DONE")
         time.sleep(5)
 
         check_loopback(usrp, tx_streamer, rx_streamer, phase_corr=-tx_rx_phase)
+        print("DONE")
         time.sleep(5)
 
         quit_event = threading.Event()
