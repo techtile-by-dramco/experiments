@@ -19,11 +19,11 @@ Distributed non-coherent beamforming is a technique used in wireless communicati
 
 Start transmitters
 ```
-ansible-playbook -i inventory/hosts.yaml start_waveform.yaml
+ansible-playbook -i inventory/hosts.yaml start_waveform.yaml -e "tiles=walls" -e "gain=100"
 ```
 Stop transmitters
 ```
-ansible-playbook -i inventory/hosts.yaml kill-transmitter.yaml
+ansible-playbook -i inventory/hosts.yaml kill-transmitter.yaml -e tiles=walls"
 ```
 ### 3️⃣ Mapping USRP gain to output power (Gain calibration)
 
