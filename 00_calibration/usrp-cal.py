@@ -254,7 +254,7 @@ def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time=None):
 
     if start_time is not None:
         tx_md.time_spec = start_time
-    else
+    else:
         tx_md.time_spec = usrp.get_time_now().get_real_secs() + INIT_DELAY
 
     tx_md.has_time_spec = True
