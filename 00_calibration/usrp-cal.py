@@ -419,7 +419,7 @@ def measure_loopback(usrp, tx_streamer, rx_streamer) -> float:
 
     phase_to_compensate = []
 
-    start_time = usrp.get_time_now().get_real_secs() + INIT_DELAY + 2.0
+    start_time = None #usrp.get_time_now().get_real_secs() + INIT_DELAY + 2.0
 
     tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=amplitudes, phase=[0.0, 0.0], start_time=start_time)
 
