@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import plotly.express as px
 import plotly.graph_objects as go
 import os
+import numpy as np
 
 # Get the absolute path of the currently executing Python script
 current_script_path = os.path.abspath(__file__)
@@ -11,15 +12,17 @@ current_script_path = os.path.abspath(__file__)
 
 user_name = "/jarne"
 path_to_repo = "/Documents/GitHub"
-nr = "1708519348"
+nr = "1709111155"
 
 csv_file_path = f"/home{user_name}{path_to_repo}/experiments/01_distributed_non_coherent_beamforming/meas_data/{nr}_nc_data.csv"
 
 # Read the CSV file
-df = pd.read_csv(csv_file_path, header=None, names=['nr', 'x', 'y', 'z', 'utc', 'dbm'])
+df = pd.read_csv(csv_file_path, header=None, names=['x', 'y', 'z', 'utc', 'dbm', 'tx_gain', 'cable_loss'])
 
 # Round data
 df = df.round(decimals=3)
+
+print(np.mean(df.dbm))
 
 # Create a layout with a specified aspect ratio
 layout = go.Layout(
@@ -40,14 +43,16 @@ fig = go.Figure(data=go.Scatter3d(
 
 # Define fixed dimensions for the axes
 fig.update_layout(
+    title=f"RX power plot in [dBm] with TX gain {df.tx_gain[0]}",
     scene=dict(
         xaxis=dict(range=[0, 8.4]),  # Set the range for the x-axis
         yaxis=dict(range=[0, 4]),  # Set the range for the y-axis
         zaxis=dict(range=[0, 2.4])   # Set the range for the z-axis
     )
+
 )
 
 # fig.show()
 
 # Save to html
-fig.write_html(f"{os.path.dirname(current_script_path)}/{nr}_plot.html")
+fig.write_html(f"{os.path.dirname(current_script_path)}/{nr}_gain_{df.tx_gain[0]}.html")

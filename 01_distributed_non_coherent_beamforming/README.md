@@ -6,7 +6,7 @@ Distributed non-coherent beamforming is a technique used in wireless communicati
 
 ▶️ First test exectuted with vitual machine (Jarne)
 
-✔️ First test executed --> [see here](https://techtile-by-dramco.github.io/experiments/01_distributed_non_coherent_beamforming/plot/1708519348_plot.html) for example plot
+✔️ First test executed --> [see here](#results) for example plots
 
 ## Transmitter side
 
@@ -19,11 +19,11 @@ Distributed non-coherent beamforming is a technique used in wireless communicati
 
 Start transmitters
 ```
-ansible-playbook -i inventory/hosts.yaml start_waveform.yaml
+ansible-playbook -i inventory/hosts.yaml start_waveform.yaml -e "tiles=walls" -e "gain=100"
 ```
 Stop transmitters
 ```
-ansible-playbook -i inventory/hosts.yaml kill-transmitter.yaml
+ansible-playbook -i inventory/hosts.yaml kill-transmitter.yaml -e tiles=walls"
 ```
 ### 3️⃣ Mapping USRP gain to output power (Gain calibration)
 
@@ -73,4 +73,15 @@ Script [main.py](https://github.com/techtile-by-dramco/experiments/blob/main/01_
 - TX Ansible instructions to control Techtile transmitters
 - RX **Location script**
 - RX **RSS oscilloscope script**
+
+## Results
+
+| Gain | USRP TX power (per channel) | NO active antennas | Total TX power | Average measured RX power | Link to plot |
+|-|-|-|-|-|-|
+| 100 | 18 dBm | 112 | 38.5 dBm | -4.3 dBm | [link plot gain 100](https://techtile-by-dramco.github.io/experiments/01_distributed_non_coherent_beamforming/plot/1709111155_gain_100.html)
+| 80 | 13.4 dBm | 112 | 33.9 dBm | -10.8 dBm | [link plot gain 80](https://techtile-by-dramco.github.io/experiments/01_distributed_non_coherent_beamforming/plot/1709111890_gain_80.html)
+| 65 | -0.4 dBm | 112 | 20.1 dBm | -25.5 dBm | [link plot gain 65](https://techtile-by-dramco.github.io/experiments/01_distributed_non_coherent_beamforming/plot/1709112625_gain_65.html)
+
+
+
 
