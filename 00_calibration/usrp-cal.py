@@ -270,7 +270,7 @@ def setup(usrp):
 
     mcr = 16e6
 
-    assert (rate/mcr).is_integer(), f"The masterclock rate {mcr} should be an integer multiple of the sampling rate {rate}"
+    assert (mcr/rate).is_integer(), f"The masterclock rate {mcr} should be an integer multiple of the sampling rate {rate}"
 
     # Manual selection of master clock rate may also be required to synchronize multiple B200 units in time.
     usrp.set_master_clock_rate(mcr)
@@ -286,7 +286,9 @@ def setup(usrp):
     usrp.set_time_source("external")
 
     usrp.set_rx_dc_offset(False, 0)
+    usrp.set_rx_dc_offset(False, 1)
 
+    usrp.set_rx_dc_offset(False, 0)
     usrp.set_rx_dc_offset(False, 1)
 
     usrp.set_time_unknown_pps(uhd.types.TimeSpec(0.0))
