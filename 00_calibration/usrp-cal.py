@@ -166,14 +166,17 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
 
     stream_cmd.stream_now = False
 
+    timeout = 1.0
     if start_time is not None:
         stream_cmd.time_spec = start_time
+        time_diff = start_time.get_real_secs() - usrp.get_time_now().get_real_secs()
+        if time_diff > 0:
+            timeout = 1.0 + time_diff
     else:
         stream_cmd.time_spec = uhd.types.TimeSpec(usrp.get_time_now().get_real_secs() + INIT_DELAY +0.1)
 
     rx_streamer.issue_stream_cmd(stream_cmd)
 
-    timeout = max(1.0, usrp.get_time_now().get_real_secs() - start_time.get_real_secs())
 
     try:
 
