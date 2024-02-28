@@ -76,7 +76,7 @@ Script [main.py](https://github.com/techtile-by-dramco/experiments/blob/main/01_
 
 ## Results
 
-| Gain | USRP TX power (per channel) | NO active antennas | Total TX power | Average measured RX power | Link to plot |
+| Gain | USRP TX power (per channel) | # active antennas | Total TX power | Average measured RX power | Link to plot |
 |-|-|-|-|-|-|
 | 100 | 18 dBm | 112 | 38.5 dBm | -4.3 dBm | [link plot gain 100](https://techtile-by-dramco.github.io/experiments/01_distributed_non_coherent_beamforming/plot/1709111155_gain_100.html)
 | 80 | 13.4 dBm | 112 | 33.9 dBm | -10.8 dBm | [link plot gain 80](https://techtile-by-dramco.github.io/experiments/01_distributed_non_coherent_beamforming/plot/1709111890_gain_80.html)
