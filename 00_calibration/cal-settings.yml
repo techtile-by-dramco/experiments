@@ -6,3 +6,4 @@ CAPTURE_TIME: !!float 4
 LOOPBACK_TX_GAIN: !!float 70  # emperical determined
 LOOPBACK_RX_GAIN: !!float 23  # emperical determined
 REF_RX_GAIN: !!float 28  # emperical determined
+FREQ: !!float 910e6
