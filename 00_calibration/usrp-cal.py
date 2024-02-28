@@ -23,6 +23,10 @@ from scipy.stats import norm, circmean, circstd
 
 import zmq
 
+import yaml
+globals().update(yaml.load("cal-settings.yml")) # update the global variables with the vars in yaml
+
+
 # Setup the logger with our custom timestamp formatting
 
 
@@ -64,30 +68,17 @@ console = logging.StreamHandler()
 
 logger.addHandler(console)
 
-formatter = LogFormatter(
-    fmt="[%(asctime)s] [%(levelname)s] (%(threadName)-10s) %(message)s"
-)
+formatter = LogFormatter(fmt="[%(asctime)s] [%(levelname)s] (%(threadName)-10s) %(message)s")
 
 console.setFormatter(formatter)
 
-
-CLOCK_TIMEOUT = 1000  # 1000mS timeout for external clock locking
-
-INIT_DELAY = 0.2  # 200ms initial delay before transmit
-
-
-RATE = 250e3
-CAPTURE_TIME = 4
-LOOPBACK_TX_GAIN = 70  # emperical determined
-LOOPBACK_RX_GAIN = 23  # emperical determined
-REF_RX_GAIN = 28  # emperical determined
 
 
 TOPIC_CH0 = b"CH0"
 
 TOPIC_CH1 = b"CH1"
 
-RX_TX_SAME_CHANNEL = False  # if loopback is done from one channel to the other channel
+
 
 if RX_TX_SAME_CHANNEL:
     REF_RX_CH = FREE_TX_CH = 0
@@ -106,7 +97,6 @@ socket.bind(f"tcp://*:{50001}")
 
 
 def publish(data, channel: int):
-
     logger.debug(f"sending data of size {len(data)}")
 
     if channel == 0:
@@ -131,7 +121,6 @@ def publish(data, channel: int):
 
 
 def send_rx(samples):
-
     # avg_angles = np.angle(np.sum(np.exp(np.angle(samples)*1j), axis=1)) # circular mean https://en.wikipedia.org/wiki/Circular_mean
 
     # avg_ampl = np.mean(np.abs(samples),axis=1)
@@ -148,7 +137,6 @@ def send_rx(samples):
 
 
 def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration):
-
     # https://files.ettus.com/manual/page_sync.html#sync_phase_cordics
 
     # The CORDICs are reset at each start-of-burst command, so users should ensure that every start-of-burst also has a time spec set.
@@ -157,18 +145,14 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration):
 
     max_samps_per_packet = rx_streamer.get_max_num_samps()
 
-    iq_data = np.empty(
-        (num_channels, int(duration * RATE * 2)), dtype=np.complex64)
+    iq_data = np.empty((num_channels, int(duration * RATE * 2)), dtype=np.complex64)
 
-    # Make a receive buffer
+    # Make a rx buffer
 
     # TODO: The C++ code uses rx_cpu type here. Do we want to use that to set dtype?
 
-    recv_buffer = np.zeros(
-        (num_channels, min(
-            [1000 * max_samps_per_packet, int(duration * RATE * 2)])),
-        dtype=np.complex64,
-    )
+    recv_buffer = np.zeros((num_channels, min([1000 * max_samps_per_packet, int(duration * RATE * 2)])),
+        dtype=np.complex64, )
 
     rx_md = uhd.types.RXMetadata()
 
@@ -178,9 +162,7 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration):
 
     stream_cmd.stream_now = False
 
-    stream_cmd.time_spec = uhd.types.TimeSpec(
-        usrp.get_time_now().get_real_secs() + 1.1 * INIT_DELAY
-    )
+    stream_cmd.time_spec = uhd.types.TimeSpec(usrp.get_time_now().get_real_secs() + 1.1 * INIT_DELAY)
     rx_streamer.issue_stream_cmd(stream_cmd)
 
     try:
@@ -199,13 +181,10 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration):
                 else:
 
                     if num_rx_i > 0:
-
                         # samples = recv_buffer[:,:num_rx_i]
                         # send_rx(samples)
 
-                        iq_data[:, num_rx: num_rx + num_rx_i] = recv_buffer[
-                            :, :num_rx_i
-                        ]
+                        iq_data[:, num_rx: num_rx + num_rx_i] = recv_buffer[:, :num_rx_i]
 
                         num_rx += num_rx_i
 
@@ -221,9 +200,7 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration):
 
         logger.debug("CTRL+C is pressed or duration is reached, closing off ")
 
-        rx_streamer.issue_stream_cmd(
-            uhd.types.StreamCMD(uhd.types.StreamMode.stop_cont)
-        )
+        rx_streamer.issue_stream_cmd(uhd.types.StreamCMD(uhd.types.StreamMode.stop_cont))
 
         samples = iq_data[:, :num_rx]
 
@@ -234,16 +211,11 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration):
 
         avg_ampl = np.mean(np.abs(samples), axis=1)
 
-        logger.debug(
-            f"Angle CH0:{np.rad2deg(avg_angles[0]):.2f} CH1:{np.rad2deg(avg_angles[1]):.2f}"
-        )
-        logger.debug(f"Amplitude CH0:{avg_ampl[0]:.2f} CH1:{avg_ampl[1]:.2f}")
-        # keep this just below this final stage
+        logger.debug(f"Angle CH0:{np.rad2deg(avg_angles[0]):.2f} CH1:{np.rad2deg(avg_angles[1]):.2f}")
+        logger.debug(f"Amplitude CH0:{avg_ampl[0]:.2f} CH1:{avg_ampl[1]:.2f}")  # keep this just below this final stage
 
 
 def tx_ref(usrp, tx_streamer, quit_event, phase=[0, 0], amplitude=[0.8, 0.8]):
-
-    # TODO
     num_channels = tx_streamer.get_num_channels()
 
     max_samps_per_packet = tx_streamer.get_max_num_samps()
@@ -254,14 +226,12 @@ def tx_ref(usrp, tx_streamer, quit_event, phase=[0, 0], amplitude=[0.8, 0.8]):
 
     sample = amplitude * np.exp(phase * 1j)
 
-    print(sample)
+    # print(sample)
 
     # transmit_buffer = np.ones((num_channels, 1000*max_samps_per_packet), dtype=np.complex64) * sample[:, np.newaxis]
 
     # amplitude[:,np.newaxis]
-    transmit_buffer = np.ones(
-        (num_channels, 1000 * max_samps_per_packet), dtype=np.complex64
-    )
+    transmit_buffer = np.ones((num_channels, 1000 * max_samps_per_packet), dtype=np.complex64)
 
     transmit_buffer[0, :] *= sample[0]
 
@@ -273,16 +243,13 @@ def tx_ref(usrp, tx_streamer, quit_event, phase=[0, 0], amplitude=[0.8, 0.8]):
 
     tx_md = uhd.types.TXMetadata()
 
-    tx_md.time_spec = uhd.types.TimeSpec(
-        usrp.get_time_now().get_real_secs() + INIT_DELAY
-    )
+    tx_md.time_spec = uhd.types.TimeSpec(usrp.get_time_now().get_real_secs() + INIT_DELAY)
 
     tx_md.has_time_spec = True
 
     try:
 
         while not quit_event.is_set():
-
             tx_streamer.send(transmit_buffer, tx_md)
 
     except KeyboardInterrupt:
@@ -296,12 +263,10 @@ def tx_ref(usrp, tx_streamer, quit_event, phase=[0, 0], amplitude=[0.8, 0.8]):
 
         tx_md.end_of_burst = True
 
-        tx_streamer.send(np.zeros((num_channels, 0),
-                         dtype=np.complex64), tx_md)
+        tx_streamer.send(np.zeros((num_channels, 0), dtype=np.complex64), tx_md)
 
 
 def setup(usrp):
-
     rate = RATE
 
     mcr = 16e6
@@ -370,10 +335,7 @@ def setup(usrp):
 
 
 def tx_thread(usrp, tx_streamer, quit_event, phase=[0, 0], amplitude=[0.8, 0.8]):
-
-    tx_thread = threading.Thread(
-        target=tx_ref, args=(usrp, tx_streamer, quit_event, phase, amplitude)
-    )
+    tx_thread = threading.Thread(target=tx_ref, args=(usrp, tx_streamer, quit_event, phase, amplitude))
 
     tx_thread.setName("TX_thread")
     tx_thread.start()
@@ -382,11 +344,7 @@ def tx_thread(usrp, tx_streamer, quit_event, phase=[0, 0], amplitude=[0.8, 0.8])
 
 
 def rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate, duration):
-
-    rx_thread = threading.Thread(
-        target=rx_ref,
-        args=(usrp, rx_streamer, quit_event, phase_to_compensate, duration),
-    )
+    rx_thread = threading.Thread(target=rx_ref, args=(usrp, rx_streamer, quit_event, phase_to_compensate, duration), )
 
     rx_thread.setName("RX_thread")
     rx_thread.start()
@@ -395,7 +353,6 @@ def rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate, duration):
 
 
 def tx_async_th(tx_streamer, quit_event):
-
     async_metadata = uhd.types.TXAsyncMetadata()
 
     try:
@@ -406,10 +363,7 @@ def tx_async_th(tx_streamer, quit_event):
                 continue
 
             else:
-                if (
-                    async_metadata.event_code
-                    is not uhd.types.TXMetadataEventCode.burst_ack
-                ):
+                if (async_metadata.event_code is not uhd.types.TXMetadataEventCode.burst_ack):
                     logger.error(async_metadata.event_code)
 
     except KeyboardInterrupt:
@@ -417,9 +371,7 @@ def tx_async_th(tx_streamer, quit_event):
 
 
 def tx_meta_thread(tx_streamer, quit_event):
-
-    tx_meta_thr = threading.Thread(
-        target=tx_async_th, args=(tx_streamer, quit_event))
+    tx_meta_thr = threading.Thread(target=tx_async_th, args=(tx_streamer, quit_event))
 
     tx_meta_thr.setName("TX_META_thread")
     tx_meta_thr.start()
@@ -435,17 +387,13 @@ def measure_loopback(usrp, tx_streamer, rx_streamer) -> float:
 
     amplitudes[LOOPBACK_TX_CH] = 0.8
 
-    tx_thr = tx_thread(
-        usrp, tx_streamer, quit_event, amplitude=amplitudes, phase=[0.0, 0.0]
-    )
+    tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=amplitudes, phase=[0.0, 0.0])
 
     tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
 
     phase_to_compensate = []
 
-    rx_thr = rx_thread(
-        usrp, rx_streamer, quit_event, phase_to_compensate, duration=CAPTURE_TIME
-    )
+    rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate, duration=CAPTURE_TIME)
 
     time.sleep(CAPTURE_TIME)
 
@@ -473,9 +421,7 @@ def measure_pll(usrp, rx_streamer) -> float:
 
     phase_to_compensate = []
 
-    rx_thr = rx_thread(
-        usrp, rx_streamer, quit_event, phase_to_compensate, duration=CAPTURE_TIME
-    )
+    rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate, duration=CAPTURE_TIME)
 
     time.sleep(CAPTURE_TIME)
 
@@ -490,8 +436,7 @@ def measure_pll(usrp, rx_streamer) -> float:
 
 
 def check_loopback(usrp, tx_streamer, rx_streamer, phase_corr) -> float:
-    logger.debug(
-        " ########### STEP 2 - Check self-correction TX-RX phase ###########")
+    logger.debug(" ########### STEP 2 - Check self-correction TX-RX phase ###########")
 
     quit_event = threading.Event()
 
@@ -503,17 +448,13 @@ def check_loopback(usrp, tx_streamer, rx_streamer, phase_corr) -> float:
 
     phases[LOOPBACK_TX_CH] = phase_corr
 
-    tx_thr = tx_thread(
-        usrp, tx_streamer, quit_event, amplitude=amplitudes, phase=phases
-    )
+    tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=amplitudes, phase=phases)
 
     tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
 
     phase_to_compensate = []
 
-    rx_thr = rx_thread(
-        usrp, rx_streamer, quit_event, phase_to_compensate, duration=CAPTURE_TIME
-    )
+    rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate, duration=CAPTURE_TIME)
 
     time.sleep(CAPTURE_TIME)
 
@@ -537,13 +478,9 @@ def tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr):
     phases[FREE_TX_CH] = phase_corr
     amplitudes[FREE_TX_CH] = 0.8
 
-    logger.debug(
-        f"Applying phase correction CH0:{np.rad2deg(phases[0]):.2f} and CH1:{np.rad2deg(phases[1]):.2f}"
-    )
+    logger.debug(f"Applying phase correction CH0:{np.rad2deg(phases[0]):.2f} and CH1:{np.rad2deg(phases[1]):.2f}")
 
-    tx_thr = tx_thread(
-        usrp, tx_streamer, quit_event, amplitude=amplitudes, phase=phases
-    )
+    tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=amplitudes, phase=phases)
 
     tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
 
@@ -551,7 +488,6 @@ def tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr):
 
 
 def main():
-
     usrp = uhd.usrp.MultiUSRP("")  # "mode_n=integer"
     tx_streamer, rx_streamer = setup(usrp)
 
@@ -565,9 +501,7 @@ def main():
         check_loopback(usrp, tx_streamer, rx_streamer, phase_corr=-tx_rx_phase)
 
         quit_event = threading.Event()
-        tx_thr, tx_meta_thr = tx_phase_coh(
-            usrp, tx_streamer, quit_event, phase_corr=pll_rx_phase - tx_rx_phase
-        )
+        tx_thr, tx_meta_thr = tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr=pll_rx_phase - tx_rx_phase)
 
     except KeyboardInterrupt:
 
@@ -623,12 +557,9 @@ def main():
 
     #                                 args=(usrp, tx_streamer, quit_event, [0.0,0.0],[0.0,0.8]))
 
-    # threads.append(tx_thread)
-    # tx_thread.start()
+    # threads.append(tx_thread)  # tx_thread.start()
 
-    # tx_thread.setName("TX_thread")
-    # threads.append(rx_thread)
-    # rx_thread.start()
+    # tx_thread.setName("TX_thread")  # threads.append(rx_thread)  # rx_thread.start()
 
     # rx_thread.setName("RX_thread")
 

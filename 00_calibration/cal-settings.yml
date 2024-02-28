@@ -1,0 +1,8 @@
+RX_TX_SAME_CHANNEL: False  # if loopback is done from one channel to the other channel
+CLOCK_TIMEOUT: 1000  # 1000mS timeout for external clock locking
+INIT_DELAY: 0.2  # 200ms initial delay before transmit
+RATE: 250e3
+CAPTURE_TIME: 4
+LOOPBACK_TX_GAIN: 70  # emperical determined
+LOOPBACK_RX_GAIN: 23  # emperical determined
+REF_RX_GAIN: 28  # emperical determined
