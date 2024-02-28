@@ -6,23 +6,18 @@ Distributed non-coherent beamforming is a technique used in wireless communicati
 
 ▶️ First test exectuted with vitual machine (Jarne)
 
-✔️ First test executed --> see here for example plot
+✔️ First test executed --> [see here](https://techtile-by-dramco.github.io/experiments/01_distributed_non_coherent_beamforming/plot/1708519348_plot.html) for example plot
 
-## Transmitter side 
+[link](#results)
 
-**ToDo**
-- **@Gilles** Make script with adaptable gain
-- **@Gilles** Gain calibration (gain - tx power (dBm) ratio)
-- **@geoffrey @gilles** How changing gain flexible for all USRPs
+## Transmitter side
 
-**INFO**
-
-1) Equipment
+### 1️⃣ Equipment
 - Techtile base infrastructure N tile with RPI + USRP + PSU
 - Max. 280 path antennas (917 MHz) can be used for these measurements.
 - (PPS and 10 MHz are not used, thus no frequency synchronisation)
 
-2) Controlling Techtile transmitters (non coherent)
+### 2️⃣ Controlling Techtile transmitters (non coherent)
 
 Start transmitters
 ```
@@ -32,32 +27,63 @@ Stop transmitters
 ```
 ansible-playbook -i inventory/hosts.yaml kill-transmitter.yaml
 ```
+### 3️⃣ Mapping USRP gain to output power (Gain calibration)
+
+| USRP Gain [dB] | 100 | 95 | 90 | 85 | 80 | 75 | 70 | 65 | 60 | 55 |
+|-|-|-|-|-|-|-|-|-|-|-|
+| Output power [dBm] |  18.2   |  18.0  |  18.4  |  17.4  |  13.4  |  9.1  |  4.6  |  -0.4  |  -5.6  |  -10.8  |
+
+| USRP Gain [dB] | 50 | 45 | 40 | 35 | 30 | 25 | 20 | 15 | 10 | 5 | 0 |
+|-|-|-|-|-|-|-|-|-|-|-|-|
+| Output power [dBm] |  -15.7  |  -20.8  |  -26.4  |  -30.4  |  -37.0  |  -42.5  |  -46.5  |  -51.3  |  -56.3  |  -61.1  |  -67.4  |
+
 
 ## Receiver side
 
-### Setup
-
-The following image provides an overview of the acoustic transmitter for determining the location and the receiving antenna. The scope in the background receives the RF signals and determines the received power.
+The following image provides a setup overview, consisting of the acoustic transmitter for determining the location and the receiver antenna. The scope in the background receives the RF signals and determines the received power.
 
 <img src="images/setup-photo-1.jpg" height="300">
 
-### More information
+More information of the receiver, see following requirements
 
-**ToDo**
-- Combine 'location' script with 'RSS via scope' script
-
-**INFO**
-1) Equipment at the mobile receiver
+### 1️⃣ Equipment at the mobile receiver
 - Receiver device --> Tektronix MSO64B
 - Receive antenna --> 917 MHz dipole antenna
 - Acoustic transmitter
 - Tripod
+- Three cables required in current setup
+  - Coax cable (scope - antenna)
+  - 230VAC (PSU acoustic transmitter)
+  - Audio cable (DAQ - acoustic transmitter)
 
-2) Script to calculate receive power [dBm]
+### 2️⃣ RSS script (calculate receive power [dBm])
 
-[Example code](https://github.com/techtile-by-dramco/experiments/blob/main/examples/read_MSO6.py)
+Communicate with the oscilloscope and apply Parseval’s Theorem of Fourier Transform.
 
-3) Script to get location in Techtile
+- ⬛ See [example script](https://github.com/techtile-by-dramco/experiments/blob/main/examples/read_MSO6.py) combines all spectral components.
+- ☑️ See [example script only peaks](https://github.com/techtile-by-dramco/experiments/blob/main/examples/read_MSO6_peaks_only.py) combines only spectral peaks.
+
+### 3️⃣ Script to get location in Techtile
 The location will be determined via acoustic system. Acoustic **transmitter** + **RX antenna** installed on same tripod.
 - (DAQ + specific DAQ Windows PC) Running ZeroMQ script --> broadcasting 'timestamp' + 'xyz' location
 - (Collecting locations via other PC) Receiving data via example code [receive location script](https://github.com/techtile-by-dramco/experiments/blob/main/01_distributed_non_coherent_beamforming/rx-loc-zmq.py)
+
+
+## Combined to perform measurements
+
+Script [main.py](https://github.com/techtile-by-dramco/experiments/blob/main/01_distributed_non_coherent_beamforming/main.py) combines following scripts:
+- TX Ansible instructions to control Techtile transmitters
+- RX **Location script**
+- RX **RSS oscilloscope script**
+
+## Results
+
+| Gain | USRP TX power (per channel) | NO active antennas | Average measured RX power | Link to plot |
+|-|-|-|-|-|
+| 100 | 18 dBm | 112 | -4.3 dBm | [link](https://techtile-by-dramco.github.io/experiments/01_distributed_non_coherent_beamforming/plot/)
+| 80 | 13.4 dBm | 112 | -10.8 dBm | [link](https://techtile-by-dramco.github.io/experiments/01_distributed_non_coherent_beamforming/plot/)
+| 65 | -0.4 dBm | 112 | -25.5 dBm | [link](https://techtile-by-dramco.github.io/experiments/01_distributed_non_coherent_beamforming/plot/)
+
+
+
+

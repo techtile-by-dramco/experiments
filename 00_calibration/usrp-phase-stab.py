@@ -16,6 +16,8 @@ import uhd
 import os
 import zmq
 
+from scipy.stats import norm, circmean, circstd
+
 CLOCK_TIMEOUT = 1000  # 1000mS timeout for external clock locking
 INIT_DELAY = 0.2  # 200ms initial delay before transmit
 
@@ -166,7 +168,7 @@ def setup(usrp):
     channels = [0,1]
 
     rx_bw = 200e3 # smallest as possible (https://files.ettus.com/manual/page_usrp_b200.html#b200_fe_bw)
-    freq=920E6
+    freq=910E6
     
     usrp.set_clock_source("external")
     usrp.set_time_source("external")
@@ -252,14 +254,14 @@ def main():
     formatter = LogFormatter(fmt='[%(asctime)s] [%(levelname)s] (%(threadName)s) %(message)s')
     console.setFormatter(formatter)
 
-    usrp = uhd.usrp.MultiUSRP("")
+    usrp = uhd.usrp.MultiUSRP("mode_n=integer")
     tx_streamer, rx_streamer = setup(usrp)
     
 
     try:
         quit_event = threading.Event()
 
-        tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=[0.0,0.8])
+        tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=[0.8,0.8])
         tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
         rx_thr = rx_thread(usrp, rx_streamer, quit_event)
 
