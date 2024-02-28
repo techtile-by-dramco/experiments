@@ -487,13 +487,17 @@ def check_loopback(usrp, tx_streamer, rx_streamer, phase_corr) -> float:
 
     phases[LOOPBACK_TX_CH] = phase_corr
 
-    tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=amplitudes, phase=phases)
+    start_time = uhd.types.TimeSpec(usrp.get_time_now().get_real_secs() + INIT_DELAY + 4.0)
 
-    tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
+
+
+
 
     phase_to_compensate = []
 
-    rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate, duration=CAPTURE_TIME)
+    tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=amplitudes, phase=phases, start_time=start_time)
+    tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
+    rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate, duration=CAPTURE_TIME, start_time=start_time)
 
     time.sleep(CAPTURE_TIME)
 
