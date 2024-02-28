@@ -166,7 +166,7 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
 
     stream_cmd.stream_now = False
 
-    stream_cmd.time_spec = start_time if start_time else usrp.get_time_now().get_real_secs() + INIT_DELAY + 0.1 # start receiving a bit later than TX
+    stream_cmd.time_spec = start_time if start_time is not None else usrp.get_time_now().get_real_secs() + INIT_DELAY + 0.1 # start receiving a bit later than TX
     rx_streamer.issue_stream_cmd(stream_cmd)
 
     try:
@@ -252,7 +252,7 @@ def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time):
 
     tx_md = uhd.types.TXMetadata()
 
-    tx_md.time_spec = start_time if start_time else usrp.get_time_now().get_real_secs() + INIT_DELAY
+    tx_md.time_spec = start_time if start_time is not None else usrp.get_time_now().get_real_secs() + INIT_DELAY
 
     tx_md.has_time_spec = True
 
