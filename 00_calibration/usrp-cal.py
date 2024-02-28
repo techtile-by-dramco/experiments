@@ -26,7 +26,6 @@ import zmq
 import yaml
 with open(os.path.join(os.path.dirname(__file__), "cal-settings.yml"), 'r') as file:
     vars = yaml.safe_load(file)
-    print(vars)
     globals().update(vars) # update the global variables with the vars in yaml
 
 
@@ -256,12 +255,9 @@ def tx_ref(usrp, tx_streamer, quit_event, phase=[0, 0], amplitude=[0.8, 0.8]):
             tx_streamer.send(transmit_buffer, tx_md)
 
     except KeyboardInterrupt:
-        pass
-
-    finally:
-
         logger.debug("CTRL+C is pressed, closing off")
 
+    finally:
         # Send a mini EOB packet
 
         tx_md.end_of_burst = True
@@ -274,23 +270,17 @@ def setup(usrp):
 
     mcr = 16e6
 
-    # assert (rate/mcr).is_integer(), "The masterclock rate should be an integer multiple of the sampling rate"
+    assert (rate/mcr).is_integer(), "The masterclock rate should be an integer multiple of the sampling rate"
 
     # Manual selection of master clock rate may also be required to synchronize multiple B200 units in time.
     usrp.set_master_clock_rate(mcr)
-
-    # tx_gain = 60 # TX gain 89.9dB
-
-    # rx_gain = 30 # RX gain 76dB
-
-    # rx_gain_pll = 20
 
     channels = [0, 1]
 
     # smallest as possible (https://files.ettus.com/manual/page_usrp_b200.html#b200_fe_bw)
     rx_bw = 200e3
 
-    freq = 910e6
+    freq = FREQ
 
     usrp.set_clock_source("external")
     usrp.set_time_source("external")
@@ -366,7 +356,7 @@ def tx_async_th(tx_streamer, quit_event):
                 continue
 
             else:
-                if (async_metadata.event_code is not uhd.types.TXMetadataEventCode.burst_ack):
+                if async_metadata.event_code != uhd.types.TXMetadataEventCode.burst_ack:
                     logger.error(async_metadata.event_code)
 
     except KeyboardInterrupt:
