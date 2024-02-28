@@ -140,7 +140,7 @@ def send_rx(samples):
     publish(angles[1], 1)
 
 
-def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_time):
+def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_time=None):
     # https://files.ettus.com/manual/page_sync.html#sync_phase_cordics
 
     # The CORDICs are reset at each start-of-burst command, so users should ensure that every start-of-burst also has a time spec set.
@@ -224,7 +224,7 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
         logger.debug(f"Amplitude CH0:{avg_ampl[0]:.2f} CH1:{avg_ampl[1]:.2f}")  # keep this just below this final stage
 
 
-def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time):
+def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time=None):
     num_channels = tx_streamer.get_num_channels()
 
     max_samps_per_packet = tx_streamer.get_max_num_samps()
