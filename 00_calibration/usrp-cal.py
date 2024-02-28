@@ -169,7 +169,7 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
     if start_time is not None:
         stream_cmd.time_spec = start_time
     else:
-        stream_cmd.time_spec = usrp.get_time_now().get_real_secs() + INIT_DELAY +0.1
+        stream_cmd.time_spec = uhd.types.TimeSpec(usrp.get_time_now().get_real_secs() + INIT_DELAY +0.1)
 
     rx_streamer.issue_stream_cmd(stream_cmd)
 
@@ -259,7 +259,7 @@ def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time=None):
     if start_time is not None:
         tx_md.time_spec = start_time
     else:
-        tx_md.time_spec = usrp.get_time_now().get_real_secs() + INIT_DELAY
+        tx_md.time_spec = uhd.types.TimeSpec(usrp.get_time_now().get_real_secs() + INIT_DELAY)
 
     tx_md.has_time_spec = True
 
@@ -419,7 +419,7 @@ def measure_loopback(usrp, tx_streamer, rx_streamer) -> float:
 
     phase_to_compensate = []
 
-    start_time = None #usrp.get_time_now().get_real_secs() + INIT_DELAY + 2.0
+    start_time = uhd.types.TimeSpec(usrp.get_time_now().get_real_secs() + INIT_DELAY + 2.0)
 
     tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=amplitudes, phase=[0.0, 0.0], start_time=start_time)
 
