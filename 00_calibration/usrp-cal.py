@@ -166,7 +166,7 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
 
     stream_cmd.stream_now = False
 
-    stream_cmd.time_spec = start_time + 0.1 # start receiving a bit later than TX
+    stream_cmd.time_spec = start_time if start_time else usrp.get_time_now().get_real_secs() + INIT_DELAY + 0.1 # start receiving a bit later than TX
     rx_streamer.issue_stream_cmd(stream_cmd)
 
     try:
@@ -252,7 +252,7 @@ def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time):
 
     tx_md = uhd.types.TXMetadata()
 
-    tx_md.time_spec = start_time
+    tx_md.time_spec = start_time if start_time else usrp.get_time_now().get_real_secs() + INIT_DELAY
 
     tx_md.has_time_spec = True
 
@@ -356,7 +356,7 @@ def setup(usrp):
     return tx_streamer, rx_streamer
 
 
-def tx_thread(usrp, tx_streamer, quit_event, phase=[0, 0], amplitude=[0.8, 0.8],start_time):
+def tx_thread(usrp, tx_streamer, quit_event,start_time, phase=[0, 0], amplitude=[0.8, 0.8], start_time=None):
     tx_thread = threading.Thread(target=tx_ref, args=(usrp, tx_streamer, quit_event, phase, amplitude,start_time))
 
     tx_thread.setName("TX_thread")
@@ -365,7 +365,7 @@ def tx_thread(usrp, tx_streamer, quit_event, phase=[0, 0], amplitude=[0.8, 0.8],
     return tx_thread
 
 
-def rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate, duration,start_time):
+def rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_time=None):
     rx_thread = threading.Thread(target=rx_ref, args=(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_time))
 
     rx_thread.setName("RX_thread")
