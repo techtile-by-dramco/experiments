@@ -292,8 +292,8 @@ def setup(usrp):
 
     tune_req = uhd.types.TuneRequest(freq, 0) # do not tune LO, ie set to 0 Hz
 
-    tune_req.rf_freq_policy = uhd.types.TuneRequestPolicy.POLICY_MANUAL
-    tune_req.dsp_freq_policy = uhd.types.TuneRequestPolicy.POLICY_MANUAL
+    tune_req.rf_freq_policy = uhd.types.TuneRequestPolicy.manual
+    tune_req.dsp_freq_policy = uhd.types.TuneRequestPolicy.manual
 
     tune_req.dsp_freq = 0
     tune_req.rf_freq = freq
