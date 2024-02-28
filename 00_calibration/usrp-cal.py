@@ -140,7 +140,7 @@ def send_rx(samples):
     publish(angles[1], 1)
 
 
-def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration):
+def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_time):
     # https://files.ettus.com/manual/page_sync.html#sync_phase_cordics
 
     # The CORDICs are reset at each start-of-burst command, so users should ensure that every start-of-burst also has a time spec set.
@@ -166,7 +166,7 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration):
 
     stream_cmd.stream_now = False
 
-    stream_cmd.time_spec = uhd.types.TimeSpec(usrp.get_time_now().get_real_secs() + 1.1 * INIT_DELAY)
+    stream_cmd.time_spec = start_time + 0.1 # start receiving a bit later than TX
     rx_streamer.issue_stream_cmd(stream_cmd)
 
     try:
@@ -224,7 +224,7 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration):
         logger.debug(f"Amplitude CH0:{avg_ampl[0]:.2f} CH1:{avg_ampl[1]:.2f}")  # keep this just below this final stage
 
 
-def tx_ref(usrp, tx_streamer, quit_event, phase=[0, 0], amplitude=[0.8, 0.8]):
+def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time):
     num_channels = tx_streamer.get_num_channels()
 
     max_samps_per_packet = tx_streamer.get_max_num_samps()
@@ -252,7 +252,7 @@ def tx_ref(usrp, tx_streamer, quit_event, phase=[0, 0], amplitude=[0.8, 0.8]):
 
     tx_md = uhd.types.TXMetadata()
 
-    tx_md.time_spec = uhd.types.TimeSpec(usrp.get_time_now().get_real_secs() + INIT_DELAY)
+    tx_md.time_spec = start_time
 
     tx_md.has_time_spec = True
 
@@ -356,8 +356,8 @@ def setup(usrp):
     return tx_streamer, rx_streamer
 
 
-def tx_thread(usrp, tx_streamer, quit_event, phase=[0, 0], amplitude=[0.8, 0.8]):
-    tx_thread = threading.Thread(target=tx_ref, args=(usrp, tx_streamer, quit_event, phase, amplitude))
+def tx_thread(usrp, tx_streamer, quit_event, phase=[0, 0], amplitude=[0.8, 0.8],start_time):
+    tx_thread = threading.Thread(target=tx_ref, args=(usrp, tx_streamer, quit_event, phase, amplitude,start_time))
 
     tx_thread.setName("TX_thread")
     tx_thread.start()
@@ -365,8 +365,8 @@ def tx_thread(usrp, tx_streamer, quit_event, phase=[0, 0], amplitude=[0.8, 0.8])
     return tx_thread
 
 
-def rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate, duration):
-    rx_thread = threading.Thread(target=rx_ref, args=(usrp, rx_streamer, quit_event, phase_to_compensate, duration), )
+def rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate, duration,start_time):
+    rx_thread = threading.Thread(target=rx_ref, args=(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_time))
 
     rx_thread.setName("RX_thread")
     rx_thread.start()
@@ -409,13 +409,16 @@ def measure_loopback(usrp, tx_streamer, rx_streamer) -> float:
 
     amplitudes[LOOPBACK_TX_CH] = 0.8
 
-    tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=amplitudes, phase=[0.0, 0.0])
-
-    tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
 
     phase_to_compensate = []
 
-    rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate, duration=CAPTURE_TIME)
+    start_time = usrp.get_time_now().get_real_secs() + INIT_DELAY + 2.0
+
+    tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=amplitudes, phase=[0.0, 0.0], start_time=start_time)
+    tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
+    rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate, duration=CAPTURE_TIME, start_time=start_time)
+
+
 
     time.sleep(CAPTURE_TIME)
 
