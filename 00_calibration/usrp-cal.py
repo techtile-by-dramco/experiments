@@ -252,7 +252,10 @@ def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time=None):
 
     tx_md = uhd.types.TXMetadata()
 
-    tx_md.time_spec = start_time if start_time is not None else usrp.get_time_now().get_real_secs() + INIT_DELAY
+    if start_time is not None:
+        tx_md.time_spec = start_time
+    else
+        tx_md.time_spec = usrp.get_time_now().get_real_secs() + INIT_DELAY
 
     tx_md.has_time_spec = True
 
@@ -357,7 +360,7 @@ def setup(usrp):
 
 
 def tx_thread(usrp, tx_streamer, quit_event, phase=[0, 0], amplitude=[0.8, 0.8], start_time=None):
-    tx_thread = threading.Thread(target=tx_ref, args=(usrp, tx_streamer, quit_event, phase, amplitude,start_time))
+    tx_thread = threading.Thread(target=tx_ref, args=(usrp, tx_streamer, quit_event, phase, amplitude, start_time))
 
     tx_thread.setName("TX_thread")
     tx_thread.start()
@@ -415,6 +418,8 @@ def measure_loopback(usrp, tx_streamer, rx_streamer) -> float:
     start_time = usrp.get_time_now().get_real_secs() + INIT_DELAY + 2.0
 
     tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=amplitudes, phase=[0.0, 0.0], start_time=start_time)
+
+
     tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
     rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate, duration=CAPTURE_TIME, start_time=start_time)
 
