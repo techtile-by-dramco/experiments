@@ -288,24 +288,33 @@ def setup(usrp):
     usrp.set_rx_dc_offset(False, 0)
     usrp.set_rx_dc_offset(False, 1)
 
-    usrp.set_rx_dc_offset(False, 0)
-    usrp.set_rx_dc_offset(False, 1)
-
     usrp.set_time_unknown_pps(uhd.types.TimeSpec(0.0))
+
+    tune_req = uhd.types.TuneRequest(freq, 0) # do not tune LO, ie set to 0 Hz
+
+    tune_req.rf_freq_policy = uhd.types.TuneRequestPolicy.POLICY_MANUAL
+    tune_req.dsp_freq_policy = uhd.types.TuneRequestPolicy.POLICY_MANUAL
+
+    tune_req.dsp_freq = 0
+    tune_req.rf_freq = freq
+    tune_req.target_freq = freq
+
+    tune_req.args = uhd.types.DeviceAddr("mode_n=integer")
+
 
     # Channel 0 settings
 
     usrp.set_tx_rate(rate, 0)
-    usrp.set_tx_freq(freq, 0)
+    usrp.set_tx_freq(tune_req, 0)
     usrp.set_rx_rate(rate, 0)
-    usrp.set_rx_freq(freq, 0)
+    usrp.set_rx_freq(tune_req, 0)
     usrp.set_rx_bandwidth(rx_bw, 0)
 
     # Channel 1 settings
     usrp.set_tx_rate(rate, 1)
-    usrp.set_tx_freq(freq, 1)
+    usrp.set_tx_freq(tune_req, 1)
     usrp.set_rx_rate(rate, 1)
-    usrp.set_rx_freq(freq, 1)
+    usrp.set_rx_freq(tune_req, 1)
     usrp.set_rx_bandwidth(rx_bw, 1)
 
     # specific settings from loopback/REF PLL
@@ -483,7 +492,7 @@ def tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr):
 
 
 def main():
-    usrp = uhd.usrp.MultiUSRP("")  # "mode_n=integer"
+    usrp = uhd.usrp.MultiUSRP("mode_n=integer")  # "mode_n=integer"
     tx_streamer, rx_streamer = setup(usrp)
 
     tx_thr = tx_meta_thr = None
