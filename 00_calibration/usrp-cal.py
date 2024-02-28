@@ -545,7 +545,7 @@ def main():
         print("DONE")
         time.sleep(5)
 
-        check_loopback(usrp, tx_streamer, rx_streamer, phase_corr=-tx_rx_phase)
+        check_loopback(usrp, tx_streamer, rx_streamer, phase_corr=pll_rx_phase - tx_rx_phase)
         print("DONE")
         time.sleep(5)
 
