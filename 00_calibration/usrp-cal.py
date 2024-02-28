@@ -5,28 +5,22 @@
 
 # measure the phase difference between both
 
-
-# sudo make -j4 && ./init_usrp --ref="external" --tx-freq=900E6 --rx-freq=900E6 --tx-rate=250E3 --rx-rate=250E3 --tx-gain=0.7 --rx-gain=45 --tx-channels="0,1" --rx-channels="0,1"
-
-from datetime import datetime, timedelta
-
-import sys
-import time
-import threading
 import logging
+import os
+import sys
+import threading
+import time
+from datetime import datetime
 
 import numpy as np
 import uhd
-import os
-
-from scipy.stats import norm, circmean, circstd
-
-import zmq
-
 import yaml
+import zmq
+from scipy.stats import circmean
+
 with open(os.path.join(os.path.dirname(__file__), "cal-settings.yml"), 'r') as file:
     vars = yaml.safe_load(file)
-    globals().update(vars) # update the global variables with the vars in yaml
+    globals().update(vars)  # update the global variables with the vars in yaml
 
 
 # Setup the logger with our custom timestamp formatting
@@ -74,13 +68,8 @@ formatter = LogFormatter(fmt="[%(asctime)s] [%(levelname)s] (%(threadName)-10s) 
 
 console.setFormatter(formatter)
 
-
-
 TOPIC_CH0 = b"CH0"
-
 TOPIC_CH1 = b"CH1"
-
-
 
 if RX_TX_SAME_CHANNEL:
     REF_RX_CH = FREE_TX_CH = 0
@@ -122,6 +111,19 @@ def publish(data, channel: int):
     #     socket.send(value_bytes)
 
 
+def publish(data, channel: int):
+    logger.debug(f"sending data of size {len(data)}")
+
+    if channel == 0:
+        topic = TOPIC_CH0
+    elif channel == 1:
+        topic = TOPIC_CH1
+    else:
+        logger.error(f"Channel should be 0 or 1, not {channel}")
+
+    socket.send_multipart([topic, data.tobytes()])
+
+
 def send_rx(samples):
     # avg_angles = np.angle(np.sum(np.exp(np.angle(samples)*1j), axis=1)) # circular mean https://en.wikipedia.org/wiki/Circular_mean
 
@@ -154,7 +156,7 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration):
     # TODO: The C++ code uses rx_cpu type here. Do we want to use that to set dtype?
 
     recv_buffer = np.zeros((num_channels, min([1000 * max_samps_per_packet, int(duration * RATE * 2)])),
-        dtype=np.complex64, )
+                           dtype=np.complex64, )
 
     rx_md = uhd.types.RXMetadata()
 
@@ -186,7 +188,12 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration):
                         # samples = recv_buffer[:,:num_rx_i]
                         # send_rx(samples)
 
-                        iq_data[:, num_rx: num_rx + num_rx_i] = recv_buffer[:, :num_rx_i]
+                        samples = recv_buffer[:, :num_rx_i]
+
+                        iq_data[:, num_rx: num_rx + num_rx_i] = samples
+
+                        threading.Thread(target=send_rx,
+                                         args=(samples,)).start()
 
                         num_rx += num_rx_i
 
@@ -270,7 +277,8 @@ def setup(usrp):
 
     mcr = 16e6
 
-    assert (mcr/rate).is_integer(), f"The masterclock rate {mcr} should be an integer multiple of the sampling rate {rate}"
+    assert (
+                mcr / rate).is_integer(), f"The masterclock rate {mcr} should be an integer multiple of the sampling rate {rate}"
 
     # Manual selection of master clock rate may also be required to synchronize multiple B200 units in time.
     usrp.set_master_clock_rate(mcr)
@@ -290,7 +298,7 @@ def setup(usrp):
 
     usrp.set_time_unknown_pps(uhd.types.TimeSpec(0.0))
 
-    tune_req = uhd.types.TuneRequest(freq, 0) # do not tune LO, ie set to 0 Hz
+    tune_req = uhd.types.TuneRequest(freq, 0)  # do not tune LO, ie set to 0 Hz
 
     tune_req.rf_freq_policy = uhd.types.TuneRequestPolicy.manual
     tune_req.dsp_freq_policy = uhd.types.TuneRequestPolicy.manual
@@ -299,8 +307,8 @@ def setup(usrp):
     tune_req.rf_freq = freq
     tune_req.target_freq = freq
 
-    tune_req.args = uhd.types.DeviceAddr("mode_n=integer")
-
+    args = uhd.types.DeviceAddr("mode_n=integer")
+    tune_req.args = args
 
     # Channel 0 settings
 
@@ -329,7 +337,7 @@ def setup(usrp):
     st_args = uhd.usrp.StreamArgs("fc32", "fc32")
     st_args.channels = channels
 
-    st_args.args = uhd.types.DeviceAddr()
+    st_args.args = args
 
     # streamers
     tx_streamer = usrp.get_tx_stream(st_args)
@@ -510,9 +518,12 @@ def main():
     try:
 
         tx_rx_phase = measure_loopback(usrp, tx_streamer, rx_streamer)
+        time.sleep(5)
         pll_rx_phase = measure_pll(usrp, rx_streamer)
+        time.sleep(5)
 
         check_loopback(usrp, tx_streamer, rx_streamer, phase_corr=-tx_rx_phase)
+        time.sleep(5)
 
         quit_event = threading.Event()
         tx_thr, tx_meta_thr = tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr=pll_rx_phase - tx_rx_phase)
