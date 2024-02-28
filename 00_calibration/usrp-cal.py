@@ -173,6 +173,8 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
 
     rx_streamer.issue_stream_cmd(stream_cmd)
 
+    timeout = max(1.0, usrp.get_time_now().get_real_secs() - start_time.get_real_secs())
+
     try:
 
         num_rx = 0
@@ -181,7 +183,7 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
 
             try:
 
-                num_rx_i = rx_streamer.recv(recv_buffer, rx_md, 1.0)
+                num_rx_i = rx_streamer.recv(recv_buffer, rx_md, timeout)
 
                 if rx_md.error_code != uhd.types.RXMetadataErrorCode.none:
                     logger.error(rx_md.error_code)
