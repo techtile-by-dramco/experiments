@@ -14,10 +14,12 @@ import allantools
 #TODO CHECK ALLAN DEV
 
 RECENT_FIRST = True
-PLOT_HIST = True
-PLOT_TIME_DURATION = True
-PLOT_SAMPLE_INTERVALS = True
+
+PLOT_HIST = False
+PLOT_TIME_DURATION = False
+PLOT_SAMPLE_INTERVALS = False
 PLOT_MEAN_STD = True
+STORE = False
 
 # Define the pattern to match the file names
 file_pattern0 = 'received_data_CH0_ALL'
@@ -94,7 +96,8 @@ for file_path in file_paths:
     if PLOT_HIST:
         print("Plotting histogram")
         plt.figure()
-        plt.title(f"[{CH_STR}] Histogram of all phases (bins = 360*2)")
+        plt.title(
+            f"[{CH_STR}][{extract_timestamp(file_path)}] Histogram of all phases (bins = 360*2)")
         hist, bins = np.histogram(raw_phase_rad, density= False, bins=360*100)
         plt.plot(np.rad2deg(bins[:-1]), hist)
         # Plot the PDF.
@@ -105,7 +108,8 @@ for file_path in file_paths:
         # label = f"Fit Values: mu={mu:.2f} and std={mu:.2f}"
         # plt.plot(x, p, 'k', linewidth=2, label=label)
         plt.legend()
-        plt.savefig(file_path[:-4]+"-hist.png")
+        if STORE:
+            plt.savefig(file_path[:-4]+"-hist.png")
 
 
     x_times_rate = num_samples // rate
@@ -127,13 +131,15 @@ for file_path in file_paths:
             time.append(i/rate)
             
         plt.figure()
-        plt.title(f"[{CH_STR}] Mean phase over the time interval")
+        plt.title(
+            f"[{CH_STR}][{extract_timestamp(file_path)}] Mean phase over the time interval")
         plt.plot(time, res, '-o' )
         plt.ylabel("Mean Phase (radians)")
         plt.xlabel("Time sampling (seconds) starting from time 0s")
         # plt.plot(time, median, label="median")
         plt.legend()
-        plt.savefig(file_path[:-4]+"-time-interval.png")
+        if STORE:
+            plt.savefig(file_path[:-4]+"-time-interval.png")
         plt.show()
     
     if PLOT_SAMPLE_INTERVALS:
@@ -151,14 +157,16 @@ for file_path in file_paths:
                 
             
         plt.figure()
-        plt.title(f"[{CH_STR}] Std phase over the time interval")
+        plt.title(
+            f"[{CH_STR}][{extract_timestamp(file_path)}] Std phase over the time interval")
         plt.ylabel("Std Phase (degrees)")
         plt.xlabel("Sample intervals (in seconds)")
         plt.plot(time, np.rad2deg(stds), label = "mean")
         plt.ticklabel_format(style='plain',useOffset=False)    # to prevent scientific notation.
         # plt.plot(time, median, label="median")
         plt.legend()
-        plt.savefig(file_path[:-4]+"-sample-interval.png")
+        if STORE:
+            plt.savefig(file_path[:-4]+"-sample-interval.png")
     
     
     if PLOT_MEAN_STD:
@@ -171,14 +179,15 @@ for file_path in file_paths:
         x = np.array(range(num_frames)) * (sample_size/rate) # in seconds  60 seconds
         
         plt.figure()
-        plt.title(f"[{CH_STR}] Std of all {np.rad2deg(circstd(raw_phase_rad)):.2f} std of of means {np.rad2deg(circstd(means)):.2f} with sample interval {sample_size/rate:.2f}s")
+        plt.title(f"[{CH_STR}][{extract_timestamp(file_path)}] Std of all {np.rad2deg(circstd(raw_phase_rad)):.2f} std of of means {np.rad2deg(circstd(means)):.2f} with sample interval {sample_size/rate:.2f}s")
         plt.fill_between(x, np.rad2deg(means-stds), np.rad2deg(means+stds), facecolor='blue', alpha=0.5)
         plt.plot(x, np.rad2deg(means))
         plt.grid(which='both', axis='x')  # Show both major and minor grid lines
         plt.ticklabel_format(style='plain', useOffset=False)    # to prevent scientific notation.
         plt.xlabel("Time (in seconds)")
         plt.ylabel("Phase (degrees)")
-        plt.savefig(file_path[:-4]+"-means-std.png")
+        if STORE:
+            plt.savefig(file_path[:-4]+"-means-std.png")
     
     plt.show()
         
