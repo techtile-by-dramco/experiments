@@ -166,7 +166,11 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
 
     stream_cmd.stream_now = False
 
-    stream_cmd.time_spec = start_time if start_time is not None else usrp.get_time_now().get_real_secs() + INIT_DELAY + 0.1 # start receiving a bit later than TX
+    if start_time is not None:
+        stream_cmd.time_spec = start_time
+    else:
+        stream_cmd.time_spec = usrp.get_time_now().get_real_secs() + INIT_DELAY +0.1
+
     rx_streamer.issue_stream_cmd(stream_cmd)
 
     try:
