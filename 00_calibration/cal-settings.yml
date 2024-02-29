@@ -6,7 +6,7 @@ RATE: !!float 250e3
 LOOPBACK_TX_GAIN: !!float 62 #70  # empirical determined
 LOOPBACK_RX_GAIN: !!float 34 #23  # empirical determined
 REF_RX_GAIN: !!float 40 #28  # empirical determined
-FREQ: !!float 921e6
+FREQ: !!float 920e6
 
 
 CAPTURE_TIME: !!float 12
