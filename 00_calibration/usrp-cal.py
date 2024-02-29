@@ -335,9 +335,10 @@ def setup_pps(usrp, pps):
 
 
 def print_tune_result(tune_res):
-    return f"Tune Result:\n    Target RF  Freq: %f (MHz)\n Actual RF  Freq: %f (MHz)\n Target DSP Freq: %f (MHz)\n " \
-           f"Actual DSP Freq: %f (MHz)\n".format((tune_res.target_rf_freq / 1e6), (tune_res.actual_rf_freq / 1e6),
-                                                 (tune_res.target_dsp_freq / 1e6), (tune_res.actual_dsp_freq / 1e6))
+    return "Tune Result:\n    Target RF  Freq: {:.2f} (MHz)\n Actual RF  Freq: {:.2f} (MHz)\n Target DSP Freq: {:.2f} " \
+           "(MHz)\n " \
+           "Actual DSP Freq: {:.2f} (MHz)\n".format((tune_res.target_rf_freq / 1e6), (tune_res.actual_rf_freq / 1e6),
+                                                    (tune_res.target_dsp_freq / 1e6), (tune_res.actual_dsp_freq / 1e6))
 
 
 def tune_usrp(usrp, freq, channels, at_time):
