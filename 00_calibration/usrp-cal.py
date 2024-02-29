@@ -491,7 +491,11 @@ def tx_meta_thread(tx_streamer, quit_event):
     return tx_meta_thr
 
 
-def measure_loopback(usrp, tx_streamer, rx_streamer) -> float:
+def starting_in(usrp, at_time):
+    return f"Starting in {at_time-usrp.get_time_now().get_real_secs():.2f}s"
+
+
+def measure_loopback(usrp, tx_streamer, rx_streamer, at_time) -> float:
     logger.debug(" ########### STEP 1 - measure self TX-RX phase ###########")
 
     quit_event = threading.Event()
@@ -502,7 +506,9 @@ def measure_loopback(usrp, tx_streamer, rx_streamer) -> float:
 
     phase_to_compensate = []
 
-    start_time = uhd.types.TimeSpec(usrp.get_time_now().get_real_secs() + INIT_DELAY + 4.0)
+    start_time = uhd.types.TimeSpec(at_time)
+    
+    logger.debug(starting_in(usrp, at_time))
 
     tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=amplitudes, phase=[0.0, 0.0], start_time=start_time)
 
@@ -526,7 +532,7 @@ def measure_loopback(usrp, tx_streamer, rx_streamer) -> float:
     return phase_to_compensate[LOOPBACK_RX_CH]
 
 
-def measure_pll(usrp, rx_streamer) -> float:
+def measure_pll(usrp, rx_streamer, at_time) -> float:
     # Make a signal for the threads to stop running
 
     logger.debug("########### Measure PLL REF phase ###########")
@@ -535,7 +541,11 @@ def measure_pll(usrp, rx_streamer) -> float:
 
     phase_to_compensate = []
 
-    rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate, duration=CAPTURE_TIME)
+    start_time = uhd.types.TimeSpec(at_time)
+
+    logger.debug(starting_in(usrp, at_time))
+
+    rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate, duration=CAPTURE_TIME, start_time=start_time)
 
     time.sleep(CAPTURE_TIME)
 
@@ -549,7 +559,7 @@ def measure_pll(usrp, rx_streamer) -> float:
     return pll_phase
 
 
-def check_loopback(usrp, tx_streamer, rx_streamer, phase_corr) -> float:
+def check_loopback(usrp, tx_streamer, rx_streamer, phase_corr, at_time) -> float:
     logger.debug(" ########### STEP 2 - Check self-correction TX-RX phase ###########")
 
     quit_event = threading.Event()
@@ -562,7 +572,9 @@ def check_loopback(usrp, tx_streamer, rx_streamer, phase_corr) -> float:
 
     phases[LOOPBACK_TX_CH] = phase_corr
 
-    start_time = uhd.types.TimeSpec(usrp.get_time_now().get_real_secs() + INIT_DELAY + 4.0)
+    start_time = uhd.types.TimeSpec(at_time)
+
+    logger.debug(starting_in(usrp, at_time))
 
     phase_to_compensate = []
 
@@ -610,19 +622,19 @@ def main():
 
     try:
 
-        tx_rx_phase = measure_loopback(usrp, tx_streamer, rx_streamer)
+        tx_rx_phase = measure_loopback(usrp, tx_streamer, rx_streamer, at_time=20.0)
         print("DONE")
         time.sleep(5)
         pll_rx_phase = measure_pll(usrp, rx_streamer)
         print("DONE")
         time.sleep(5)
 
-        check_loopback(usrp, tx_streamer, rx_streamer, phase_corr=pll_rx_phase - tx_rx_phase)
+        check_loopback(usrp, tx_streamer, rx_streamer, phase_corr=pll_rx_phase - tx_rx_phase, at_time=40.0)
         print("DONE")
         time.sleep(5)
 
         quit_event = threading.Event()
-        tx_thr, tx_meta_thr = tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr=pll_rx_phase - tx_rx_phase)
+        tx_thr, tx_meta_thr = tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr=pll_rx_phase - tx_rx_phase, at_time=60.0)
 
     except KeyboardInterrupt:
 
