@@ -636,7 +636,7 @@ def main():
         pll_rx_phase = measure_pll(usrp, rx_streamer, at_time=35.0)
         print("DONE")
 
-        check_loopback(usrp, tx_streamer, rx_streamer, phase_corr=pll_rx_phase - tx_rx_phase, at_time=55.0)
+        check_loopback(usrp, tx_streamer, rx_streamer, phase_corr=- tx_rx_phase, at_time=55.0)
         print("DONE")
 
         quit_event = threading.Event()
