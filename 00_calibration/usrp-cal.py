@@ -17,6 +17,20 @@ import uhd
 import yaml
 import zmq
 from scipy.stats import circmean
+from datetime import datetime, timedelta
+
+CMD_DELAY = 0.05  # set a 50mS delay in commands
+# default values which will be overwritten by the conf YML
+RX_TX_SAME_CHANNEL = False  # if loopback is done from one channel to the other channel
+CLOCK_TIMEOUT = 1000  # 1000mS timeout for external clock locking
+INIT_DELAY = 0.2  # 200ms initial delay before transmit
+RATE = 250e3
+LOOPBACK_TX_GAIN = 70  # empirical determined
+LOOPBACK_RX_GAIN = 23  # empirical determined
+REF_RX_GAIN = 28  # empirical determined
+FREQ = 920e6
+CAPTURE_TIME = 60
+server_ip = "10.128.52.53"
 
 with open(os.path.join(os.path.dirname(__file__), "cal-settings.yml"), 'r') as file:
     vars = yaml.safe_load(file)
@@ -24,8 +38,6 @@ with open(os.path.join(os.path.dirname(__file__), "cal-settings.yml"), 'r') as f
 
 
 # Setup the logger with our custom timestamp formatting
-
-
 class LogFormatter(logging.Formatter):
     """Log formatter which prints the timestamp with fractional seconds"""
 
@@ -173,10 +185,9 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
         if time_diff > 0:
             timeout = 1.0 + time_diff
     else:
-        stream_cmd.time_spec = uhd.types.TimeSpec(usrp.get_time_now().get_real_secs() + INIT_DELAY +0.1)
+        stream_cmd.time_spec = uhd.types.TimeSpec(usrp.get_time_now().get_real_secs() + INIT_DELAY + 0.1)
 
     rx_streamer.issue_stream_cmd(stream_cmd)
-
 
     try:
 
@@ -223,7 +234,7 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
         samples = iq_data[:, :num_rx]
 
         # np.angle(np.sum(np.exp(np.angle(samples)*1j), axis=1)) # circular mean https://en.wikipedia.org/wiki/Circular_mean
-        avg_angles = circmean(np.angle(samples[:,int(RATE):]), axis=1)
+        avg_angles = circmean(np.angle(samples[:, int(RATE):]), axis=1)
 
         phase_to_compensate.extend(avg_angles)
 
@@ -231,6 +242,19 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
 
         logger.debug(f"Angle CH0:{np.rad2deg(avg_angles[0]):.2f} CH1:{np.rad2deg(avg_angles[1]):.2f}")
         logger.debug(f"Amplitude CH0:{avg_ampl[0]:.2f} CH1:{avg_ampl[1]:.2f}")  # keep this just below this final stage
+
+
+def wait_till_go_from_server(ip):
+    context = zmq.Context()
+    socket = context.socket(zmq.SUB)
+
+    socket.connect(f"tcp://{ip}:{5557}")  # Connect to the publisher's address
+
+    # Subscribe to topics
+    socket.subscribe("SYNC")
+    logger.debug("Waiting on SYNC from server %s.", ip)
+    # Receives a string format message
+    socket.recv_string()
 
 
 def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time=None):
@@ -284,58 +308,91 @@ def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time=None):
         tx_streamer.send(np.zeros((num_channels, 0), dtype=np.complex64), tx_md)
 
 
-def setup(usrp):
+def setup_clock(usrp, clock_src, num_mboards):
+    usrp.set_clock_source(clock_src)
+
+    logger.debug("Now confirming lock on clock signals...")
+    end_time = datetime.now() + timedelta(milliseconds=CLOCK_TIMEOUT)
+
+    # Lock onto clock signals for all mboards
+    for i in range(num_mboards):
+        is_locked = usrp.get_mboard_sensor("ref_locked", i)
+        while (not is_locked) and (datetime.now() < end_time):
+            time.sleep(1e-3)
+            is_locked = usrp.get_mboard_sensor("ref_locked", i)
+        if not is_locked:
+            logger.error("Unable to confirm clock signal locked on board %d", i)
+            return False
+    return True
+
+
+def setup_pps(usrp, pps):
+    """Setup the PPS source"""
+    usrp.set_time_source(pps)
+    return True
+
+
+def tune_usrp(usrp, freq, channels, at_time):
+    """Synchronously set the device's frequency.
+       If a channel is using an internal LO it will be tuned first
+       and every other channel will be manually tuned based on the response.
+       This is to account for the internal LO channel having an offset in the actual DSP frequency.
+       Then all channels are synchronously tuned."""
+
+    treq = uhd.types.TuneRequest(freq)
+    lo_source_channel = channels
+
+    usrp.set_command_time(uhd.types.TimeSpec(at_time))
+
+    treq.dsp_freq = 0.0
+    treq.target_freq = freq
+    treq.rf_freq = freq
+    treq.rf_freq_policy = uhd.types.TuneRequestPolicy(ord('M'))
+    treq.dsp_freq_policy = uhd.types.TuneRequestPolicy(ord('M'))
+    args = uhd.types.DeviceAddr("mode_n=integer")
+    treq.args = args
+
+    for chan in channels:
+        logger.debug(usrp.set_rx_freq(treq, chan).to_pp_string())
+        logger.debug(usrp.set_tx_freq(treq, chan).to_pp_string())
+
+    usrp.clear_command_time()
+
+    while not usrp.get_rx_sensor("lo_locked").to_bool():
+        time.sleep(0.01)
+
+    logger.info("RX LO is locked")
+
+    while not usrp.get_tx_sensor("lo_locked").to_bool():
+        time.sleep(0.01)
+
+    logger.info("TX LO is locked")
+
+    time.sleep(CMD_DELAY)
+
+
+def setup(usrp, server_ip):
     rate = RATE
 
     mcr = 16e6
 
     assert (
-                mcr / rate).is_integer(), f"The masterclock rate {mcr} should be an integer multiple of the sampling rate {rate}"
+            mcr / rate).is_integer(), f"The masterclock rate {mcr} should be an integer multiple of the sampling rate {rate}"
 
     # Manual selection of master clock rate may also be required to synchronize multiple B200 units in time.
     usrp.set_master_clock_rate(mcr)
-
     channels = [0, 1]
+    setup_clock(usrp, "external", usrp.get_num_mboards())
+    setup_pps(usrp, "external")
 
     # smallest as possible (https://files.ettus.com/manual/page_usrp_b200.html#b200_fe_bw)
     rx_bw = 200e3
 
-    freq = FREQ
-
-    usrp.set_clock_source("external")
-    usrp.set_time_source("external")
-
-    usrp.set_rx_dc_offset(False, 0)
-    usrp.set_rx_dc_offset(False, 1)
-
-    usrp.set_time_unknown_pps(uhd.types.TimeSpec(0.0))
-
-    tune_req = uhd.types.TuneRequest(freq, 0)  # do not tune LO, ie set to 0 Hz
-
-    tune_req.rf_freq_policy = uhd.types.TuneRequestPolicy.manual
-    tune_req.dsp_freq_policy = uhd.types.TuneRequestPolicy.manual
-
-    tune_req.dsp_freq = 0
-    tune_req.rf_freq = freq
-    tune_req.target_freq = freq
-
-    args = uhd.types.DeviceAddr("mode_n=integer")
-    tune_req.args = args
-
-    # Channel 0 settings
-
-    usrp.set_tx_rate(rate, 0)
-    usrp.set_tx_freq(tune_req, 0)
-    usrp.set_rx_rate(rate, 0)
-    usrp.set_rx_freq(tune_req, 0)
-    usrp.set_rx_bandwidth(rx_bw, 0)
-
-    # Channel 1 settings
-    usrp.set_tx_rate(rate, 1)
-    usrp.set_tx_freq(tune_req, 1)
-    usrp.set_rx_rate(rate, 1)
-    usrp.set_rx_freq(tune_req, 1)
-    usrp.set_rx_bandwidth(rx_bw, 1)
+    for chan in channels:
+        usrp.set_rx_rate(rate, chan)
+        usrp.set_tx_rate(rate, chan)
+        usrp.set_rx_dc_offset(False, chan)
+        usrp.set_rx_bandwidth(rx_bw, chan)
 
     # specific settings from loopback/REF PLL
     usrp.set_tx_gain(LOOPBACK_TX_GAIN, LOOPBACK_TX_CH)
@@ -344,26 +401,31 @@ def setup(usrp):
     usrp.set_rx_gain(LOOPBACK_RX_GAIN, LOOPBACK_RX_CH)
     usrp.set_rx_gain(REF_RX_GAIN, REF_RX_CH)
 
+    # Step1: wait for the last pps time to transition to catch the edge
+    # Step2: set the time at the next pps (synchronous for all boards)
+    # this is better than set_time_next_pss as we wait till the next PPS to transition and after that we set the time.
+    # this ensures that the FPGA has enough time to clock in the nez timespec (otherwise it could be too close to a PPS edge)
+    wait_till_go_from_server(server_ip)
+    logger.info("Setting device timestamp to 0...")
+    usrp.set_time_unknown_pps(uhd.types.TimeSpec(0.0))
+    logger.debug("[SYNC] Resetting time.")
+    # we wait 2 seconds to ensure a PPS rising edge occurs and latches the 0.000s value to both USRPs.
+    time.sleep(2)
+
+    usrp.set_rx_bandwidth(rx_bw, 1)
+
     # streaming arguments
 
     st_args = uhd.usrp.StreamArgs("fc32", "fc32")
     st_args.channels = channels
 
-    st_args.args = args
-
     # streamers
     tx_streamer = usrp.get_tx_stream(st_args)
     rx_streamer = usrp.get_rx_stream(st_args)
 
-    while not usrp.get_rx_sensor("lo_locked").to_bool():
-        time.sleep(0.01)
+    tune_usrp(usrp, FREQ, channels, at_time=10.0)
 
-    logger.debug("RX LO is locked")
-
-    while not usrp.get_tx_sensor("lo_locked").to_bool():
-        time.sleep(0.01)
-
-    logger.debug("TX LO is locked")
+    logger.info("USRP has been tuned and setup.")
 
     return tx_streamer, rx_streamer
 
@@ -378,7 +440,8 @@ def tx_thread(usrp, tx_streamer, quit_event, phase=[0, 0], amplitude=[0.8, 0.8],
 
 
 def rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_time=None):
-    rx_thread = threading.Thread(target=rx_ref, args=(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_time))
+    rx_thread = threading.Thread(target=rx_ref,
+                                 args=(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_time))
 
     rx_thread.setName("RX_thread")
     rx_thread.start()
@@ -421,18 +484,14 @@ def measure_loopback(usrp, tx_streamer, rx_streamer) -> float:
 
     amplitudes[LOOPBACK_TX_CH] = 0.8
 
-
     phase_to_compensate = []
 
     start_time = uhd.types.TimeSpec(usrp.get_time_now().get_real_secs() + INIT_DELAY + 4.0)
 
     tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=amplitudes, phase=[0.0, 0.0], start_time=start_time)
 
-
     tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
     rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate, duration=CAPTURE_TIME, start_time=start_time)
-
-
 
     time.sleep(CAPTURE_TIME)
 
@@ -489,10 +548,6 @@ def check_loopback(usrp, tx_streamer, rx_streamer, phase_corr) -> float:
 
     start_time = uhd.types.TimeSpec(usrp.get_time_now().get_real_secs() + INIT_DELAY + 4.0)
 
-
-
-
-
     phase_to_compensate = []
 
     tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=amplitudes, phase=phases, start_time=start_time)
@@ -531,8 +586,9 @@ def tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr):
 
 
 def main():
-    usrp = uhd.usrp.MultiUSRP("mode_n=integer")  # "mode_n=integer"
-    tx_streamer, rx_streamer = setup(usrp)
+    usrp = uhd.usrp.MultiUSRP("")  # "mode_n=integer"
+    logger.info("Using Device: %s", usrp.get_pp_string())
+    tx_streamer, rx_streamer = setup(usrp, server_ip)
 
     tx_thr = tx_meta_thr = None
 
