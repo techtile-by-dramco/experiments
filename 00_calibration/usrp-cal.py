@@ -371,7 +371,7 @@ def tune_usrp(usrp, freq, channels, at_time):
         logger.debug(print_tune_result(usrp.set_tx_freq(treq, chan)))
 
     wait_till_time(usrp, at_time)
-    
+
     usrp.clear_command_time()
 
     while not usrp.get_rx_sensor("lo_locked").to_bool():
@@ -491,8 +491,12 @@ def tx_meta_thread(tx_streamer, quit_event):
     return tx_meta_thr
 
 
+def delta(usrp, at_time):
+    return at_time - usrp.get_time_now().get_real_secs()
+
+
 def starting_in(usrp, at_time):
-    return f"Starting in {at_time-usrp.get_time_now().get_real_secs():.2f}s"
+    return f"Starting in {delta(usrp, at_time):.2f}s"
 
 
 def measure_loopback(usrp, tx_streamer, rx_streamer, at_time) -> float:
@@ -507,7 +511,7 @@ def measure_loopback(usrp, tx_streamer, rx_streamer, at_time) -> float:
     phase_to_compensate = []
 
     start_time = uhd.types.TimeSpec(at_time)
-    
+
     logger.debug(starting_in(usrp, at_time))
 
     tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=amplitudes, phase=[0.0, 0.0], start_time=start_time)
@@ -515,7 +519,7 @@ def measure_loopback(usrp, tx_streamer, rx_streamer, at_time) -> float:
     tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
     rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate, duration=CAPTURE_TIME, start_time=start_time)
 
-    time.sleep(CAPTURE_TIME)
+    time.sleep(CAPTURE_TIME + delta(usrp, at_time))
 
     quit_event.set()
 
@@ -547,7 +551,7 @@ def measure_pll(usrp, rx_streamer, at_time) -> float:
 
     rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate, duration=CAPTURE_TIME, start_time=start_time)
 
-    time.sleep(CAPTURE_TIME)
+    time.sleep(CAPTURE_TIME + delta(usrp, at_time))
 
     quit_event.set()
 
@@ -582,7 +586,7 @@ def check_loopback(usrp, tx_streamer, rx_streamer, phase_corr, at_time) -> float
     tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
     rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate, duration=CAPTURE_TIME, start_time=start_time)
 
-    time.sleep(CAPTURE_TIME)
+    time.sleep(CAPTURE_TIME + delta(usrp, at_time))
 
     quit_event.set()
 
@@ -595,7 +599,7 @@ def check_loopback(usrp, tx_streamer, rx_streamer, phase_corr, at_time) -> float
     tx_meta_thr.join()
 
 
-def tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr):
+def tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr, at_time):
     logger.debug("########### STEP 4 - TX with adjusted phases ###########")
 
     phases = [0.0, 0.0]
@@ -604,9 +608,13 @@ def tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr):
     phases[FREE_TX_CH] = phase_corr
     amplitudes[FREE_TX_CH] = 0.8
 
+    start_time = uhd.types.TimeSpec(at_time)
+
+    logger.debug(starting_in(usrp, at_time))
+
     logger.debug(f"Applying phase correction CH0:{np.rad2deg(phases[0]):.2f} and CH1:{np.rad2deg(phases[1]):.2f}")
 
-    tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=amplitudes, phase=phases)
+    tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=amplitudes, phase=phases, start_time=start_time)
 
     tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
 
@@ -624,17 +632,16 @@ def main():
 
         tx_rx_phase = measure_loopback(usrp, tx_streamer, rx_streamer, at_time=20.0)
         print("DONE")
-        time.sleep(5)
-        pll_rx_phase = measure_pll(usrp, rx_streamer)
-        print("DONE")
-        time.sleep(5)
 
-        check_loopback(usrp, tx_streamer, rx_streamer, phase_corr=pll_rx_phase - tx_rx_phase, at_time=40.0)
+        pll_rx_phase = measure_pll(usrp, rx_streamer, at_time=40.0)
         print("DONE")
-        time.sleep(5)
+
+        check_loopback(usrp, tx_streamer, rx_streamer, phase_corr=pll_rx_phase - tx_rx_phase, at_time=60.0)
+        print("DONE")
 
         quit_event = threading.Event()
-        tx_thr, tx_meta_thr = tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr=pll_rx_phase - tx_rx_phase, at_time=60.0)
+        tx_thr, tx_meta_thr = tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr=pll_rx_phase - tx_rx_phase,
+                                           at_time=80.0)
 
     except KeyboardInterrupt:
 
