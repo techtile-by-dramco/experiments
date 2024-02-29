@@ -640,7 +640,7 @@ def main():
         print("DONE")
 
         quit_event = threading.Event()
-        tx_thr, tx_meta_thr = tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr=pll_rx_phase - tx_rx_phase,
+        tx_thr, tx_meta_thr = tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr=(pll_rx_phase - tx_rx_phase)+np.pi,
                                            at_time=75.0)
 
     except KeyboardInterrupt:
