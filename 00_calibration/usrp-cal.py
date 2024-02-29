@@ -212,8 +212,8 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
 
                         iq_data[:, num_rx: num_rx + num_rx_i] = samples
 
-                        # threading.Thread(target=send_rx,
-                        #                  args=(samples,)).start()
+                        threading.Thread(target=send_rx,
+                                         args=(samples,)).start()
 
                         num_rx += num_rx_i
 
