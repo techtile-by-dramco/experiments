@@ -341,6 +341,12 @@ def print_tune_result(tune_res):
                                                     (tune_res.target_dsp_freq / 1e6), (tune_res.actual_dsp_freq / 1e6))
 
 
+def wait_till_time(usrp, at_time):
+    logger.debug("Wait till command is executed")
+    while usrp.get_time_now().get_real_secs() < at_time + CMD_DELAY:
+        time.sleep(0.01)
+
+
 def tune_usrp(usrp, freq, channels, at_time):
     """Synchronously set the device's frequency.
        If a channel is using an internal LO it will be tuned first
@@ -349,7 +355,6 @@ def tune_usrp(usrp, freq, channels, at_time):
        Then all channels are synchronously tuned."""
 
     treq = uhd.types.TuneRequest(freq)
-    lo_source_channel = channels
 
     usrp.set_command_time(uhd.types.TimeSpec(at_time))
 
@@ -365,6 +370,8 @@ def tune_usrp(usrp, freq, channels, at_time):
         logger.debug(print_tune_result(usrp.set_rx_freq(treq, chan)))
         logger.debug(print_tune_result(usrp.set_tx_freq(treq, chan)))
 
+    wait_till_time(usrp, at_time)
+    
     usrp.clear_command_time()
 
     while not usrp.get_rx_sensor("lo_locked").to_bool():
