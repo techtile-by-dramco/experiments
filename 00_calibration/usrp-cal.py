@@ -212,8 +212,8 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
 
                         iq_data[:, num_rx: num_rx + num_rx_i] = samples
 
-                        threading.Thread(target=send_rx,
-                                         args=(samples,)).start()
+                        # threading.Thread(target=send_rx,
+                        #                  args=(samples,)).start()
 
                         num_rx += num_rx_i
 
@@ -630,18 +630,18 @@ def main():
 
     try:
 
-        tx_rx_phase = measure_loopback(usrp, tx_streamer, rx_streamer, at_time=20.0)
+        tx_rx_phase = measure_loopback(usrp, tx_streamer, rx_streamer, at_time=15.0)
         print("DONE")
 
-        pll_rx_phase = measure_pll(usrp, rx_streamer, at_time=40.0)
+        pll_rx_phase = measure_pll(usrp, rx_streamer, at_time=35.0)
         print("DONE")
 
-        check_loopback(usrp, tx_streamer, rx_streamer, phase_corr=pll_rx_phase - tx_rx_phase, at_time=60.0)
+        check_loopback(usrp, tx_streamer, rx_streamer, phase_corr=pll_rx_phase - tx_rx_phase, at_time=55.0)
         print("DONE")
 
         quit_event = threading.Event()
         tx_thr, tx_meta_thr = tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr=pll_rx_phase - tx_rx_phase,
-                                           at_time=80.0)
+                                           at_time=75.0)
 
     except KeyboardInterrupt:
 
