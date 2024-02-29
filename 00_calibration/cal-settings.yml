@@ -10,3 +10,5 @@ FREQ: !!float 920e6
 
 
 CAPTURE_TIME: !!float 60
+
+server_ip: "10.128.52.53"
