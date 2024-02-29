@@ -323,6 +323,8 @@ def setup_clock(usrp, clock_src, num_mboards):
         if not is_locked:
             logger.error("Unable to confirm clock signal locked on board %d", i)
             return False
+        else:
+            logger.debug("Clock signals are locked")
     return True
 
 
@@ -330,6 +332,12 @@ def setup_pps(usrp, pps):
     """Setup the PPS source"""
     usrp.set_time_source(pps)
     return True
+
+
+def print_tune_result(tune_res):
+    return f"Tune Result:\n    Target RF  Freq: %f (MHz)\n Actual RF  Freq: %f (MHz)\n Target DSP Freq: %f (MHz)\n " \
+           f"Actual DSP Freq: %f (MHz)\n".format((tune_res.target_rf_freq / 1e6), (tune_res.actual_rf_freq / 1e6),
+                                                 (tune_res.target_dsp_freq / 1e6), (tune_res.actual_dsp_freq / 1e6))
 
 
 def tune_usrp(usrp, freq, channels, at_time):
@@ -353,8 +361,8 @@ def tune_usrp(usrp, freq, channels, at_time):
     treq.args = args
 
     for chan in channels:
-        logger.debug(usrp.set_rx_freq(treq, chan).to_pp_string())
-        logger.debug(usrp.set_tx_freq(treq, chan).to_pp_string())
+        logger.debug(print_tune_result(usrp.set_rx_freq(treq, chan))
+        logger.debug(print_tune_result(usrp.set_tx_freq(treq, chan))
 
     usrp.clear_command_time()
 
