@@ -361,8 +361,8 @@ def tune_usrp(usrp, freq, channels, at_time):
     treq.args = args
 
     for chan in channels:
-        logger.debug(print_tune_result(usrp.set_rx_freq(treq, chan))
-        logger.debug(print_tune_result(usrp.set_tx_freq(treq, chan))
+        logger.debug(print_tune_result(usrp.set_rx_freq(treq, chan)))
+        logger.debug(print_tune_result(usrp.set_tx_freq(treq, chan)))
 
     usrp.clear_command_time()
 
