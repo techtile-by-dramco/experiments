@@ -167,8 +167,11 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
 
     # TODO: The C++ code uses rx_cpu type here. Do we want to use that to set dtype?
 
-    recv_buffer = np.zeros((num_channels, min([1000 * max_samps_per_packet, int(duration * RATE * 2)])),
-                           dtype=np.complex64, )
+    # recv_buffer = np.zeros((num_channels, min([1000 * max_samps_per_packet, int(duration * RATE * 2)])),
+    #                        dtype=np.complex64, )\
+
+    recv_buffer = np.zeros(
+        (num_channels, max_samps_per_packet), dtype=np.complex64)
 
     rx_md = uhd.types.RXMetadata()
 
@@ -176,7 +179,7 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
 
     stream_cmd = uhd.types.StreamCMD(uhd.types.StreamMode.start_cont)
 
-    stream_cmd.stream_now = False
+    stream_cmd.stream_now = False # The stream now parameter controls when the stream begins. When true, the device will begin streaming ASAP. When false, the device will begin streaming at a time specified by time_spec.
 
     timeout = 1.0
     if start_time is not None:
@@ -197,7 +200,7 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
 
             try:
 
-                num_rx_i = rx_streamer.recv(recv_buffer, rx_md, timeout)
+                num_rx_i = rx_streamer.recv(recv_buffer, rx_md)
 
                 if rx_md.error_code != uhd.types.RXMetadataErrorCode.none:
                     logger.error(rx_md.error_code)
@@ -432,7 +435,7 @@ def setup(usrp, server_ip):
 
     # streaming arguments
 
-    st_args = uhd.usrp.StreamArgs("fc32", "fc32")
+    st_args = uhd.usrp.StreamArgs("fc32", "sc16")
     st_args.channels = channels
 
     # streamers
