@@ -200,7 +200,7 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
 
             try:
 
-                num_rx_i = rx_streamer.recv(recv_buffer, rx_md)
+                num_rx_i = rx_streamer.recv(recv_buffer, rx_md, timeout)
 
                 if rx_md.error_code != uhd.types.RXMetadataErrorCode.none:
                     logger.error(rx_md.error_code)
@@ -237,7 +237,7 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
         samples = iq_data[:, :num_rx]
 
         # np.angle(np.sum(np.exp(np.angle(samples)*1j), axis=1)) # circular mean https://en.wikipedia.org/wiki/Circular_mean
-        avg_angles = circmean(np.angle(samples[:, int(RATE):]), axis=1)
+        avg_angles = circmean(np.angle(samples[:, int(RATE//10):]), axis=1)
 
         phase_to_compensate.extend(avg_angles)
 
