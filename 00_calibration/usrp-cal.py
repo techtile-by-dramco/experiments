@@ -212,8 +212,8 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
 
                         iq_data[:, num_rx: num_rx + num_rx_i] = samples
 
-                        threading.Thread(target=send_rx,
-                                         args=(samples,)).start()
+                        # threading.Thread(target=send_rx,
+                        #                  args=(samples,)).start()
 
                         num_rx += num_rx_i
 
@@ -630,7 +630,7 @@ def main():
 
     try:
 
-        begin_time = 11.0
+        begin_time = 20.0
         cmd_time = CAPTURE_TIME + 20
 
         tx_rx_phase = measure_loopback(usrp, tx_streamer, rx_streamer, at_time=begin_time)
