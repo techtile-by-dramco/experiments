@@ -634,7 +634,7 @@ def main():
     try:
 
         begin_time = 12.0
-        cmd_time = CAPTURE_TIME + 4.0
+        cmd_time = CAPTURE_TIME + 5.0
 
         tx_rx_phase = measure_loopback(usrp, tx_streamer, rx_streamer, at_time=begin_time)
         print("DONE")
