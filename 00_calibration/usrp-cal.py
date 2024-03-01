@@ -390,13 +390,13 @@ def tune_usrp(usrp, freq, channels, at_time):
 def setup(usrp, server_ip):
     rate = RATE
 
-    mcr = 16e6
-
-    assert (
-            mcr / rate).is_integer(), f"The masterclock rate {mcr} should be an integer multiple of the sampling rate {rate}"
-
-    # Manual selection of master clock rate may also be required to synchronize multiple B200 units in time.
-    usrp.set_master_clock_rate(mcr)
+    # mcr = 16e6
+    #
+    # assert (
+    #         mcr / rate).is_integer(), f"The masterclock rate {mcr} should be an integer multiple of the sampling rate {rate}"
+    #
+    # # Manual selection of master clock rate may also be required to synchronize multiple B200 units in time.
+    # usrp.set_master_clock_rate(mcr)
     channels = [0, 1]
     setup_clock(usrp, "external", usrp.get_num_mboards())
     setup_pps(usrp, "external")
