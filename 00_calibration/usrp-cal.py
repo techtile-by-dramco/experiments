@@ -622,7 +622,7 @@ def tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr, at_time):
 
 
 def main():
-    usrp = uhd.usrp.MultiUSRP("")  # "mode_n=integer"
+    usrp = uhd.usrp.MultiUSRP("fpga=/home/pi/experiments/00_calibration/usrp_b210_fpga.bin")  # "mode_n=integer"
     logger.info("Using Device: %s", usrp.get_pp_string())
     tx_streamer, rx_streamer = setup(usrp, server_ip)
 
