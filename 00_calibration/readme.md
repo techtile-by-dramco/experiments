@@ -7,7 +7,7 @@
 - ⬛ PLL Phase Stability Test
   * ☑️ PLL Phase when clocked from the same Octoclock
   * ⬛ PLL Phase when clocked from different Octoclock
-  * ⬛ PLL Phase Noise (or phase stability)
+  * ⬛ PLL Phase Noise (or phase stability) from same/different Octoclock
 - ⬛ USRP Phase Stability Test   
   * ☑️ USRP CH0-CH1 Phase stability
   * ⬛ USRP0 CH0 USRP1 CH0 Phase stability
