@@ -18,6 +18,14 @@
   * ⬛ PLL + loopback
 
 
+## 10 MHz Time offset Stability Test
+Measurements have revealed that the 10MHz signals are not perfectly time synchronous. Time offsets between rising edges of several tens of picoseconds are not uncommon. The onboard components of the CDA2990 are responsible for this undesired effect, including the cdce18005 clock buffer IC. To determine whether it is worthwhile to map these (rising edge) time differences, it is important to know if these offsets do not vary too much over time. The following figure depicts a measurement setup proposed to measure the offsets over several days/weeks.
+
+![setup](https://github.com/techtile-by-dramco/experiments/blob/main/00_calibration/figures/octoclock-time-offset-stability-setup.drawio.png)
+
+| Date | Time | Δt [CH1-CH2] | Δt [CH2-CH3] | Δt [CH1-CH3] | Pwr cycled? | ON (t > 24h) | ... |
+|-|-|-|-|-|-|-|-|
+| | | | | | | | |
 
 ## PLL Phase Stability Test
 
