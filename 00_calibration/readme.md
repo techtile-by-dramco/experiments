@@ -50,7 +50,7 @@ The stored data is plotted via [this script](data/plot-hist-scope.py).
 
 ### PLL Phase when clocked from different Octoclock
 
-
+The phase difference at the output of two plls should be related to the rising edge time offset between the two 10mhz reference signals.
 
 ### PLL Phase Noise (or phase stability)
 
