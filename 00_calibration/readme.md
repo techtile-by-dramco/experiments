@@ -102,7 +102,7 @@ The stored data is plotted via [this script](data/plot-phase-USRP.py). The same 
 
 ### Scope Phase measurement procedure
 
-
+The Scope Phase measurement procedure involves saving time-domain measurements to USB and processing the data in Python.
 - Trigger on one channel (50%)
 - Phase is measured by a time phase measurement on the scope
 - Triggered by a rising edge
