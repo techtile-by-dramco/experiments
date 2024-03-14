@@ -1,5 +1,9 @@
 # Calibration Procedure
 
+- ⬛ PPS Stability Tests
+- ⬛ 10 MHz Time offset Stability Test
+  * ⬛ Time offset stabibility measurements with 1 octoclocks and 2 scope channels
+  * ⬛ Time offset stabibility measurements with 3 octoclocks and 3 scope channels
 - ⬛ PLL Phase Stability Test
   * ☑️ PLL Phase when clocked from the same Octoclock
   * ⬛ PLL Phase when clocked from different Octoclock
