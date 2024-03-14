@@ -19,7 +19,7 @@
 
 ### PLL Phase when clocked from the same Octoclock
 
-The phase difference is measured on our Scope. Procedure is explained [here](###Scope-Phase-measurement-procedure).
+The phase difference is measured on our Scope. Procedure is explained [here](#scope-phase-measurement-procedure).
 The stored data is plotted via [this script](data/plot-hist-scope.py).
 
 
@@ -92,7 +92,7 @@ python3 plot-phase.py
 
 ## USRP Loopback Sync
 
-The stored data is plotted via [this script](data/plot-phase-USRP.py). The same procedure is followed as in [here](###PLL-RX-CH0-Phase-stability).
+The stored data is plotted via [this script](data/plot-phase-USRP.py). The same procedure is followed as in [here](#pll-rx-ch0-phase-stability).
 
 ![LOOPBACK-USRP](data/received_data_CH1_ALL_2024-02-22_14-10-06.png)
 
