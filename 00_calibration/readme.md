@@ -25,7 +25,7 @@ Measurements have revealed that the 10MHz signals are not perfectly time synchro
 
 | Date | Time | Δt [CH1-CH2] | Δt [CH2-CH3] | Δt [CH1-CH3] | Pwr cycled? | ON (t > 24h) | ... |
 |-|-|-|-|-|-|-|-|
-| | | | | | | | |
+| | | | | | yes/no | yes/no | ... |
 
 ## PLL Phase Stability Test
 
