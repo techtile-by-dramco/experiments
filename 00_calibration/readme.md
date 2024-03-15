@@ -25,10 +25,12 @@ Measurements have revealed that the 10MHz signals are not perfectly time synchro
 ![setup](https://github.com/techtile-by-dramco/experiments/blob/main/00_calibration/figures/octoclock-time-offset-stability-setup.drawio.png)
 
 Measurement results using three octoclocks.
+Octoclock [L1] connected to scope [CH1], Octoclock [L2 NR1] connected to scope [CH2], Octoclock [L2 NR2] connected to scope [CH3].
+In the most ideal scenario, the time difference between CH2 and CH3 would be zero.
 
-| Date | Time | Δt [CH1-CH2] | Δt [CH2-CH3] | Δt [CH1-CH3] | Pwr cycled? | ON (t > 24h) | ... |
-|-|-|-|-|-|-|-|-|
-| | | | | | yes/no | yes/no | ... |
+| Date | Time | Δt [CH1-CH2] | Δt [CH2-CH3] | Δt [CH1-CH3] | Pwr cycled? | ON (t > 24h) |
+|-|-|-|-|-|-|-|
+| 15/03/2024 | 9:44 | 45.552 ns | 285 ps | 45.209 ns | yes | no |
 
 ## PLL Phase Stability Test
 
