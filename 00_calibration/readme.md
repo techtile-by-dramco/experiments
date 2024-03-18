@@ -31,6 +31,7 @@ In the most ideal scenario, the time difference between CH2 and CH3 would be zer
 | Date | Time | Δt [CH1-CH2] | Δt [CH2-CH3] | Δt [CH1-CH3] | Pwr cycled? | ON (t > 24h) |
 |-|-|-|-|-|-|-|
 | 15/03/2024 | 9:44 | 45.552 ns | 285 ps | 45.209 ns | yes | no |
+| 18/03/2024 | 9:11 | 45.548 ns | 270 ps | 45.209 ns | no | yes |
 
 ## PLL Phase Stability Test
 
