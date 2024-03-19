@@ -602,6 +602,8 @@ def check_loopback(usrp, tx_streamer, rx_streamer, phase_corr, at_time) -> float
 
     tx_meta_thr.join()
 
+    return phase_to_compensate[LOOPBACK_RX_CH]
+
 
 def tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr, at_time):
     logger.debug("########### STEP 4 - TX with adjusted phases ###########")
@@ -651,17 +653,13 @@ def main():
         check_loopback(usrp, tx_streamer, rx_streamer,
                        phase_corr=phase_corr, at_time=get_current_time(usrp)+2)
 
-        remainig_phase = measure_loopback(
-            usrp, tx_streamer, rx_streamer, at_time=get_current_time(usrp)+2)
-        phase_corr -= remainig_phase
+        remainig_phase = 100 # start with high remaining phase to emulate do while loop
 
         while np.rad2deg(remainig_phase) > 1 or np.rad2deg(remainig_phase) < 359:
-            check_loopback(usrp, tx_streamer, rx_streamer,
+            remainig_phase = check_loopback(usrp, tx_streamer, rx_streamer,
                            phase_corr=phase_corr, at_time=get_current_time(usrp)+2)
-            remainig_phase = measure_loopback(
-                usrp, tx_streamer, rx_streamer, at_time=get_current_time(usrp)+2)
             phase_corr -= remainig_phase
-
+ 
         print("DONE")
 
         quit_event = threading.Event()
