@@ -27,7 +27,7 @@ INIT_DELAY = 0.2  # 200ms initial delay before transmit
 RATE = 250e3
 LOOPBACK_TX_GAIN = 70  # empirical determined
 LOOPBACK_RX_GAIN = 23  # empirical determined
-REF_RX_GAIN = 24  # empirical determined
+REF_RX_GAIN = 27  # empirical determined
 FREQ = 920e6
 CAPTURE_TIME = 60
 server_ip = "10.128.52.53"
@@ -246,7 +246,7 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
         logger.debug(f"Angle CH0:{np.rad2deg(avg_angles[0]):.2f} CH1:{np.rad2deg(avg_angles[1]):.2f}")
         logger.debug(f"Amplitude CH0:{avg_ampl[0]:.2f} CH1:{avg_ampl[1]:.2f}")  # keep this just below this final stage
 
-
+ 
 def wait_till_go_from_server(ip):
     context = zmq.Context()
     socket = context.socket(zmq.SUB)
@@ -289,7 +289,7 @@ def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time=None):
     tx_md = uhd.types.TXMetadata()
 
     if start_time is not None:
-        tx_md.time_spec = start_time
+        tx_md. time_spec = start_time
     else:
         tx_md.time_spec = uhd.types.TimeSpec(usrp.get_time_now().get_real_secs() + INIT_DELAY)
 
@@ -544,6 +544,7 @@ def measure_pll(usrp, rx_streamer, at_time) -> float:
 
     logger.debug("########### Measure PLL REF phase ###########")
 
+
     quit_event = threading.Event()
 
     phase_to_compensate = []
@@ -642,12 +643,16 @@ def main():
         pll_rx_phase = measure_pll(usrp, rx_streamer, at_time=begin_time + cmd_time)
         print("DONE")
 
-        check_loopback(usrp, tx_streamer, rx_streamer, phase_corr=- tx_rx_phase, at_time=begin_time + 2 * cmd_time)
+        check_loopback(usrp, tx_streamer, rx_streamer, phase_corr=-tx_rx_phase, at_time=begin_time + 2 * cmd_time)
+        print("DONE")
+
+        check_loopback(usrp, tx_streamer, rx_streamer, phase_corr=-
+                       tx_rx_phase, at_time=begin_time + 3 * cmd_time)
         print("DONE")
 
         quit_event = threading.Event()
         tx_thr, tx_meta_thr = tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr=(pll_rx_phase - tx_rx_phase),
-                                           at_time=begin_time + 3 * cmd_time)
+                                           at_time=begin_time + 4 * cmd_time)
 
     except KeyboardInterrupt:
 
