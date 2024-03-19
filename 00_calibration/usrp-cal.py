@@ -664,7 +664,8 @@ def main():
                 f"Remaining phase is {np.rad2deg(remainig_phase)} degrees.")
             calibrated = (np.rad2deg(remainig_phase) <
                           1 or np.rad2deg(remainig_phase) > 359)
-            pll_rx_phase = measure_pll(usrp, rx_streamer, at_time=begin_time + cmd_time)
+            pll_rx_phase = measure_pll(
+                usrp, rx_streamer, at_time=get_current_time(usrp)+2)
             if not calibrated:
                 phase_corr -= remainig_phase
                 logger.debug("Adjusting phase and retrying.")
