@@ -653,12 +653,16 @@ def main():
         check_loopback(usrp, tx_streamer, rx_streamer,
                        phase_corr=phase_corr, at_time=get_current_time(usrp)+2)
 
-        remainig_phase = 100 # start with high remaining phase to emulate do while loop
+        calibrated = False
 
-        while not (np.rad2deg(remainig_phase) < 1 or np.rad2deg(remainig_phase) > 359):
+        while not calibrated:
             remainig_phase = check_loopback(usrp, tx_streamer, rx_streamer,
                            phase_corr=phase_corr, at_time=get_current_time(usrp)+2)
+            logger.debug(
+                f"Remaining phase is {np.rad2deg(remainig_phase)} degrees.")
             phase_corr -= remainig_phase
+            calibrated = (np.rad2deg(remainig_phase) <
+                          1 or np.rad2deg(remainig_phase) > 359)
  
         print("DONE")
 
