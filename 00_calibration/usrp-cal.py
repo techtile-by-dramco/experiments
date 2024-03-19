@@ -657,7 +657,7 @@ def main():
         calibrated = False
         num_calibrated = 0
 
-        while not calibrated and num_calibrated > MAX_RETRIES:
+        while not calibrated and num_calibrated < MAX_RETRIES:
             remainig_phase = check_loopback(usrp, tx_streamer, rx_streamer,
                            phase_corr=phase_corr, at_time=get_current_time(usrp)+2)
             logger.debug(
