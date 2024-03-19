@@ -27,7 +27,7 @@ INIT_DELAY = 0.2  # 200ms initial delay before transmit
 RATE = 250e3
 LOOPBACK_TX_GAIN = 70  # empirical determined
 LOOPBACK_RX_GAIN = 23  # empirical determined
-REF_RX_GAIN = 27  # empirical determined
+REF_RX_GAIN = 24  # empirical determined 24 without splitter, 27 with splitter
 FREQ = 920e6
 CAPTURE_TIME = 60
 server_ip = "10.128.52.53"
@@ -643,15 +643,25 @@ def main():
         tx_rx_phase = measure_loopback(usrp, tx_streamer, rx_streamer, at_time=begin_time)
         print("DONE")
 
-        check_loopback(usrp, tx_streamer, rx_streamer, phase_corr=-
-                       tx_rx_phase, at_time=begin_time + cmd_time)
+        phase_corr = - tx_rx_phase
+
+        pll_rx_phase = measure_pll(usrp, rx_streamer, at_time=begin_time + cmd_time)
         print("DONE")
 
-        pll_rx_phase = measure_pll(usrp, rx_streamer, at_time=begin_time + 2* cmd_time)
-        print("DONE")
+        check_loopback(usrp, tx_streamer, rx_streamer,
+                       phase_corr=phase_corr, at_time=get_current_time(usrp)+2)
 
-        check_loopback(usrp, tx_streamer, rx_streamer, phase_corr=-
-                       tx_rx_phase, at_time=get_current_time(usrp)+2)
+        remainig_phase = measure_loopback(
+            usrp, tx_streamer, rx_streamer, at_time=get_current_time(usrp)+2)
+        phase_corr -= remainig_phase
+
+        while np.rad2deg(remainig_phase) > 1:
+            check_loopback(usrp, tx_streamer, rx_streamer,
+                           phase_corr=phase_corr, at_time=get_current_time(usrp)+2)
+            remainig_phase = measure_loopback(
+                usrp, tx_streamer, rx_streamer, at_time=get_current_time(usrp)+2)
+            phase_corr -= remainig_phase
+
         print("DONE")
 
         quit_event = threading.Event()
