@@ -624,6 +624,9 @@ def tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr, at_time):
 
     return tx_thr, tx_meta_thr
 
+def get_current_time(usrp):
+    return usrp.get_time_now().get_real_secs()
+
 
 def main():
     usrp = uhd.usrp.MultiUSRP("fpga=/home/pi/experiments/00_calibration/usrp_b210_fpga.bin")  # "mode_n=integer"
@@ -640,19 +643,20 @@ def main():
         tx_rx_phase = measure_loopback(usrp, tx_streamer, rx_streamer, at_time=begin_time)
         print("DONE")
 
-        pll_rx_phase = measure_pll(usrp, rx_streamer, at_time=begin_time + cmd_time)
+        check_loopback(usrp, tx_streamer, rx_streamer, phase_corr=-
+                       tx_rx_phase, at_time=begin_time + cmd_time)
         print("DONE")
 
-        check_loopback(usrp, tx_streamer, rx_streamer, phase_corr=-tx_rx_phase, at_time=begin_time + 2 * cmd_time)
+        pll_rx_phase = measure_pll(usrp, rx_streamer, at_time=begin_time + 2* cmd_time)
         print("DONE")
 
         check_loopback(usrp, tx_streamer, rx_streamer, phase_corr=-
-                       tx_rx_phase, at_time=begin_time + 3 * cmd_time)
+                       tx_rx_phase, at_time=get_current_time(usrp)+2)
         print("DONE")
 
         quit_event = threading.Event()
         tx_thr, tx_meta_thr = tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr=(pll_rx_phase - tx_rx_phase),
-                                           at_time=begin_time + 4 * cmd_time)
+                                           at_time=get_current_time(usrp)+2)
 
     except KeyboardInterrupt:
 
