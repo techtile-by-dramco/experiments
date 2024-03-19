@@ -27,10 +27,11 @@ INIT_DELAY = 0.2  # 200ms initial delay before transmit
 RATE = 250e3
 LOOPBACK_TX_GAIN = 70  # empirical determined
 LOOPBACK_RX_GAIN = 23  # empirical determined
-REF_RX_GAIN = 24  # empirical determined 24 without splitter, 27 with splitter
+REF_RX_GAIN = 22  # empirical determined 22 without splitter, 27 with splitter
 FREQ = 920e6
 CAPTURE_TIME = 60
 server_ip = "10.128.52.53"
+MAX_RETRIES = 10
 
 with open(os.path.join(os.path.dirname(__file__), "cal-settings.yml"), 'r') as file:
     vars = yaml.safe_load(file)
@@ -654,15 +655,24 @@ def main():
                        phase_corr=phase_corr, at_time=get_current_time(usrp)+2)
 
         calibrated = False
+        num_calibrated = 0
 
-        while not calibrated:
+        while not calibrated and num_calibrated > MAX_RETRIES:
             remainig_phase = check_loopback(usrp, tx_streamer, rx_streamer,
                            phase_corr=phase_corr, at_time=get_current_time(usrp)+2)
             logger.debug(
                 f"Remaining phase is {np.rad2deg(remainig_phase)} degrees.")
-            phase_corr -= remainig_phase
             calibrated = (np.rad2deg(remainig_phase) <
                           1 or np.rad2deg(remainig_phase) > 359)
+            pll_rx_phase = measure_pll(usrp, rx_streamer, at_time=begin_time + cmd_time)
+            if not calibrated:
+                phase_corr -= remainig_phase
+                logger.debug("Adjusting phase and retrying.")
+                num_calibrated += 1
+
+        if num_calibrated >= MAX_RETRIES:
+            logger.error("Could not calibrate")
+
  
         print("DONE")
 
