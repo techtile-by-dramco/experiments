@@ -655,7 +655,7 @@ def main():
             usrp, tx_streamer, rx_streamer, at_time=get_current_time(usrp)+2)
         phase_corr -= remainig_phase
 
-        while np.rad2deg(remainig_phase) > 1:
+        while np.rad2deg(remainig_phase) > 1 or np.rad2deg(remainig_phase) < 359:
             check_loopback(usrp, tx_streamer, rx_streamer,
                            phase_corr=phase_corr, at_time=get_current_time(usrp)+2)
             remainig_phase = measure_loopback(
