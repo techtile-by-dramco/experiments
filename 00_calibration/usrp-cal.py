@@ -655,7 +655,7 @@ def main():
 
         remainig_phase = 100 # start with high remaining phase to emulate do while loop
 
-        while np.rad2deg(remainig_phase) > 1 or np.rad2deg(remainig_phase) < 359:
+        while not (np.rad2deg(remainig_phase) < 1 or np.rad2deg(remainig_phase) > 359):
             remainig_phase = check_loopback(usrp, tx_streamer, rx_streamer,
                            phase_corr=phase_corr, at_time=get_current_time(usrp)+2)
             phase_corr -= remainig_phase
