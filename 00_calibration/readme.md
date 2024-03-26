@@ -33,7 +33,8 @@ In the most ideal scenario, the time difference between CH2 and CH3 would be zer
 | 15/03/2024 | 9:44 | 45.552 ns | 285 ps | 45.209 ns | yes | no |
 | 18/03/2024 | 9:11 | 45.548 ns | 270 ps | 45.209 ns | no | yes |
 | 22/03/2024 | 10:43 | 45.523 ns | 257 ps | 45.237 ns | no | yes |
-| 25/03/2024 | 09:46 | 45.584 ns | 256 ps | 45.323 ns | no | yes |
+| 25/03/2024 | 09:46 | 45.552 ns | 256 ps | 45.323 ns | no | yes |
+| 26/03/2024 | 15:37 | 45.552 ns | 259 ps | 45.208 ns | yes | no |
 
 ## PLL Phase Stability Test
 
