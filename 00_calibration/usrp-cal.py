@@ -21,7 +21,7 @@ from datetime import datetime, timedelta
 
 CMD_DELAY = 0.05  # set a 50mS delay in commands
 # default values which will be overwritten by the conf YML
-RX_TX_SAME_CHANNEL = False  # if loopback is done from one channel to the other channel
+RX_TX_SAME_CHANNEL = True  # if loopback is done from one channel to the other channel
 CLOCK_TIMEOUT = 1000  # 1000mS timeout for external clock locking
 INIT_DELAY = 0.2  # 200ms initial delay before transmit
 RATE = 250e3
