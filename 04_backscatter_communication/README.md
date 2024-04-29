@@ -27,9 +27,17 @@ Do we need to measure something? 🤔
 
 ### 2) MISO backscattering
 
+#### Experiment 4b PART 1: 🧪 >> Siso Bistatic backscattering << 🧪
+
+##### Assumptions
+* 📍 Consider one single position for backscatter device in Techtile
+* ⚡ Backscatter device is powered with power supply ⚡
+  
+##### Purpose 
+* Measure 📈 BER 📈 related to data rate
 
 
-#### Experiment 4b PART 2: Second backscatter measurements idea (>> Carrier suppression with local oscillator <<) 🧪
+#### Experiment 4b PART 2: 🧪 >> Carrier suppression with local oscillator << 🧪
 
 ##### Assumptions
 * 📍 Consider one single position for backscatter device in Techtile
