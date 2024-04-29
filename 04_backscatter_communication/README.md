@@ -1,4 +1,4 @@
-# Backscatter communication 📡
+![image](https://github.com/techtile-by-dramco/experiments/assets/33618569/49bd7156-1fce-4509-952f-f1fd7937a443)# Backscatter communication 📡
 
 Backscatter communication is a wireless communication technique that enables devices to communicate by reflecting or modulating existing radio frequency (RF) signals instead of generating their own signals. This approach is energy-efficient and can be suitable for low-power and low-cost devices, making it advantageous for certain applications like the Internet of Things (IoT). It enables the development of energy-neutral devices due to significantly lower energy requirements compared to powered active transmitters.
 
@@ -28,4 +28,33 @@ Do we need to measure something? 🤔
 ### 2) MISO backscattering
 
 Progress: [█░░░░░░░░░] 10%
+
+
+#### Experiment 4b PART 2: Second backscatter measurements idea (>> Carrier suppression with local oscillator <<)
+
+##### Assumptions
+  * Consider one single position in Techtile
+  
+##### Purpose 
+  * Measure BER related to data rate
+  * Compare performance with measurement 1 (lower data rate, better SNR?)
+
+##### Detail experiment desciption
+* Single tone signal transmitted ONE (or more?) USRP(s) --> "tx_waveform.py" script
+* MCU firmware should backscatter data using two timers 
+  * Two timers 
+    * One timer for LO ✅
+    * One timer for data rate ✅
+		* ❗ ToDo ❗ Make timers adjustable in real time? UART?? (not so urgent)
+	  * Send bytes
+      *  No STOP and/or START bits, all bytes sequentially transmitted without delays ✅
+			*  Send stream of bytes with the following format FIXED DATA !AVG = 0.5! (specifically for preamble) ✅
+			*  Preamble	0xAA 2x Begin delimiter	Data ✅
+	    *  📙 Example data 📙
+        *  HEX 0xAA 0xAA 0x02 0x23 0x44 0xFF
+        *  BIN 10101010 10101010 00000010 00100011 01000100 11111111
+    *  Find firmware experiment 4b part 2 [here](https://github.com/techtile-by-dramco/EN-device-backscatter/tree/main/firmware-vscode-exp-4b-part-2)
+
+
+
 
