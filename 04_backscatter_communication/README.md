@@ -73,7 +73,10 @@ The MISO backscattering experiments are conducted in the context of the European
  	* ❗ ToDo  create new demodulation script '>>NAME<<.py' + ❗ADD FILE LOCATION❗ BERT C.
   	* Previous work is located [here](https://github.com/techtile-by-dramco/EN-device-backscatter/tree/main/gnuradio/receiver)
 
-#### 2.3) Experiment 4b PART 3: 🧪 >>  << 🧪
+#### 2.3) Experiment 4b PART 3: 🧪 >> Carrier suppression with receiver selection << 🧪
 
 <img src="https://github.com/techtile-by-dramco/experiments/blob/main/04_backscatter_communication/figures/Carrier_suppression_receiver_selection.jpg" width="200"/>
 
+❗❗❗ Postponed due to need for coherent operation and power spot formation ❗❗❗
+
+Check status of [experiment 4ac](https://github.com/techtile-by-dramco/experiments/tree/main/02_reciprocity_based_beamforming)
