@@ -53,7 +53,7 @@ The MISO backscattering experiments are conducted in the context of the European
 * Measure 📈 BER 📈 related to data rate
 * Compare performance with measurement 1 (lower data rate, better SNR?)
 
-##### Detail experiment desciption
+##### Experiment hardware and scripts
 * Single tone signal transmitted ONE (or more?) USRP(s) --> "tx_waveform.py" script
 * MCU firmware should backscatter data using two timers
 	* MCU clock speed (Currently 1024 kHz)
@@ -72,6 +72,10 @@ The MISO backscattering experiments are conducted in the context of the European
  * Try to demodulate signal with multiple receivers
  	* ❗ ToDo  create new demodulation script '>>NAME<<.py' + ❗ADD FILE LOCATION❗ BERT C.
   	* Previous work is located [here](https://github.com/techtile-by-dramco/EN-device-backscatter/tree/main/gnuradio/receiver)
+
+##### Detail experiment desciption
+
+❗❗❗ ToDo Bert ❗❗❗
 
 #### 2.3) Experiment 4b PART 3: 🧪 >> Carrier suppression with receiver selection << 🧪
 
