@@ -27,7 +27,9 @@ Do we need to measure something? 🤔
 
 ### 2) MISO backscattering
 
-#### Experiment 4b PART 1: 🧪 >> Siso Bistatic backscattering << 🧪
+The MISO backscattering experiments are conducted in the context of the European Reindeer Project. These experiments are described in subsection 4b from D5.X deliverable.
+
+#### 2.1) Experiment 4b PART 1: 🧪 >> Siso Bistatic backscattering << 🧪
 
 ##### Assumptions
 * 📍 Consider one single position for backscatter device in Techtile
@@ -37,7 +39,7 @@ Do we need to measure something? 🤔
 * Measure 📈 BER 📈 related to data rate
 
 
-#### Experiment 4b PART 2: 🧪 >> Carrier suppression with local oscillator << 🧪
+#### 2.2) Experiment 4b PART 2: 🧪 >> Carrier suppression with local oscillator << 🧪
 
 ##### Assumptions
 * 📍 Consider one single position for backscatter device in Techtile
