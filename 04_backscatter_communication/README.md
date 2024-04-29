@@ -31,6 +31,8 @@ The MISO backscattering experiments are conducted in the context of the European
 
 #### 2.1) Experiment 4b PART 1: 🧪 >> Siso Bistatic backscattering << 🧪
 
+<img src="https://github.com/techtile-by-dramco/experiments/blob/main/04_backscatter_communication/figures/Siso_Bistatic_backscattering.jpg" width="200"/>
+
 ##### Assumptions
 * 📍 Consider one single position for backscatter device in Techtile
 * ⚡ Backscatter device is powered with power supply ⚡
@@ -41,6 +43,8 @@ The MISO backscattering experiments are conducted in the context of the European
 
 #### 2.2) Experiment 4b PART 2: 🧪 >> Carrier suppression with local oscillator << 🧪
 
+<img src="https://github.com/techtile-by-dramco/experiments/blob/main/04_backscatter_communication/figures/Carrier_suppression_lo.jpg" width="200"/>
+
 ##### Assumptions
 * 📍 Consider one single position for backscatter device in Techtile
 * ⚡ Backscatter device is powered with power supply ⚡
@@ -50,11 +54,12 @@ The MISO backscattering experiments are conducted in the context of the European
 * Compare performance with measurement 1 (lower data rate, better SNR?)
 
 ##### Detail experiment desciption
-* Single tone signal 〰️ transmitted ONE (or more?) USRP(s) --> "tx_waveform.py" script
+* Single tone signal transmitted ONE (or more?) USRP(s) --> "tx_waveform.py" script
 * MCU firmware should backscatter data using two timers
-	* Two timers 
-    		* ⏱️ One timer for LO ✅
-    		* ⏱️ One timer for data rate ✅
+	* MCU clock speed (Currently 1024 kHz)
+	* Two timers
+		* ⏱️ One timer for LO ✅ (Currently 512 kHz)
+  		* ⏱️ One timer for data rate ✅ (Currently 1000 kbps)
 	* ❗ ToDo ❗ Make timers adjustable in real time? UART?? (not so urgent)
 * Send bytes
 	* No START and/or STOP bits, all bytes sequentially transmitted without delays ✅
@@ -65,10 +70,10 @@ The MISO backscattering experiments are conducted in the context of the European
 	        *  BIN 10101010 10101010 00000010 00100011 01000100 11111111
  * Find firmware experiment 4b part 2 [here](https://github.com/techtile-by-dramco/EN-device-backscatter/tree/main/firmware-vscode-exp-4b-part-2)
  * Try to demodulate signal with multiple receivers
- 	* ❗ ToDo  create new demodulation script '>>NAME<<.py' + ❗ADD FILE LOCATION❗
+ 	* ❗ ToDo  create new demodulation script '>>NAME<<.py' + ❗ADD FILE LOCATION❗ BERT C.
   	* Previous work is located [here](https://github.com/techtile-by-dramco/EN-device-backscatter/tree/main/gnuradio/receiver)
 
+#### 2.3) Experiment 4b PART 3: 🧪 >>  << 🧪
 
-
-
+<img src="https://github.com/techtile-by-dramco/experiments/blob/main/04_backscatter_communication/figures/Carrier_suppression_receiver_selection.jpg" width="200"/>
 
