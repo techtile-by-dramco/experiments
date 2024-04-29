@@ -75,7 +75,13 @@ The MISO backscattering experiments are conducted in the context of the European
 
 ##### Detail experiment desciption
 
-❗❗❗ ToDo Bert ❗❗❗
+1. Ansible startup TX USRP (transmit carrier wave)
+2. Ansible start sampling script for RX USRPs and wait for ZMQ "start_bc_capture" command (write data to >>NAME<<_>>TILE_NR<<.csv)
+3. 📧 Server send "start_bc_capture" ZMQ command
+4. Start backscatter device data transfer (❗❗is currently not controllable)
+5. 📧 Server send "stop_bc_capture" ZMQ command
+6. Each RPI saves captured data to >>NAME<<_>>TILE_NR<<.csv
+7. Server collect captured CSVs for central processing
 
 #### 2.3) Experiment 4b PART 3: 🧪 >> Carrier suppression with receiver selection << 🧪
 
