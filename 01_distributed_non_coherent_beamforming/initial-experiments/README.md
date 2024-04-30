@@ -1,6 +1,4 @@
-# Distrubuted non-coherent beamforming
-
-Distributed non-coherent beamforming is a technique used in wireless communication and signal processing where multiple transmitters or antennas collaborate to transmit a signal without precise phase synchronization or coherent processing. In non-coherent beamforming, the individual transmitters or antennas do not need to have perfect knowledge of each other's phases or timing. This is in contrast to coherent beamforming, where the phase and timing of the signals from different transmitters are carefully synchronized to maximize constructive interference.
+# Initial experiments
 
 ❗❗ script should be exectuted in Python on LINUX server
 
