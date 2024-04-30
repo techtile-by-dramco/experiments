@@ -64,9 +64,18 @@ Script ... combines following scripts:
 
 Tiles of the ceiling are involved in following measurements.
 
-### 1️⃣ Transmit signals with exactly the same frequency
+Via this ZMQ [script](https://github.com/techtile-by-dramco/ansible/blob/main/src/server/random_phases_ZMQ.py), the server can take control over client phases and start captures.
+- Send "start" --> Send "start" causes new phases at both channels.
+- Send "stop" --> Send "stop" causes all clients scripts are terminated.
+- Send "close" --> Close this script
 
-| Raspberry pi/usrp script | Asnible script |
+### 1️⃣ Exp 4aa (Part 1) Transmit signals with exactly the same frequency
+
+#### Purpose
+- Proof occurance of dead spots in the room (same frequency used)
+
+#### Script locations
+| Client script | Server capture script |
 |-|-|
 | [script](https://github.com/techtile-by-dramco/ansible/blob/main/src/client/tx_waveforms_random_phase.py) | ... |
 
@@ -74,9 +83,9 @@ Measurement settings
 - gain 70
 - fixed frequency 920 MHz
 
-### 2️⃣ Transmit signals with exactly the same frequency and change phase randomly
+### 2️⃣ Exp 4aa (Part 2) Transmit signals with exactly the same frequency and change phase randomly
 
-### 3️⃣ Random beamforming
+### 3️⃣ Exp 4aa (Part 3) Random beamforming
 
 
 ## Results
