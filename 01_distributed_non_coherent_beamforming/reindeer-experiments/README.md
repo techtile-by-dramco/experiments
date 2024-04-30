@@ -1,4 +1,4 @@
-![image](https://github.com/techtile-by-dramco/experiments/assets/33618569/ed85a6f4-55bb-443c-9ee8-666918458591)# Reindeer experiments
+# Reindeer experiments
 
 ❗❗ script should be exectuted in Python on LINUX server
 
