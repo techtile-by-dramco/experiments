@@ -1,4 +1,4 @@
-# Reindeer experiments
+# Reindeer experiments 🧪
 
 ❗❗ script should be exectuted in Python on LINUX server
 
@@ -69,23 +69,25 @@ Via this ZMQ [script](https://github.com/techtile-by-dramco/ansible/blob/main/sr
 - Send "stop" --> Send "stop" causes all clients scripts are terminated.
 - Send "close" --> Close this script
 
-### 1️⃣ Exp 4aa (Part 1) Transmit signals with exactly the same frequency
+### 1️⃣ Experiment 4aa PART 1: 🧪 >> Transmit signals with exactly the same frequency << 🧪
 
 #### Purpose
-- Proof occurance of dead spots in the room (same frequency used)
+- Proof occurance of dead spots in the room (This is expected, caused by frequency synchronization)
+- Measure harvested power with energy profiler
 
 #### Script locations
-| Client script | Server capture script |
+| Script name | location |
 |-|-|
-| [script](https://github.com/techtile-by-dramco/ansible/blob/main/src/client/tx_waveforms_random_phase.py) | ... |
+| Client (RPI) script | [tx_waveforms_random_phase.py](https://github.com/techtile-by-dramco/ansible/blob/main/src/client/tx_waveforms_random_phase.py) |
+| Server measurement script | |
 
 Measurement settings
 - gain 70
 - fixed frequency 920 MHz
 
-### 2️⃣ Exp 4aa (Part 2) Transmit signals with exactly the same frequency and change phase randomly
+### 2️⃣ Experiment 4aa PART 2: 🧪 >> Transmit signals with exactly the same frequency and change phase randomly << 🧪
 
-### 3️⃣ Exp 4aa (Part 3) Random beamforming
+### 3️⃣ Experiment 4aa PART 3: 🧪 >> Random beamforming << 🧪
 
 
 ## Results
