@@ -61,6 +61,15 @@ The location will be determined via Qualisys system.
 - RX **Location script**
 - RX **RSS oscilloscope script** -->
 
+## Experiment details
+
+### 1️⃣ Frequency synchronised infrastructure transmit signals with exactly the same frequency
+
+### 2️⃣
+
+### 3️⃣
+
+
 ## Results
 
 <!-- | Gain | USRP TX power (per channel) | # active antennas | Total TX power | Average measured RX power | Link to plot |
