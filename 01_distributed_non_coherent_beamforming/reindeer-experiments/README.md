@@ -1,4 +1,4 @@
-# Reindeer experiments
+![image](https://github.com/techtile-by-dramco/experiments/assets/33618569/ed85a6f4-55bb-443c-9ee8-666918458591)# Reindeer experiments
 
 ❗❗ script should be exectuted in Python on LINUX server
 
@@ -63,11 +63,11 @@ The location will be determined via Qualisys system.
 
 ## Experiment details
 
-### 1️⃣ Frequency synchronised infrastructure transmit signals with exactly the same frequency
+### 1️⃣ Transmit signals with exactly the same frequency
 
-### 2️⃣
+### 2️⃣ Transmit signals with exactly the same frequency and change phase randomly
 
-### 3️⃣
+### 3️⃣ Random beamforming
 
 
 ## Results
