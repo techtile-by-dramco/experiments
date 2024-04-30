@@ -38,16 +38,14 @@ More information of the receiver, see following requirements
   - Receiver device --> Tektronix MSO64B
   - Receive antenna --> 917 MHz dipole antenna
 - Part 2: Measuremnt harvested DC energy (NXP harverster)
-  - Energy profiler LINK
+  - Energy profiler [firmware/hardware files](https://github.com/techtile-by-dramco/END-design/tree/main/00-END-EF-Profiler)
   - Power bank/battery for energy profiler
   - BLE Adv. receiver board 
 
 ### 2️⃣ RSS script (calculate receive power [dBm])
 
 Communicate with the oscilloscope and apply Parseval’s Theorem of Fourier Transform.
-
-- ⬛ See [example script](https://github.com/techtile-by-dramco/experiments/blob/main/examples/read_MSO6.py) combines all spectral components.
-- ☑️ See [example script only peaks](https://github.com/techtile-by-dramco/experiments/blob/main/examples/read_MSO6_peaks_only.py) combines only spectral peaks.
+- [example script only peaks](https://github.com/techtile-by-dramco/experiments/blob/main/examples/read_MSO6_peaks_only.py) combines only spectral peaks
 
 ### 3️⃣ Script to get location in Techtile
 The location will be determined via Qualisys system. 
@@ -56,14 +54,25 @@ The location will be determined via Qualisys system.
 
 ## Combined to perform measurements
 
-<!-- Script [main.py](https://github.com/techtile-by-dramco/experiments/blob/main/01_distributed_non_coherent_beamforming/main.py) combines following scripts:
+Script ... combines following scripts:
 - TX Ansible instructions to control Techtile transmitters
 - RX **Location script**
-- RX **RSS oscilloscope script** -->
+- RX **RSS oscilloscope script**
+- RX **Energy profiler data**
 
 ## Experiment details
 
+Tiles of the ceiling are involved in following measurements.
+
 ### 1️⃣ Transmit signals with exactly the same frequency
+
+| Raspberry pi/usrp script | Asnible script |
+|-|-|
+| [script](https://github.com/techtile-by-dramco/ansible/blob/main/src/client/tx_waveforms_random_phase.py) | ... |
+
+Measurement settings
+- gain 70
+- fixed frequency 920 MHz
 
 ### 2️⃣ Transmit signals with exactly the same frequency and change phase randomly
 
