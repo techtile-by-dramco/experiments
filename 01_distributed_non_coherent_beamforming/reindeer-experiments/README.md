@@ -76,10 +76,11 @@ Via this ZMQ [script](https://github.com/techtile-by-dramco/ansible/blob/main/sr
 - Measure harvested power with energy profiler
 
 #### Script locations
-| Script name | location |
-|-|-|
-| Client (RPI) script | [tx_waveforms_random_phase.py](https://github.com/techtile-by-dramco/ansible/blob/main/src/client/tx_waveforms_random_phase.py) |
-| Server measurement script | |
+| Script name | Info | location | Remark |
+|-|-|-|-|
+| Client (RPI) script | Controlling USRP | [tx_waveforms_random_phase.py](https://github.com/techtile-by-dramco/ansible/blob/main/src/client/tx_waveforms_random_phase.py) | Ensure it is copied to all RPIs |
+| Ansible YAML | Start up all client scripts | [start_transmitters_random_phase.yaml](https://github.com/techtile-by-dramco/ansible/blob/main/start_transmitters_random_phase.yaml) | |
+| Measurement script | Control capture EP/scope/location data | | |
 
 Measurement settings
 - gain 70
