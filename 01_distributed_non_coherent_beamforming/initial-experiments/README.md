@@ -52,12 +52,12 @@ Communicate with the oscilloscope and apply Parseval’s Theorem of Fourier Tran
 ### 3️⃣ Script to get location in Techtile
 The location will be determined via acoustic system. Acoustic **transmitter** + **RX antenna** installed on same tripod.
 - (DAQ + specific DAQ Windows PC) Running ZeroMQ script --> broadcasting 'timestamp' + 'xyz' location
-- (Collecting locations via other PC) Receiving data via example code [receive location script](https://github.com/techtile-by-dramco/experiments/blob/main/01_distributed_non_coherent_beamforming/rx-loc-zmq.py)
+- (Collecting locations via other PC) Receiving data via example code [receive location script](https://github.com/techtile-by-dramco/experiments/blob/main/01_distributed_non_coherent_beamforming/initial-experiments/rx-loc-zmq.py)
 
 
 ## Combined to perform measurements
 
-Script [main.py](https://github.com/techtile-by-dramco/experiments/blob/main/01_distributed_non_coherent_beamforming/main.py) combines following scripts:
+Script [main.py](https://github.com/techtile-by-dramco/experiments/blob/main/01_distributed_non_coherent_beamforming/initial-experiments/main.py) combines following scripts:
 - TX Ansible instructions to control Techtile transmitters
 - RX **Location script**
 - RX **RSS oscilloscope script**
@@ -66,9 +66,9 @@ Script [main.py](https://github.com/techtile-by-dramco/experiments/blob/main/01_
 
 | Gain | USRP TX power (per channel) | # active antennas | Total TX power | Average measured RX power | Link to plot |
 |-|-|-|-|-|-|
-| 100 | 18 dBm | 112 | 38.5 dBm | -4.3 dBm | [link plot gain 100](https://techtile-by-dramco.github.io/experiments/01_distributed_non_coherent_beamforming/plot/1709111155_gain_100.html)
-| 80 | 13.4 dBm | 112 | 33.9 dBm | -10.8 dBm | [link plot gain 80](https://techtile-by-dramco.github.io/experiments/01_distributed_non_coherent_beamforming/plot/1709111890_gain_80.html)
-| 65 | -0.4 dBm | 112 | 20.1 dBm | -25.5 dBm | [link plot gain 65](https://techtile-by-dramco.github.io/experiments/01_distributed_non_coherent_beamforming/plot/1709112625_gain_65.html)
+| 100 | 18 dBm | 112 | 38.5 dBm | -4.3 dBm | [link plot gain 100](https://techtile-by-dramco.github.io/experiments/01_distributed_non_coherent_beamforming/initial-experiments/plot/1709111155_gain_100.html)
+| 80 | 13.4 dBm | 112 | 33.9 dBm | -10.8 dBm | [link plot gain 80](https://techtile-by-dramco.github.io/experiments/01_distributed_non_coherent_beamforming/initial-experiments/plot/1709111890_gain_80.html)
+| 65 | -0.4 dBm | 112 | 20.1 dBm | -25.5 dBm | [link plot gain 65](https://techtile-by-dramco.github.io/experiments/01_distributed_non_coherent_beamforming/initial-experiments/plot/1709112625_gain_65.html)
 
 
 
