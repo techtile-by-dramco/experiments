@@ -77,7 +77,8 @@ console = logging.StreamHandler()
 
 logger.addHandler(console)
 
-formatter = LogFormatter(fmt="[%(asctime)s] [%(levelname)s] (%(threadName)-10s) %(message)s")
+formatter = LogFormatter(
+    fmt="[%(asctime)s] [%(levelname)s] (%(threadName)-10s) %(message)s")
 
 console.setFormatter(formatter)
 
@@ -99,29 +100,6 @@ socket = context.socket(zmq.PUB)
 
 socket.bind(f"tcp://*:{50001}")
 
-
-def publish(data, channel: int):
-    logger.debug(f"sending data of size {len(data)}")
-
-    if channel == 0:
-
-        topic = TOPIC_CH0
-
-    elif channel == 1:
-
-        topic = TOPIC_CH1
-
-    else:
-
-        logger.error(f"Channel should be 0 or 1, not {channel}")
-
-    socket.send_multipart([topic, data.tobytes()])
-
-    # for val in data:
-
-    #     value_bytes = struct.pack('!d', val)  # Using double precision format
-
-    #     socket.send(value_bytes)
 
 
 def publish(data, channel: int):
@@ -162,7 +140,8 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
 
     max_samps_per_packet = rx_streamer.get_max_num_samps()
 
-    iq_data = np.empty((num_channels, int(duration * RATE * 2)), dtype=np.complex64)
+    iq_data = np.empty(
+        (num_channels, int(duration * RATE * 2)), dtype=np.complex64)
 
     # Make a rx buffer
 
@@ -180,7 +159,8 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
 
     stream_cmd = uhd.types.StreamCMD(uhd.types.StreamMode.start_cont)
 
-    stream_cmd.stream_now = False # The stream now parameter controls when the stream begins. When true, the device will begin streaming ASAP. When false, the device will begin streaming at a time specified by time_spec.
+    # The stream now parameter controls when the stream begins. When true, the device will begin streaming ASAP. When false, the device will begin streaming at a time specified by time_spec.
+    stream_cmd.stream_now = False
 
     timeout = 1.0
     if start_time is not None:
@@ -189,7 +169,8 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
         if time_diff > 0:
             timeout = 1.0 + time_diff
     else:
-        stream_cmd.time_spec = uhd.types.TimeSpec(usrp.get_time_now().get_real_secs() + INIT_DELAY + 0.1)
+        stream_cmd.time_spec = uhd.types.TimeSpec(
+            usrp.get_time_now().get_real_secs() + INIT_DELAY + 0.1)
 
     rx_streamer.issue_stream_cmd(stream_cmd)
 
@@ -233,7 +214,8 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
 
         logger.debug("CTRL+C is pressed or duration is reached, closing off ")
 
-        rx_streamer.issue_stream_cmd(uhd.types.StreamCMD(uhd.types.StreamMode.stop_cont))
+        rx_streamer.issue_stream_cmd(
+            uhd.types.StreamCMD(uhd.types.StreamMode.stop_cont))
 
         samples = iq_data[:, :num_rx]
 
@@ -244,10 +226,12 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
 
         avg_ampl = np.mean(np.abs(samples), axis=1)
 
-        logger.debug(f"Angle CH0:{np.rad2deg(avg_angles[0]):.2f} CH1:{np.rad2deg(avg_angles[1]):.2f}")
-        logger.debug(f"Amplitude CH0:{avg_ampl[0]:.2f} CH1:{avg_ampl[1]:.2f}")  # keep this just below this final stage
+        logger.debug(
+            f"Angle CH0:{np.rad2deg(avg_angles[0]):.2f} CH1:{np.rad2deg(avg_angles[1]):.2f}")
+        # keep this just below this final stage
+        logger.debug(f"Amplitude CH0:{avg_ampl[0]:.2f} CH1:{avg_ampl[1]:.2f}")
 
- 
+
 def wait_till_go_from_server(ip):
     context = zmq.Context()
     socket = context.socket(zmq.SUB)
@@ -277,7 +261,8 @@ def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time=None):
     # transmit_buffer = np.ones((num_channels, 1000*max_samps_per_packet), dtype=np.complex64) * sample[:, np.newaxis]
 
     # amplitude[:,np.newaxis]
-    transmit_buffer = np.ones((num_channels, 1000 * max_samps_per_packet), dtype=np.complex64)
+    transmit_buffer = np.ones(
+        (num_channels, 1000 * max_samps_per_packet), dtype=np.complex64)
 
     transmit_buffer[0, :] *= sample[0]
 
@@ -292,7 +277,8 @@ def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time=None):
     if start_time is not None:
         tx_md. time_spec = start_time
     else:
-        tx_md.time_spec = uhd.types.TimeSpec(usrp.get_time_now().get_real_secs() + INIT_DELAY)
+        tx_md.time_spec = uhd.types.TimeSpec(
+            usrp.get_time_now().get_real_secs() + INIT_DELAY)
 
     tx_md.has_time_spec = True
 
@@ -309,7 +295,8 @@ def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time=None):
 
         tx_md.end_of_burst = True
 
-        tx_streamer.send(np.zeros((num_channels, 0), dtype=np.complex64), tx_md)
+        tx_streamer.send(np.zeros((num_channels, 0),
+                         dtype=np.complex64), tx_md)
 
 
 def setup_clock(usrp, clock_src, num_mboards):
@@ -325,7 +312,8 @@ def setup_clock(usrp, clock_src, num_mboards):
             time.sleep(1e-3)
             is_locked = usrp.get_mboard_sensor("ref_locked", i)
         if not is_locked:
-            logger.error("Unable to confirm clock signal locked on board %d", i)
+            logger.error(
+                "Unable to confirm clock signal locked on board %d", i)
             return False
         else:
             logger.debug("Clock signals are locked")
@@ -397,7 +385,7 @@ def setup(usrp, server_ip):
     mcr = 20e6
 
     assert (
-            mcr / rate).is_integer(), f"The masterclock rate {mcr} should be an integer multiple of the sampling rate {rate}"
+        mcr / rate).is_integer(), f"The masterclock rate {mcr} should be an integer multiple of the sampling rate {rate}"
 
     # Manual selection of master clock rate may also be required to synchronize multiple B200 units in time.
     usrp.set_master_clock_rate(mcr)
@@ -451,7 +439,8 @@ def setup(usrp, server_ip):
 
 
 def tx_thread(usrp, tx_streamer, quit_event, phase=[0, 0], amplitude=[0.8, 0.8], start_time=None):
-    tx_thread = threading.Thread(target=tx_ref, args=(usrp, tx_streamer, quit_event, phase, amplitude, start_time))
+    tx_thread = threading.Thread(target=tx_ref, args=(
+        usrp, tx_streamer, quit_event, phase, amplitude, start_time))
 
     tx_thread.setName("TX_thread")
     tx_thread.start()
@@ -488,7 +477,8 @@ def tx_async_th(tx_streamer, quit_event):
 
 
 def tx_meta_thread(tx_streamer, quit_event):
-    tx_meta_thr = threading.Thread(target=tx_async_th, args=(tx_streamer, quit_event))
+    tx_meta_thr = threading.Thread(
+        target=tx_async_th, args=(tx_streamer, quit_event))
 
     tx_meta_thr.setName("TX_META_thread")
     tx_meta_thr.start()
@@ -518,10 +508,12 @@ def measure_loopback(usrp, tx_streamer, rx_streamer, at_time) -> float:
 
     logger.debug(starting_in(usrp, at_time))
 
-    tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=amplitudes, phase=[0.0, 0.0], start_time=start_time)
+    tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=amplitudes, phase=[
+                       0.0, 0.0], start_time=start_time)
 
     tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
-    rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate, duration=CAPTURE_TIME, start_time=start_time)
+    rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate,
+                       duration=CAPTURE_TIME, start_time=start_time)
 
     time.sleep(CAPTURE_TIME + delta(usrp, at_time))
 
@@ -545,7 +537,6 @@ def measure_pll(usrp, rx_streamer, at_time) -> float:
 
     logger.debug("########### Measure PLL REF phase ###########")
 
-
     quit_event = threading.Event()
 
     phase_to_compensate = []
@@ -554,7 +545,8 @@ def measure_pll(usrp, rx_streamer, at_time) -> float:
 
     logger.debug(starting_in(usrp, at_time))
 
-    rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate, duration=CAPTURE_TIME, start_time=start_time)
+    rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate,
+                       duration=CAPTURE_TIME, start_time=start_time)
 
     time.sleep(CAPTURE_TIME + delta(usrp, at_time))
 
@@ -569,7 +561,8 @@ def measure_pll(usrp, rx_streamer, at_time) -> float:
 
 
 def check_loopback(usrp, tx_streamer, rx_streamer, phase_corr, at_time) -> float:
-    logger.debug(" ########### STEP 2 - Check self-correction TX-RX phase ###########")
+    logger.debug(
+        " ########### STEP 2 - Check self-correction TX-RX phase ###########")
 
     quit_event = threading.Event()
 
@@ -587,9 +580,11 @@ def check_loopback(usrp, tx_streamer, rx_streamer, phase_corr, at_time) -> float
 
     phase_to_compensate = []
 
-    tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=amplitudes, phase=phases, start_time=start_time)
+    tx_thr = tx_thread(usrp, tx_streamer, quit_event,
+                       amplitude=amplitudes, phase=phases, start_time=start_time)
     tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
-    rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate, duration=CAPTURE_TIME, start_time=start_time)
+    rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate,
+                       duration=CAPTURE_TIME, start_time=start_time)
 
     time.sleep(CAPTURE_TIME + delta(usrp, at_time))
 
@@ -619,20 +614,24 @@ def tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr, at_time):
 
     logger.debug(starting_in(usrp, at_time))
 
-    logger.debug(f"Applying phase correction CH0:{np.rad2deg(phases[0]):.2f} and CH1:{np.rad2deg(phases[1]):.2f}")
+    logger.debug(
+        f"Applying phase correction CH0:{np.rad2deg(phases[0]):.2f} and CH1:{np.rad2deg(phases[1]):.2f}")
 
-    tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=amplitudes, phase=phases, start_time=start_time)
+    tx_thr = tx_thread(usrp, tx_streamer, quit_event,
+                       amplitude=amplitudes, phase=phases, start_time=start_time)
 
     tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
 
     return tx_thr, tx_meta_thr
+
 
 def get_current_time(usrp):
     return usrp.get_time_now().get_real_secs()
 
 
 def main():
-    usrp = uhd.usrp.MultiUSRP("fpga=/home/pi/experiments/00_calibration/usrp_b210_fpga.bin")  # "mode_n=integer"
+    usrp = uhd.usrp.MultiUSRP(
+        "fpga=/home/pi/experiments/00_calibration/usrp_b210_fpga_loopback.bin")  # "mode_n=integer"
     logger.info("Using Device: %s", usrp.get_pp_string())
     tx_streamer, rx_streamer = setup(usrp, server_ip)
 
@@ -643,12 +642,14 @@ def main():
         begin_time = 12.0
         cmd_time = CAPTURE_TIME + 5.0
 
-        tx_rx_phase = measure_loopback(usrp, tx_streamer, rx_streamer, at_time=begin_time)
+        tx_rx_phase = measure_loopback(
+            usrp, tx_streamer, rx_streamer, at_time=begin_time)
         print("DONE")
 
         phase_corr = - tx_rx_phase
 
-        pll_rx_phase = measure_pll(usrp, rx_streamer, at_time=begin_time + cmd_time)
+        pll_rx_phase = measure_pll(
+            usrp, rx_streamer, at_time=begin_time + cmd_time)
         print("DONE")
 
         check_loopback(usrp, tx_streamer, rx_streamer,
@@ -659,7 +660,7 @@ def main():
 
         while not calibrated and num_calibrated < MAX_RETRIES:
             remainig_phase = check_loopback(usrp, tx_streamer, rx_streamer,
-                           phase_corr=phase_corr, at_time=get_current_time(usrp)+2)
+                                            phase_corr=phase_corr, at_time=get_current_time(usrp)+2)
             logger.debug(
                 f"Remaining phase is {np.rad2deg(remainig_phase)} degrees.")
             calibrated = (np.rad2deg(remainig_phase) <
@@ -674,7 +675,6 @@ def main():
         if num_calibrated >= MAX_RETRIES:
             logger.error("Could not calibrate")
 
- 
         print("DONE")
 
         quit_event = threading.Event()
