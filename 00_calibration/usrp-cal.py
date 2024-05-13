@@ -535,7 +535,7 @@ def measure_loopback(usrp, tx_streamer, rx_streamer, at_time) -> float:
 def measure_pll(usrp, rx_streamer, at_time) -> float:
     # Make a signal for the threads to stop running
 
-    logger.debug("########### Measure PLL REF phase ###########")
+    logger.debug("########### STEP 2 - Measure PLL REF phase ###########")
 
     quit_event = threading.Event()
 
@@ -562,7 +562,7 @@ def measure_pll(usrp, rx_streamer, at_time) -> float:
 
 def check_loopback(usrp, tx_streamer, rx_streamer, phase_corr, at_time) -> float:
     logger.debug(
-        " ########### STEP 2 - Check self-correction TX-RX phase ###########")
+        " ########### STEP 3 - Check self-correction TX-RX phase ###########")
 
     quit_event = threading.Event()
 
