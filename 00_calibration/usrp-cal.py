@@ -230,7 +230,7 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
         logger.debug(
             f"Angle CH0:{np.rad2deg(avg_angles[0]):.2f} CH1:{np.rad2deg(avg_angles[1]):.2f}")
         logger.debug(
-            f"Angle var CH0:{np.rad2deg(var_angles[0]):.2f} CH1:{np.rad2deg(var_angles[1]):.2f}")
+            f"Angle var CH0:{var_angles[0]:.2f} CH1:{var_angles[1]:.2f}")
         # keep this just below this final stage
         logger.debug(f"Amplitude CH0:{avg_ampl[0]:.2f} CH1:{avg_ampl[1]:.2f}")
 
