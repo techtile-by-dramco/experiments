@@ -639,17 +639,17 @@ def main():
 
     try:
 
-        begin_time = 12.0
-        cmd_time = CAPTURE_TIME + 5.0
+        # begin_time = 12.0
+        # cmd_time = CAPTURE_TIME + 10.0
 
         tx_rx_phase = measure_loopback(
-            usrp, tx_streamer, rx_streamer, at_time=begin_time)
+            usrp, tx_streamer, rx_streamer, at_time=get_current_time(usrp)+2)
         print("DONE")
 
         phase_corr = - tx_rx_phase
 
         pll_rx_phase = measure_pll(
-            usrp, rx_streamer, at_time=begin_time + cmd_time)
+            usrp, rx_streamer, at_time=get_current_time(usrp)+2)
         print("DONE")
 
         check_loopback(usrp, tx_streamer, rx_streamer,
