@@ -1,0 +1,49 @@
+ansible:
+  ansible_enable_stop_script: false
+  ansible_inventory_yaml: hosts.yaml
+  ansible_start_script_yaml: start_transmitters_random_phase.yaml
+  ansible_stop_script_yaml: '>>NAME<<.yaml'
+  tiles: multiON
+antenna_states:
+  dark: []
+  ok: []
+host:
+  - all:
+    channels: 0
+    duration: 60
+    external_settings: false
+    host_script: tx_waveforms_random_phase.py
+    transmitters_enabled: true
+    tx_frequency: 917000000.0
+    tx_gain: 100
+  - D01:
+      tx_frequency: 918000000.0
+info:
+  description: Measurement for WP5 Reindeer Exp. 4aa PART 1
+  xaxisoffset: 0
+  yaxisoffset: 0
+  zaxisoffset: 0
+positioning:
+  ip: 192.108.0.13
+  system: QUALYSIS
+scope:
+  cable_loss: 0
+  center_Hz: 917011000.0
+  ip: 192.108.0.251
+  rbw_Hz: 2.0
+  span_Hz: 5000.0
+tile_states:
+  changed:
+  - T03
+  - T04
+  dark: []
+  failures: []
+  ignored: []
+  ok:
+  - T04
+  - T03
+  processed:
+  - T04
+  - T03
+  rescued: []
+  skipped: []
