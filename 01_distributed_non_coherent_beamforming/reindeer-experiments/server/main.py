@@ -1,6 +1,7 @@
 # /bin/python3 -m experiments.01_distributed_non_coherent_beamforming.main
 # see for relative import: https://stackoverflow.com/a/68315950/3590700
 
+# *** Includes ***
 import sys
 import os
 script_patch = os.getcwd()
@@ -16,6 +17,46 @@ import zmq
 import csv
 import yaml
 import pandas as pd
+
+# *** Local includes ***
+from yaml_utils import *
+
+# Get the current directory of the script
+server_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Navigate one folder back to reach the parent directory
+exp_dir = os.path.abspath(os.path.join(server_dir, os.pardir))
+
+# Read YAML file
+config = read_yaml_file(exp_dir)
+
+#   INFO
+info = config.get('info', {})
+description = info.get('description')
+exp_name = info.get('exp_name')
+server_user_name = info.get('server_user_name')
+
+#   ANSIBLE SETTINGS
+ansible = config.get('ansible', {})
+
+#   LOCATION SYSTEM SETTINGS
+positioning = config.get('positioning', {})
+
+#   CLIENT
+client = config.get('client', {})
+
+if __name__ == '__main__':
+
+    client_experiment_name = f"{exp_name}_{round(time.time())}"
+
+    #   Check or copy files to the clients
+    r = ansible_runner.run(
+        inventory=f'/home/{server_user_name}/ansible/inventory/{ansible.get('inventory')}',
+        playbook=f'/home/{server_user_name}/ansible/{ansible.get('copy_client_script')}',
+        extravars={"tiles": ansible.get('tiles'), "source_path": f"{exp_dir}/client/{client.get('script')}", "experiment_name": client_experiment_name}
+    )
+
+exit()
 
 #--------------------------------------------------------------#
 #                   ***     SETTINGS    ***                    #
