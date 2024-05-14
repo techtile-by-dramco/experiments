@@ -649,10 +649,10 @@ def main():
     try:
 
         
-        cmd_time = CAPTURE_TIME + 2.0
+        cmd_time = CAPTURE_TIME + 4.0
 
         tx_rx_phase = measure_loopback(
-            usrp, tx_streamer, rx_streamer, at_time=begin_time+cmd_time)
+            usrp, tx_streamer, rx_streamer, at_time=begin_time+2.0)
         print("DONE")
 
         phase_corr = - tx_rx_phase
