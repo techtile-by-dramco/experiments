@@ -70,6 +70,8 @@ class LogFormatter(logging.Formatter):
 global logger
 global begin_time
 
+begin_time = 4.0
+
 logger = logging.getLogger(__name__)
 
 logger.setLevel(logging.DEBUG)
@@ -640,7 +642,6 @@ def main():
     usrp = uhd.usrp.MultiUSRP(
         "fpga=/home/pi/experiments/00_calibration/usrp_b210_fpga_loopback.bin")
     logger.info("Using Device: %s", usrp.get_pp_string())
-    begin_time = 4.0
     tx_streamer, rx_streamer = setup(usrp, server_ip)
 
     tx_thr = tx_meta_thr = None
