@@ -68,6 +68,9 @@ class LogFormatter(logging.Formatter):
 
 
 global logger
+global begin_time
+
+begin_time = 2.0
 
 logger = logging.getLogger(__name__)
 
@@ -100,10 +103,14 @@ socket = context.socket(zmq.PUB)
 
 socket.bind(f"tcp://*:{50001}")
 
+sync_socket = context.socket(zmq.SUB)
+
+
+
 
 
 def publish(data, channel: int):
-    logger.debug(f"sending data of size {len(data)}")
+    # logger.debug(f"sending data of size {len(data)}")
 
     if channel == 0:
         topic = TOPIC_CH0
@@ -197,8 +204,8 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
 
                         iq_data[:, num_rx: num_rx + num_rx_i] = samples
 
-                        # threading.Thread(target=send_rx,
-                        #                  args=(samples,)).start()
+                        threading.Thread(target=send_rx,
+                                         args=(samples,)).start()
 
                         num_rx += num_rx_i
 
@@ -236,16 +243,14 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
 
 
 def wait_till_go_from_server(ip):
-    context = zmq.Context()
-    socket = context.socket(zmq.SUB)
 
-    socket.connect(f"tcp://{ip}:{5557}")  # Connect to the publisher's address
-
+    # Connect to the publisher's address
+    sync_socket.connect(f"tcp://{ip}:{5557}")
     # Subscribe to topics
-    socket.subscribe("SYNC")
+    sync_socket.subscribe("SYNC")
     logger.debug("Waiting on SYNC from server %s.", ip)
     # Receives a string format message
-    socket.recv_string()
+    sync_socket.recv_string()
 
 
 def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time=None):
@@ -340,6 +345,7 @@ def wait_till_time(usrp, at_time):
     logger.debug("Wait till command is executed")
     while usrp.get_time_now().get_real_secs() < at_time + CMD_DELAY:
         time.sleep(0.01)
+    usrp.clear_command_time()
 
 
 def tune_usrp(usrp, freq, channels, at_time):
@@ -365,9 +371,8 @@ def tune_usrp(usrp, freq, channels, at_time):
         logger.debug(print_tune_result(usrp.set_rx_freq(treq, chan)))
         logger.debug(print_tune_result(usrp.set_tx_freq(treq, chan)))
 
-    wait_till_time(usrp, at_time)
+    wait_till_time(usrp, at_time) 
 
-    usrp.clear_command_time()
 
     while not usrp.get_rx_sensor("lo_locked").to_bool():
         time.sleep(0.01)
@@ -378,8 +383,6 @@ def tune_usrp(usrp, freq, channels, at_time):
         time.sleep(0.01)
 
     logger.info("TX LO is locked")
-
-    time.sleep(CMD_DELAY)
 
 
 def setup(usrp, server_ip):
@@ -414,8 +417,8 @@ def setup(usrp, server_ip):
 
     # Step1: wait for the last pps time to transition to catch the edge
     # Step2: set the time at the next pps (synchronous for all boards)
-    # this is better than set_time_next_pss as we wait till the next PPS to transition and after that we set the time.
-    # this ensures that the FPGA has enough time to clock in the nez timespec (otherwise it could be too close to a PPS edge)
+    # this is better than set_time_next_pps as we wait till the next PPS to transition and after that we set the time.
+    # this ensures that the FPGA has enough time to clock in the new timespec (otherwise it could be too close to a PPS edge)
     wait_till_go_from_server(server_ip)
     logger.info("Setting device timestamp to 0...")
     usrp.set_time_unknown_pps(uhd.types.TimeSpec(0.0))
@@ -434,9 +437,10 @@ def setup(usrp, server_ip):
     tx_streamer = usrp.get_tx_stream(st_args)
     rx_streamer = usrp.get_rx_stream(st_args)
 
-    tune_usrp(usrp, FREQ, channels, at_time=10.0)
+    tune_usrp(usrp, FREQ, channels, at_time=begin_time)
 
-    logger.info("USRP has been tuned and setup.")
+    logger.info(
+        f"USRP has been tuned and setup. ({usrp.get_time_now().get_real_secs()})")
 
     return tx_streamer, rx_streamer
 
@@ -633,8 +637,9 @@ def get_current_time(usrp):
 
 
 def main():
+    # "mode_n=integer" # 
     usrp = uhd.usrp.MultiUSRP(
-        "fpga=/home/pi/experiments/00_calibration/usrp_b210_fpga_loopback.bin")  # "mode_n=integer"
+        "fpga=/home/pi/experiments/00_calibration/usrp_b210_fpga_loopback.bin")
     logger.info("Using Device: %s", usrp.get_pp_string())
     tx_streamer, rx_streamer = setup(usrp, server_ip)
 
@@ -642,47 +647,50 @@ def main():
 
     try:
 
-        # begin_time = 12.0
-        # cmd_time = CAPTURE_TIME + 10.0
+        
+        cmd_time = CAPTURE_TIME*2
 
         tx_rx_phase = measure_loopback(
-            usrp, tx_streamer, rx_streamer, at_time=get_current_time(usrp)+2)
+            usrp, tx_streamer, rx_streamer, at_time=begin_time+cmd_time)
         print("DONE")
 
         phase_corr = - tx_rx_phase
 
         pll_rx_phase = measure_pll(
-            usrp, rx_streamer, at_time=get_current_time(usrp)+2)
+            usrp, rx_streamer, at_time=begin_time+2*cmd_time)
         print("DONE")
 
-        check_loopback(usrp, tx_streamer, rx_streamer,
-                       phase_corr=phase_corr, at_time=get_current_time(usrp)+2)
-
+        remainig_phase = check_loopback(usrp, tx_streamer, rx_streamer,
+                       phase_corr=phase_corr, at_time=begin_time+3*cmd_time)
+        
         calibrated = False
-        num_calibrated = 0
+        logger.debug(f"Remaining phase is {np.rad2deg(remainig_phase)} degrees.")
+        calibrated = (np.rad2deg(remainig_phase) <
+                      1 or np.rad2deg(remainig_phase) > 359)
+        # num_calibrated = 0
 
-        while not calibrated and num_calibrated < MAX_RETRIES:
-            remainig_phase = check_loopback(usrp, tx_streamer, rx_streamer,
-                                            phase_corr=phase_corr, at_time=get_current_time(usrp)+2)
-            logger.debug(
-                f"Remaining phase is {np.rad2deg(remainig_phase)} degrees.")
-            calibrated = (np.rad2deg(remainig_phase) <
-                          1 or np.rad2deg(remainig_phase) > 359)
-            pll_rx_phase = measure_pll(
-                usrp, rx_streamer, at_time=get_current_time(usrp)+2)
-            if not calibrated:
-                phase_corr -= remainig_phase
-                logger.debug("Adjusting phase and retrying.")
-                num_calibrated += 1
+        # while not calibrated and num_calibrated < MAX_RETRIES:
+        #     remainig_phase = check_loopback(usrp, tx_streamer, rx_streamer,
+        #                                     phase_corr=phase_corr, at_time=begin_time+(4*(num_calibrated+1))*cmd_time)
+        #     logger.debug(
+        #         f"Remaining phase is {np.rad2deg(remainig_phase)} degrees.")
+        #     calibrated = (np.rad2deg(remainig_phase) <
+        #                   1 or np.rad2deg(remainig_phase) > 359)
+        #     pll_rx_phase = measure_pll(
+        #         usrp, rx_streamer, at_time=get_current_time(usrp)+2)
+        #     if not calibrated:
+        #         phase_corr -= remainig_phase
+        #         logger.debug("Adjusting phase and retrying.")
+        #         num_calibrated += 1
 
-        if num_calibrated >= MAX_RETRIES:
-            logger.error("Could not calibrate")
+        # if num_calibrated >= MAX_RETRIES:
+        #     logger.error("Could not calibrate")
 
         print("DONE")
 
         quit_event = threading.Event()
-        tx_thr, tx_meta_thr = tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr=(pll_rx_phase - tx_rx_phase),
-                                           at_time=get_current_time(usrp)+2)
+        tx_thr, tx_meta_thr = tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr=0, #(pll_rx_phase - tx_rx_phase),
+                                           at_time=begin_time+4*cmd_time)
 
     except KeyboardInterrupt:
 
