@@ -645,47 +645,50 @@ def main():
 
     try:
 
-        # begin_time = 12.0
-        # cmd_time = CAPTURE_TIME + 10.0
+        begin_time = 12.0
+        cmd_time = CAPTURE_TIME + 10.0
 
         tx_rx_phase = measure_loopback(
-            usrp, tx_streamer, rx_streamer, at_time=get_current_time(usrp)+2)
+            usrp, tx_streamer, rx_streamer, at_time=begin_time+cmd_time)
         print("DONE")
 
         phase_corr = - tx_rx_phase
 
         pll_rx_phase = measure_pll(
-            usrp, rx_streamer, at_time=get_current_time(usrp)+2)
+            usrp, rx_streamer, at_time=begin_time+2*cmd_time)
         print("DONE")
 
-        check_loopback(usrp, tx_streamer, rx_streamer,
-                       phase_corr=phase_corr, at_time=get_current_time(usrp)+2)
-
+        remainig_phase = check_loopback(usrp, tx_streamer, rx_streamer,
+                       phase_corr=phase_corr, at_time=begin_time+3*cmd_time)
+        
         calibrated = False
-        num_calibrated = 0
+        logger.debug(f"Remaining phase is {np.rad2deg(remainig_phase)} degrees.")
+        calibrated = (np.rad2deg(remainig_phase) <
+                      1 or np.rad2deg(remainig_phase) > 359)
+        # num_calibrated = 0
 
-        while not calibrated and num_calibrated < MAX_RETRIES:
-            remainig_phase = check_loopback(usrp, tx_streamer, rx_streamer,
-                                            phase_corr=phase_corr, at_time=get_current_time(usrp)+2)
-            logger.debug(
-                f"Remaining phase is {np.rad2deg(remainig_phase)} degrees.")
-            calibrated = (np.rad2deg(remainig_phase) <
-                          1 or np.rad2deg(remainig_phase) > 359)
-            pll_rx_phase = measure_pll(
-                usrp, rx_streamer, at_time=get_current_time(usrp)+2)
-            if not calibrated:
-                phase_corr -= remainig_phase
-                logger.debug("Adjusting phase and retrying.")
-                num_calibrated += 1
+        # while not calibrated and num_calibrated < MAX_RETRIES:
+        #     remainig_phase = check_loopback(usrp, tx_streamer, rx_streamer,
+        #                                     phase_corr=phase_corr, at_time=begin_time+(4*(num_calibrated+1))*cmd_time)
+        #     logger.debug(
+        #         f"Remaining phase is {np.rad2deg(remainig_phase)} degrees.")
+        #     calibrated = (np.rad2deg(remainig_phase) <
+        #                   1 or np.rad2deg(remainig_phase) > 359)
+        #     pll_rx_phase = measure_pll(
+        #         usrp, rx_streamer, at_time=get_current_time(usrp)+2)
+        #     if not calibrated:
+        #         phase_corr -= remainig_phase
+        #         logger.debug("Adjusting phase and retrying.")
+        #         num_calibrated += 1
 
-        if num_calibrated >= MAX_RETRIES:
-            logger.error("Could not calibrate")
+        # if num_calibrated >= MAX_RETRIES:
+        #     logger.error("Could not calibrate")
 
         print("DONE")
 
         quit_event = threading.Event()
         tx_thr, tx_meta_thr = tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr=(pll_rx_phase - tx_rx_phase),
-                                           at_time=get_current_time(usrp)+2)
+                                           at_time=begin_time+4*cmd_time)
 
     except KeyboardInterrupt:
 
