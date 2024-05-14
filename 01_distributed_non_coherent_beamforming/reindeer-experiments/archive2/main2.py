@@ -1,21 +1,14 @@
 # /bin/python3 -m experiments.01_distributed_non_coherent_beamforming.main
 # see for relative import: https://stackoverflow.com/a/68315950/3590700
 
-# *** Includes ***
 import sys
 import os
-
-# Get the current directory of the script
-server_dir = os.path.dirname(os.path.abspath(__file__))
-
-# Navigate one folder back to reach the parent directory
-exp_dir = os.path.abspath(os.path.join(server_dir, os.pardir))
-
-sys.path.append(f"{exp_dir}/server/location")
+script_patch = os.getcwd()
+sys.path.append(f"{script_patch}/location")
 from position import AcousticPositioner
-sys.path.append(f"{exp_dir}/server/scope")
+sys.path.append(f"{script_patch}/scope")
 from scope import Scope
-sys.path.append(f"{exp_dir}/server/rfep")
+sys.path.append(f"{script_patch}/rfep")
 from rfep import RFEP
 import time 
 import ansible_runner
@@ -24,194 +17,30 @@ import csv
 import yaml
 import pandas as pd
 
-# *** Local includes ***
+# Local includes
 from yaml_utils import *
-from export_data import *
 
-# Read YAML file
-config = read_yaml_file(f"{exp_dir}/config.yaml")
+# Get the current directory of the script
+server_dir = os.path.dirname(os.path.abspath(__file__))
 
-#   INFO
-info = config.get('info', {})
-exp_name = info.get('exp_name')
-server_user_name = info.get('server_user_name')
+# Navigate one folder back to reach the experiment directory
+exp_dir = os.path.abspath(os.path.join(server_dir, os.pardir))
 
-#   ANSIBLE SETTINGS
-ansible = config.get('ansible', {})
 
-#   LOCATION SYSTEM SETTINGS
-positioning = config.get('positioning', {})
 
-def func_ctrl_thread(ctrl_thread_stop_flag, stop_event, start_event, close_event):
-    global tx_gain
-    
-    while not ctrl_thread_stop_flag.is_set():
-        ctrl_msg = sub_socket.recv_string()
-        print(ctrl_msg)
-        
-        if ctrl_msg == "stop":
-            stop_event.set()
-            start_event.clear()
-        elif ctrl_msg == "start":
-            start_event.set()
-            stop_event.clear() # Can be removed
-        elif ctrl_msg == 'close':
-            close_event.set()
-            break
+if __name__ == "__main__":
 
-    print("Control thread successfully terminated.")
+    config = read_yaml_file(exp_dir)
 
-#   CLIENT
-client = config.get('client', {})
 
-if __name__ == '__main__':
-
-    #   Subscribe to control script
-    context = zmq.Context()
-    sub_socket = context.socket(zmq.SUB)
-    sub_socket.connect(f"tcp://{ctrl_zmq_ip}:{ctrl_zmq_port}")
-    sub_socket.setsockopt_string(zmq.SUBSCRIBE, "")
-
-    #   Subscribe to the localisation system
-    positioner = AcousticPositioner(positioning_system_server_ip, positioning_system_zmq_port)
-
-    #   Subscribe to the energy profiler gateway
-    energyprofiler = RFEP(ep_gateway_ip, ep_zmq_port)
-
-    #   Connect with scope
-    try:
-        scope = Scope(scope_ip)
-        # scope.setup(bandwidth_hz, center_hz, span_hz, rbw_hz)
-    except:
-        print("Can not connect to the scope!")
-        print("1) Check network connection")
-        print("2) (optionally) Reboot system")
-        positioner.stop()
-        energyprofiler.stop()
-        exit()
-
-    ctrl_thread = None
-
-    initialized = False
-
-    measurements = []
-    current_meas = []
-
-    #   Save tile states in global varibale
-    tile_states_global = None
-
-    client_experiment_name = f"{exp_name}_{round(time.time())}"
-
-    print("(1) Copy python script from server to client to folder 'home/ip/exp/{client_experiment_name}'")
-
-    #   Check or copy files to the clients
     r = ansible_runner.run(
-        inventory=f"/home/{server_user_name}/ansible/inventory/{ansible.get('inventory')}",
-        playbook=f"/home/{server_user_name}/ansible/{ansible.get('copy_client_script')}",
-        extravars={"tiles": f"{client.get('tiles')}", 
-                   "script_file_path": f"{exp_dir}/client/{client.get('script')}", 
-                   "config_file_path": f"{exp_dir}/config.yaml", 
-                   "experiment_name": f"{client_experiment_name}"
-                   }
+        inventory=f'/home/{user_name}/ansible/inventory/{ansible_inventory_yaml}',
+        playbook=f'/home/{user_name}/ansible/{ansible_stop_script_yaml}',
+        extravars={"tiles": active_tile_list}
     )
 
-    print("(2) Init'")
-
-    stop_event = threading.Event()
-    start_event = threading.Event()
-    close_event = threading.Event()
-
-    #   Define a shared 'stop' flag to control the 'control' zmq thread
-    ctrl_thread_stop_flag = threading.Event()
-
-    #   Create and link function to this new thread
-    ctrl_thread = threading.Thread(target=func_ctrl_thread, 
-                                   args=(ctrl_thread_stop_flag,stop_event,start_event,close_event))
-
-    #   Start thread
-    ctrl_thread.start()
 
 
-    # Variables
-    pos = None
-    data_start = None
-    no_active_transmitters = None
-    csv_file_time = None
-
-    print("(3) Waiting for ZMQ 'start' command")
-
-    # Loop
-    while not close_event.is_set():
-
-        # print("test")
-        
-        # Check start event is set
-        if start_event.is_set() and not initialized:
-
-            # save n.o. active URPS in variable
-            no_active_transmitters = 1
-
-            if client.get("transmitters_enabled"):
-                # Start transmitters
-                tile_states_global, no_active_transmitters, no_not_active = start_up(info, server_user_name, ansible, client, client_experiment_name)
-
-            # Save configurations and tile info to yaml file
-            log_info(info, exp_dir, client_experiment_name)
-
-            # Start logging
-            print("Start logging")
-
-            # Define start time
-            data_start = time.time()
-
-            # Init done
-            initialized = True
-        
-        if start_event.is_set() and initialized:
-    
-            #   Get position
-            pos = positioner.get_pos()
-            while pos is None:
-                pos = positioner.get_pos()
-
-            #   Get ep data
-            ep_data = energyprofiler.get_data()
-
-            #   Get rsv power via scope
-            power_dBm, peaks = scope.get_power_dBm_peaks(cable_loss, no_active_transmitters) 
-
-            #   Print power
-            print(f"Power [dBm] {power_dBm:.2f} - NO Peaks {len(peaks)}")
-
-            #   Save data
-            try:
-                data_to_append = [*pos.to_csv(), power_dBm, *ep_data.to_csv()]
-                append_to_csv(f"{csv_file_path}/{csv_file_time}_{name_after_nr}.csv", data_to_append)
-            except Exception as e:
-                print(e)
-
-        if stop_event.is_set():
-            #   Reset init variable
-            initialized = True
-            
-            #   Clear stop event
-            stop_event.clear()
-
-            #   Clean up all threads
-            clean_up(tile_states_global['ok'])
-
-            #   Measurement ended
-            print("Measurement DONE")
-
-    #   Set the stop flag to signal the thread to exit
-    ctrl_thread_stop_flag.set()
-
-    #   Wait for the thread to complete
-    ctrl_thread.join()
-
-    #   Check positioning and energy profiler thread are terminated
-    positioner.stop()
-    energyprofiler.stop()
 
 exit()
 
