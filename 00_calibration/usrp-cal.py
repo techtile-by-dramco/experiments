@@ -70,7 +70,7 @@ class LogFormatter(logging.Formatter):
 global logger
 global begin_time
 
-begin_time = 4.0
+begin_time = 2.0
 
 logger = logging.getLogger(__name__)
 
@@ -648,10 +648,10 @@ def main():
     try:
 
         
-        cmd_time = CAPTURE_TIME + 5.0
+        cmd_time = CAPTURE_TIME*2
 
         tx_rx_phase = measure_loopback(
-            usrp, tx_streamer, rx_streamer, at_time=begin_time+2.0)
+            usrp, tx_streamer, rx_streamer, at_time=begin_time+cmd_time)
         print("DONE")
 
         phase_corr = - tx_rx_phase
