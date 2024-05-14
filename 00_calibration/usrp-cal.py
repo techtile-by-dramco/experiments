@@ -68,6 +68,7 @@ class LogFormatter(logging.Formatter):
 
 
 global logger
+global begin_time
 
 logger = logging.getLogger(__name__)
 
@@ -436,7 +437,7 @@ def setup(usrp, server_ip):
     tx_streamer = usrp.get_tx_stream(st_args)
     rx_streamer = usrp.get_rx_stream(st_args)
 
-    tune_usrp(usrp, FREQ, channels, at_time=10.0)
+    tune_usrp(usrp, FREQ, channels, at_time=begin_time)
 
     logger.info("USRP has been tuned and setup.")
 
@@ -639,13 +640,14 @@ def main():
     usrp = uhd.usrp.MultiUSRP(
         "fpga=/home/pi/experiments/00_calibration/usrp_b210_fpga_loopback.bin")
     logger.info("Using Device: %s", usrp.get_pp_string())
+    begin_time = 4.0
     tx_streamer, rx_streamer = setup(usrp, server_ip)
 
     tx_thr = tx_meta_thr = None
 
     try:
 
-        begin_time = 12.0
+        
         cmd_time = CAPTURE_TIME + 10.0
 
         tx_rx_phase = measure_loopback(
