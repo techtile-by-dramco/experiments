@@ -100,6 +100,10 @@ socket = context.socket(zmq.PUB)
 
 socket.bind(f"tcp://*:{50001}")
 
+sync_socket = context.socket(zmq.SUB)
+
+
+
 
 
 def publish(data, channel: int):
@@ -197,8 +201,8 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
 
                         iq_data[:, num_rx: num_rx + num_rx_i] = samples
 
-                        # threading.Thread(target=send_rx,
-                        #                  args=(samples,)).start()
+                        threading.Thread(target=send_rx,
+                                         args=(samples,)).start()
 
                         num_rx += num_rx_i
 
@@ -236,16 +240,14 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
 
 
 def wait_till_go_from_server(ip):
-    context = zmq.Context()
-    socket = context.socket(zmq.SUB)
 
-    socket.connect(f"tcp://{ip}:{5557}")  # Connect to the publisher's address
-
+    # Connect to the publisher's address
+    sync_socket.connect(f"tcp://{ip}:{5557}")
     # Subscribe to topics
-    socket.subscribe("SYNC")
+    sync_socket.subscribe("SYNC")
     logger.debug("Waiting on SYNC from server %s.", ip)
     # Receives a string format message
-    socket.recv_string()
+    sync_socket.recv_string()
 
 
 def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time=None):
