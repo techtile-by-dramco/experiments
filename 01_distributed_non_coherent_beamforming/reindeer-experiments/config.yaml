@@ -2,14 +2,28 @@ info: # SERVER
   description: Measurement for WP5 Reindeer Exp. 4aa PART 1
   exp_name: 4aa-part-1
   server_user_name: jarne
+  port: 5558 # EXTERNAL CONTROL
 ansible: # SERVER
-  # tiles: multiON # Define tiles that should be accessed by ansible
   inventory: hosts.yaml
   copy_client_script: copy_client_script.yaml
   start_client_script: start_transmitters_random_phase.yaml
   # stop_client_script:
+# usrp:
+client: # CLIENT
+  tiles: multiON # Define tiles that should be accessed by ansible
+  script: tx_waveforms_random_phase.py # ENSURE script is under folder *** <<ROOT-EXP>>/client/<<NAME>>.py ***
+  # ansibletiles: segmentA
+  transmitters_enabled: true
+  hosts:
+    all:
+      freq: 917000000.0
+      gain: 50
+    T04: 
+      gain: 30
 positioning: # MEASUREMENT EQUIPMENT
   ip: 192.108.0.13
+  protocol: zmq
+  port: 5555
   system: QUALYSIS
   xaxisoffset: 0
   yaxisoffset: 0
@@ -20,16 +34,7 @@ scope: # MEASUREMENT EQUIPMENT
   ip: 192.108.0.251
   rbw_Hz: 100.0
   span_Hz: 10000000.0
-# usrp:
-client: # CLIENT
-  tiles: multiON # Define tiles that should be accessed by ansible
-  script: tx_waveforms_random_phase.py
-  # ansibletiles: segmentA
-  transmitters_enabled: true
-  hosts:
-    all:
-      freq: 917000000.0
-      gain: 50
-    T04: 
-      gain: 30
-
+ep: # MEASUREMENT EQUIPMENT
+  ip: 192.108.0.13
+  protocol: zmq
+  port: 5556
