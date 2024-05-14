@@ -6,7 +6,7 @@ info: # SERVER
 ansible: # SERVER
   inventory: hosts.yaml
   copy_client_script: copy_client_script.yaml
-  start_client_script: start_transmitters_random_phase.yaml
+  start_client_script: start_client_script.yaml
   # stop_client_script:
 # usrp:
 client: # CLIENT
@@ -23,7 +23,7 @@ client: # CLIENT
 positioning: # MEASUREMENT EQUIPMENT
   ip: 192.108.0.13
   protocol: zmq
-  port: 5555
+  port: 5555S
   system: QUALYSIS
   xaxisoffset: 0
   yaxisoffset: 0

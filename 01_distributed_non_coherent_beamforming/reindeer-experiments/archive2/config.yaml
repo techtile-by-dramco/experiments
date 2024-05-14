@@ -1,0 +1,31 @@
+info:
+  exp_name: 
+  description: Measurement for WP5 Reindeer Exp. 4aa PART 1
+ansible:
+  ansible_inventory_yaml: hosts.yaml
+  ansible_create_folders_copy_client_script: create_folders_copy_client_script.yaml
+  ansible_start_script_yaml: start_transmitters_random_phase.yaml
+  # ansible_stop_script_yaml:
+  ansible_tiles: multiON
+positioning:
+  ip: 192.108.0.13
+  system: QUALYSIS
+  xaxisoffset: 0
+  yaxisoffset: 0
+  zaxisoffset: 0
+scope:
+  cable_loss: 0
+  center_Hz: 5850000000.0
+  ip: 192.108.0.251
+  rbw_Hz: 100.0
+  span_Hz: 10000000.0
+usrp:
+  ansible_tiles: segmentA
+  transmitters_enabled: false
+  hosts:
+    all:
+      freq: 917000000.0
+      gain: 50
+    T04: 
+      gain: 30
+
