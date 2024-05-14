@@ -59,7 +59,7 @@ The MISO backscattering experiments are conducted in the context of the European
 	* MCU clock speed (Currently 1024 kHz)
 	* Two timers
 		* ⏱️ One timer for LO ✅ (Currently 512 kHz)
-  		* ⏱️ One timer for data rate ✅ (Currently 1000 kbps)
+  		* ⏱️ One timer for data rate ✅ (Currently 1000 bps)
 	* ❗ ToDo ❗ Make timers adjustable in real time? UART?? (not so urgent)
 * Send bytes
 	* No START and/or STOP bits, all bytes sequentially transmitted without delays ✅
