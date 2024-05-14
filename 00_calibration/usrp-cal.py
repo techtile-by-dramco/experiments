@@ -16,7 +16,7 @@ import numpy as np
 import uhd
 import yaml
 import zmq
-from scipy.stats import circmean
+from scipy.stats import circmean, circvar
 from datetime import datetime, timedelta
 
 CMD_DELAY = 0.05  # set a 50mS delay in commands
@@ -221,6 +221,7 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
 
         # np.angle(np.sum(np.exp(np.angle(samples)*1j), axis=1)) # circular mean https://en.wikipedia.org/wiki/Circular_mean
         avg_angles = circmean(np.angle(samples[:, int(RATE//10):]), axis=1)
+        var_angles = circvar(np.angle(samples[:, int(RATE//10):]), axis=1)
 
         phase_to_compensate.extend(avg_angles)
 
@@ -228,6 +229,8 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
 
         logger.debug(
             f"Angle CH0:{np.rad2deg(avg_angles[0]):.2f} CH1:{np.rad2deg(avg_angles[1]):.2f}")
+        logger.debug(
+            f"Angle var CH0:{var_angles[0]:.2f} CH1:{var_angles[1]:.2f}")
         # keep this just below this final stage
         logger.debug(f"Amplitude CH0:{avg_ampl[0]:.2f} CH1:{avg_ampl[1]:.2f}")
 
@@ -535,7 +538,7 @@ def measure_loopback(usrp, tx_streamer, rx_streamer, at_time) -> float:
 def measure_pll(usrp, rx_streamer, at_time) -> float:
     # Make a signal for the threads to stop running
 
-    logger.debug("########### Measure PLL REF phase ###########")
+    logger.debug("########### STEP 2 - Measure PLL REF phase ###########")
 
     quit_event = threading.Event()
 
@@ -562,7 +565,7 @@ def measure_pll(usrp, rx_streamer, at_time) -> float:
 
 def check_loopback(usrp, tx_streamer, rx_streamer, phase_corr, at_time) -> float:
     logger.debug(
-        " ########### STEP 2 - Check self-correction TX-RX phase ###########")
+        " ########### STEP 3 - Check self-correction TX-RX phase ###########")
 
     quit_event = threading.Event()
 
@@ -639,17 +642,17 @@ def main():
 
     try:
 
-        begin_time = 12.0
-        cmd_time = CAPTURE_TIME + 5.0
+        # begin_time = 12.0
+        # cmd_time = CAPTURE_TIME + 10.0
 
         tx_rx_phase = measure_loopback(
-            usrp, tx_streamer, rx_streamer, at_time=begin_time)
+            usrp, tx_streamer, rx_streamer, at_time=get_current_time(usrp)+2)
         print("DONE")
 
         phase_corr = - tx_rx_phase
 
         pll_rx_phase = measure_pll(
-            usrp, rx_streamer, at_time=begin_time + cmd_time)
+            usrp, rx_streamer, at_time=get_current_time(usrp)+2)
         print("DONE")
 
         check_loopback(usrp, tx_streamer, rx_streamer,
