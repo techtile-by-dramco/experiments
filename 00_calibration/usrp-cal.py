@@ -345,6 +345,7 @@ def wait_till_time(usrp, at_time):
     logger.debug("Wait till command is executed")
     while usrp.get_time_now().get_real_secs() < at_time + CMD_DELAY:
         time.sleep(0.01)
+    usrp.clear_command_time()
 
 
 def tune_usrp(usrp, freq, channels, at_time):
@@ -370,9 +371,8 @@ def tune_usrp(usrp, freq, channels, at_time):
         logger.debug(print_tune_result(usrp.set_rx_freq(treq, chan)))
         logger.debug(print_tune_result(usrp.set_tx_freq(treq, chan)))
 
-    wait_till_time(usrp, at_time)
+    wait_till_time(usrp, at_time) 
 
-    usrp.clear_command_time()
 
     while not usrp.get_rx_sensor("lo_locked").to_bool():
         time.sleep(0.01)
@@ -383,8 +383,6 @@ def tune_usrp(usrp, freq, channels, at_time):
         time.sleep(0.01)
 
     logger.info("TX LO is locked")
-
-    time.sleep(CMD_DELAY)
 
 
 def setup(usrp, server_ip):
@@ -419,8 +417,8 @@ def setup(usrp, server_ip):
 
     # Step1: wait for the last pps time to transition to catch the edge
     # Step2: set the time at the next pps (synchronous for all boards)
-    # this is better than set_time_next_pss as we wait till the next PPS to transition and after that we set the time.
-    # this ensures that the FPGA has enough time to clock in the nez timespec (otherwise it could be too close to a PPS edge)
+    # this is better than set_time_next_pps as we wait till the next PPS to transition and after that we set the time.
+    # this ensures that the FPGA has enough time to clock in the new timespec (otherwise it could be too close to a PPS edge)
     wait_till_go_from_server(server_ip)
     logger.info("Setting device timestamp to 0...")
     usrp.set_time_unknown_pps(uhd.types.TimeSpec(0.0))
@@ -441,7 +439,8 @@ def setup(usrp, server_ip):
 
     tune_usrp(usrp, FREQ, channels, at_time=begin_time)
 
-    logger.info("USRP has been tuned and setup.")
+    logger.info(
+        f"USRP has been tuned and setup. ({usrp.get_time_now().get_real_secs()})")
 
     return tx_streamer, rx_streamer
 
@@ -649,7 +648,7 @@ def main():
     try:
 
         
-        cmd_time = CAPTURE_TIME + 4.0
+        cmd_time = CAPTURE_TIME + 5.0
 
         tx_rx_phase = measure_loopback(
             usrp, tx_streamer, rx_streamer, at_time=begin_time+2.0)
