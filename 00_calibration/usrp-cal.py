@@ -110,7 +110,7 @@ sync_socket = context.socket(zmq.SUB)
 
 
 def publish(data, channel: int):
-    logger.debug(f"sending data of size {len(data)}")
+    # logger.debug(f"sending data of size {len(data)}")
 
     if channel == 0:
         topic = TOPIC_CH0
@@ -649,7 +649,7 @@ def main():
     try:
 
         
-        cmd_time = CAPTURE_TIME + 10.0
+        cmd_time = CAPTURE_TIME + 2.0
 
         tx_rx_phase = measure_loopback(
             usrp, tx_streamer, rx_streamer, at_time=begin_time+cmd_time)
