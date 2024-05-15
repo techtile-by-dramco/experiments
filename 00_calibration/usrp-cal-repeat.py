@@ -620,17 +620,17 @@ def main():
     usrp = uhd.usrp.MultiUSRP(
         "fpga=/home/pi/experiments/00_calibration/usrp_b210_fpga_loopback.bin, mode_n=integer")
     logger.info("Using Device: %s", usrp.get_pp_string())
-    
+    tx_streamer, rx_streamer = setup(usrp)
 
     try:
 
         while 1:
-            tx_streamer, rx_streamer = setup(usrp)
+            
             tx_thr = tx_meta_thr = None
             quit_event = threading.Event()
             tx_thr, tx_meta_thr = tx(usrp, tx_streamer, quit_event)
 
-            time.sleep(10)
+            time.sleep(2)
             quit_event.set()
             if tx_thr:
                 tx_thr.join()
