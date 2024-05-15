@@ -692,9 +692,10 @@ def main():
     try:
 
         
-        cmd_time = CAPTURE_TIME*2
+        
 
         margin = 2.0
+        cmd_time = CAPTURE_TIME+margin
 
         start_time = begin_time + margin
 
