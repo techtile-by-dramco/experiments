@@ -1,5 +1,7 @@
 import ansible_runner
 import yaml
+import csv
+import os
 
 def start_up(log_data, user_name, ansible_config_yaml, client_config_yaml, client_experiment_name):
 
@@ -8,8 +10,8 @@ def start_up(log_data, user_name, ansible_config_yaml, client_config_yaml, clien
     antenna_states = {'ok': [], 'dark': []}
 
     r = ansible_runner.run(
-        inventory=f'/home/{user_name}/ansible/inventory/{ansible_config_yaml.get('inventory')}',
-        playbook=f'/home/{user_name}/ansible/{ansible_config_yaml.get('start_client_script')}',
+        inventory=f"/home/{user_name}/ansible/inventory/{ansible_config_yaml.get('inventory')}",
+        playbook=f"/home/{user_name}/ansible/{ansible_config_yaml.get('start_client_script')}",
         extravars={"script": client_config_yaml.get('start_client_script'), 
                    "tiles": client_config_yaml.get('tiles'),
                    "experiment_name": f"{client_experiment_name}",
@@ -54,9 +56,36 @@ def start_up(log_data, user_name, ansible_config_yaml, client_config_yaml, clien
     return tile_states, num_processed, num_unreachable
 
 
+def clean_up(user_name, tiles_to_kill, ansible_config_yaml):
+    # print(f"Kill: {tiles_to_kill}")
+
+    r = ansible_runner.run(
+        inventory=f'/home/{user_name}/ansible/inventory/{ansible_config_yaml.get("inventory")}',
+        playbook=f'/home/{user_name}/ansible/{ansible_config_yaml.get("stop_client_script")}',
+        extravars={"tiles": tiles_to_kill}
+    )
+
 # Log info about the tiles (E.g. find info if one tile was broken during startup measurement)
 def log_info(info_data, exp_dir, client_experiment_name):
 
     # Save information of measurement
     with open(f"{exp_dir}/{client_experiment_name}.yml", "w", newline="") as yml_file:
         yml_file.write(yaml.dump(info_data))
+
+
+def append_to_csv(csv_file_path, data, csv_header):
+
+    # Check if the CSV file exists
+    file_exists = os.path.isfile(csv_file_path)
+
+    # Open the CSV file in append mode
+    with open(csv_file_path, mode='a', newline='') as file:
+        # Create a CSV writer object
+        writer = csv.writer(file)
+
+        # Write header if the file is newly created
+        if not file_exists:
+            writer.writerow(csv_header)  # Modify header as needed
+
+        # Write the data to the CSV file
+        writer.writerow(data)

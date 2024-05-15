@@ -9,4 +9,11 @@ def read_yaml_file(file_path):
         except yaml.YAMLError as exc:
             print(f"Error reading YAML file: {exc}")
             return None
-
+        
+# Function to read YAML file and check parameter existence
+def check_yaml_parameter(yaml_data, parameter_name):
+    # Check if the parameter exists in the YAML data
+    if parameter_name in yaml_data:
+        return True
+    else:
+        return False
