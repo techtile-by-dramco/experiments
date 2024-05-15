@@ -426,8 +426,6 @@ def setup(usrp, server_ip):
     # we wait 2 seconds to ensure a PPS rising edge occurs and latches the 0.000s value to both USRPs.
     time.sleep(2)
 
-    usrp.set_rx_bandwidth(rx_bw, 1)
-
     # streaming arguments
 
     st_args = uhd.usrp.StreamArgs("fc32", "sc16")
