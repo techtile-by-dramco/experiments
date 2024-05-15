@@ -29,8 +29,7 @@ RATE = 250e3
 LOOPBACK_TX_GAIN = 70  # empirical determined
 LOOPBACK_RX_GAIN = 23  # empirical determined
 REF_RX_GAIN = 22  # empirical determined 22 without splitter, 27 with splitter
-FREQ = 920e6
-CAPTURE_TIME = 60
+CAPTURE_TIME = 10
 server_ip = "10.128.52.53"
 MAX_RETRIES = 10
 
@@ -705,12 +704,12 @@ def main():
 
         phase_corr = - tx_rx_phase
 
-        start_time += cmd_time + margin
+        start_time += cmd_time
         pll_rx_phase = measure_pll(
             usrp, rx_streamer, at_time=start_time)
         print("DONE")
 
-        start_time += cmd_time + margin
+        start_time += cmd_time
         remainig_phase = check_loopback(usrp, tx_streamer, rx_streamer,
                        phase_corr=phase_corr, at_time=start_time)
         
