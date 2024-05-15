@@ -540,7 +540,7 @@ def measure_loopback(usrp, tx_streamer, rx_streamer, at_time) -> float:
 
     #TODO double check
     import math
-    def closest_multiple_of(value, multiple_of=math.pi/4):
+    def closest_multiple_of(value, multiple_of=math.pi/8):
        
         if value < 0:
             value = value + math.pi*2
