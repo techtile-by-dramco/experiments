@@ -639,7 +639,7 @@ def get_current_time(usrp):
 def main():
     # "mode_n=integer" # 
     usrp = uhd.usrp.MultiUSRP(
-        "fpga=/home/pi/experiments/00_calibration/usrp_b210_fpga_loopback.bin")
+        "fpga=/home/pi/experiments/00_calibration/usrp_b210_fpga_loopback.bin, mode_n=integer")
     logger.info("Using Device: %s", usrp.get_pp_string())
     tx_streamer, rx_streamer = setup(usrp, server_ip)
 
