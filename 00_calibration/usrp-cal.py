@@ -539,16 +539,16 @@ def measure_loopback(usrp, tx_streamer, rx_streamer, at_time) -> float:
     tx_meta_thr.join()
 
     # #TODO double check
-    import math
-    def closest_multiple_of(value, base=math.pi/8):
+    # import math
+    # def closest_multiple_of(value, base=math.pi/8):
        
-        if value < 0:
-            value = value + math.pi*2
+    #     if value < 0:
+    #         value = value + math.pi*2
 
-        return base * round(value/base)
+    #     return base * round(value/base)
 
-    # ensure it is a multiple of 45 degrees, as we would expect @ this frequency given the dividers
-    phase_to_compensate[LOOPBACK_RX_CH] = closest_multiple_of(phase_to_compensate[LOOPBACK_RX_CH])
+    # # ensure it is a multiple of 45 degrees, as we would expect @ this frequency given the dividers
+    # phase_to_compensate[LOOPBACK_RX_CH] = closest_multiple_of(phase_to_compensate[LOOPBACK_RX_CH])
 
     return phase_to_compensate[LOOPBACK_RX_CH]
 
