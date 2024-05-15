@@ -5,6 +5,7 @@
 
 # measure the phase difference between both
 
+import argparse
 import logging
 import os
 import sys
@@ -386,6 +387,7 @@ def tune_usrp(usrp, freq, channels, at_time):
 
 
 def setup(usrp, server_ip):
+
     rate = RATE
 
     mcr = 20e6
@@ -415,6 +417,17 @@ def setup(usrp, server_ip):
     usrp.set_rx_gain(LOOPBACK_RX_GAIN, LOOPBACK_RX_CH)
     usrp.set_rx_gain(REF_RX_GAIN, REF_RX_CH)
 
+
+
+    # streaming arguments
+
+    st_args = uhd.usrp.StreamArgs("fc32", "sc16")
+    st_args.channels = channels
+
+    # streamers
+    tx_streamer = usrp.get_tx_stream(st_args)
+    rx_streamer = usrp.get_rx_stream(st_args)
+
     # Step1: wait for the last pps time to transition to catch the edge
     # Step2: set the time at the next pps (synchronous for all boards)
     # this is better than set_time_next_pps as we wait till the next PPS to transition and after that we set the time.
@@ -425,15 +438,6 @@ def setup(usrp, server_ip):
     logger.debug("[SYNC] Resetting time.")
     # we wait 2 seconds to ensure a PPS rising edge occurs and latches the 0.000s value to both USRPs.
     time.sleep(2)
-
-    # streaming arguments
-
-    st_args = uhd.usrp.StreamArgs("fc32", "sc16")
-    st_args.channels = channels
-
-    # streamers
-    tx_streamer = usrp.get_tx_stream(st_args)
-    rx_streamer = usrp.get_rx_stream(st_args)
 
     tune_usrp(usrp, FREQ, channels, at_time=begin_time)
 
@@ -634,8 +638,39 @@ def get_current_time(usrp):
     return usrp.get_time_now().get_real_secs()
 
 
+def start_PLL():
+    import pll
+
+    p = pll.PLL()
+
+    p.set_LED_mode(pll.LED_MODE_LOCK_DETECT)
+
+    p.power_on()
+    p.enable_output()
+
+    freq = FREQ/1e6
+
+    print(f"Frequency {freq}MHz")
+
+    assert freq % 10 == 0, "Frequency should be a muliple of 10MHz"
+
+    p.frequency(freq)
+
+    print("locking PLL", end="")
+    while not p.locked():
+        print(".", end="")
+        time.sleep(0.1)
+
+    print("\nLocked")
+
+
+
+
 def main():
     # "mode_n=integer" # 
+
+    start_PLL()
+
     usrp = uhd.usrp.MultiUSRP(
         "fpga=/home/pi/experiments/00_calibration/usrp_b210_fpga_loopback.bin, mode_n=integer")
     logger.info("Using Device: %s", usrp.get_pp_string())
