@@ -683,18 +683,24 @@ def main():
         
         cmd_time = CAPTURE_TIME*2
 
+        margin = 2.0
+
+        start_time = begin_time + margin
+
         tx_rx_phase = measure_loopback(
-            usrp, tx_streamer, rx_streamer, at_time=begin_time+cmd_time)
+            usrp, tx_streamer, rx_streamer, at_time=start_time)
         print("DONE")
 
         phase_corr = - tx_rx_phase
 
+        start_time += cmd_time + margin
         pll_rx_phase = measure_pll(
-            usrp, rx_streamer, at_time=begin_time+2*cmd_time)
+            usrp, rx_streamer, at_time=start_time)
         print("DONE")
 
+        start_time += cmd_time + margin
         remainig_phase = check_loopback(usrp, tx_streamer, rx_streamer,
-                       phase_corr=phase_corr, at_time=begin_time+3*cmd_time)
+                       phase_corr=phase_corr, at_time=start_time)
         
         calibrated = False
         logger.debug(f"Remaining phase is {np.rad2deg(remainig_phase)} degrees.")
@@ -722,8 +728,9 @@ def main():
         print("DONE")
 
         quit_event = threading.Event()
+        start_time += cmd_time + margin
         tx_thr, tx_meta_thr = tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr=(pll_rx_phase - tx_rx_phase),
-                                           at_time=begin_time+4*cmd_time)
+                                           at_time=start_time)
 
     except KeyboardInterrupt:
 
