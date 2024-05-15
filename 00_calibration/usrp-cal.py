@@ -638,30 +638,30 @@ def get_current_time(usrp):
     return usrp.get_time_now().get_real_secs()
 
 
-def start_PLL():
-    import pll
+# def start_PLL():
+#     import pll
 
-    p = pll.PLL()
+#     p = pll.PLL()
 
-    p.set_LED_mode(pll.LED_MODE_LOCK_DETECT)
+#     p.set_LED_mode(pll.LED_MODE_LOCK_DETECT)
 
-    p.power_on()
-    p.enable_output()
+#     p.power_on()
+#     p.enable_output()
 
-    freq = FREQ/1e6
+#     freq = FREQ/1e6
 
-    print(f"Frequency {freq}MHz")
+#     print(f"Frequency {freq}MHz")
 
-    assert freq % 10 == 0, "Frequency should be a muliple of 10MHz"
+#     assert freq % 10 == 0, "Frequency should be a muliple of 10MHz"
 
-    p.frequency(freq)
+#     p.frequency(freq)
 
-    print("locking PLL", end="")
-    while not p.locked():
-        print(".", end="")
-        time.sleep(0.1)
+#     print("locking PLL", end="")
+#     while not p.locked():
+#         print(".", end="")
+#         time.sleep(0.1)
 
-    print("\nLocked")
+#     print("\nLocked")
 
 
 
@@ -669,7 +669,7 @@ def start_PLL():
 def main():
     # "mode_n=integer" # 
 
-    start_PLL()
+    # start_PLL()
 
     usrp = uhd.usrp.MultiUSRP(
         "fpga=/home/pi/experiments/00_calibration/usrp_b210_fpga_loopback.bin, mode_n=integer")
