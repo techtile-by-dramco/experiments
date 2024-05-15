@@ -705,12 +705,12 @@ def main():
 
         phase_corr = - tx_rx_phase
 
-        start_time += cmd_time
+        start_time += cmd_time + margin
         pll_rx_phase = measure_pll(
             usrp, rx_streamer, at_time=start_time)
         print("DONE")
 
-        start_time += cmd_time
+        start_time += cmd_time + margin
         remainig_phase = check_loopback(usrp, tx_streamer, rx_streamer,
                        phase_corr=phase_corr, at_time=start_time)
         
