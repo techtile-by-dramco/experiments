@@ -39,8 +39,14 @@ server_user_name = info.get('server_user_name')
 #   ANSIBLE SETTINGS
 ansible = config.get('ansible', {})
 
-#   LOCATION SYSTEM SETTINGS
+#   LOCATION SYSTEM SETTINGS --> ToDo Check if it is definied in config file
 positioning = config.get('positioning', {})
+
+#   ENERGY PROFILER SYSTEM SETTINGS --> ToDo Check if it is definied in config file
+scope = config.get('scope', {})
+
+#   ENERGY PROFILER SYSTEM SETTINGS --> ToDo Check if it is definied in config file
+ep = config.get('ep', {})
 
 def func_ctrl_thread(ctrl_thread_stop_flag, stop_event, start_event, close_event):
     global tx_gain
@@ -69,18 +75,18 @@ if __name__ == '__main__':
     #   Subscribe to control script
     context = zmq.Context()
     sub_socket = context.socket(zmq.SUB)
-    sub_socket.connect(f"tcp://{ctrl_zmq_ip}:{ctrl_zmq_port}")
+    sub_socket.connect(f"tcp://{info.get('ip')}:{info.get('port')}")
     sub_socket.setsockopt_string(zmq.SUBSCRIBE, "")
 
     #   Subscribe to the localisation system
-    positioner = AcousticPositioner(positioning_system_server_ip, positioning_system_zmq_port)
+    positioner = AcousticPositioner(positioning.get('ip'), positioning.get('port'))
 
     #   Subscribe to the energy profiler gateway
-    energyprofiler = RFEP(ep_gateway_ip, ep_zmq_port)
+    energyprofiler = RFEP(ep.get('ip'), ep.get('port'))
 
     #   Connect with scope
     try:
-        scope = Scope(scope_ip)
+        scope = Scope(scope.get("ip"))
         # scope.setup(bandwidth_hz, center_hz, span_hz, rbw_hz)
     except:
         print("Can not connect to the scope!")
@@ -100,7 +106,8 @@ if __name__ == '__main__':
     #   Save tile states in global varibale
     tile_states_global = None
 
-    client_experiment_name = f"{exp_name}_{round(time.time())}"
+    meas_init_time = round(time.time())
+    client_experiment_name = f"{exp_name}_{meas_init_time}"
 
     print("(1) Copy python script from server to client to folder 'home/ip/exp/{client_experiment_name}'")
 
@@ -151,7 +158,7 @@ if __name__ == '__main__':
             # save n.o. active URPS in variable
             no_active_transmitters = 1
 
-            if client.get("transmitters_enabled"):
+            if client.get("enable_client_script"):
                 # Start transmitters
                 tile_states_global, no_active_transmitters, no_not_active = start_up(info, server_user_name, ansible, client, client_experiment_name)
 
@@ -178,7 +185,7 @@ if __name__ == '__main__':
             ep_data = energyprofiler.get_data()
 
             #   Get rsv power via scope
-            power_dBm, peaks = scope.get_power_dBm_peaks(cable_loss, no_active_transmitters) 
+            power_dBm, peaks = scope.get_power_dBm_peaks(scope.get('cable_loss'), no_active_transmitters) 
 
             #   Print power
             print(f"Power [dBm] {power_dBm:.2f} - NO Peaks {len(peaks)}")
@@ -186,7 +193,8 @@ if __name__ == '__main__':
             #   Save data
             try:
                 data_to_append = [*pos.to_csv(), power_dBm, *ep_data.to_csv()]
-                append_to_csv(f"{csv_file_path}/{csv_file_time}_{name_after_nr}.csv", data_to_append)
+                header = positioning.get("csv_header").append(scope.get("csv_header")).append(ep.get("csv_header"))
+                append_to_csv(f"{exp_dir}/data/{csv_file_time}_{client_experiment_name}.csv", data_to_append, header)
             except Exception as e:
                 print(e)
 
@@ -198,7 +206,8 @@ if __name__ == '__main__':
             stop_event.clear()
 
             #   Clean up all threads
-            clean_up(tile_states_global['ok'])
+            if ansible.get("enable_client_script") and check_yaml_parameter(ansible, "stop_client_script"):
+                clean_up(server_user_name, tile_states_global['ok'])
 
             #   Measurement ended
             print("Measurement DONE")
