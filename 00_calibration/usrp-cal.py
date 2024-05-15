@@ -694,7 +694,7 @@ def main():
         
         
 
-        margin = 6.0
+        margin = 10.0
         cmd_time = CAPTURE_TIME + margin
 
         start_time = begin_time + margin
