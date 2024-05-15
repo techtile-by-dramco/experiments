@@ -751,6 +751,7 @@ def main():
 
         socket.close()
         context.term()
+        time.sleep(0.1) # give it some time to close
 
         sys.exit(130)
 
