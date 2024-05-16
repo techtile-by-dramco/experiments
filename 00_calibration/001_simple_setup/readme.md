@@ -14,7 +14,7 @@ All USRPs (3) are being fed by the same PPS and 10MHz. This is done by using 2-w
 
 1 USRP is used as a reference and is transmitting:
 ```sh
-uhd_siggen --args "mode_n=integer, fpga=usrp_b210_fpga_loopback.bin" --freq 1e9 --clock-source 'external' --sync 'pps' --const -g 70 --offset 0
+uhd_siggen --args "mode_n=integer, fpga=usrp_b210_fpga_loopback.bin" --freq 1e9 --clock-source 'external' --sync 'pps' --const -g 70 --offset 0 -m 0.8
 ```
 
 ### Calibration USRPs (Tile 3 and 4)
