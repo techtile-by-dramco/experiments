@@ -25,15 +25,8 @@ sync_socket = context.socket(zmq.PUB)
 sync_socket.bind("tcp://{}:{}".format(host, sync_port))
 
 # Create a SUB socket to listen for subscribers
-alive_socket = context.socket(zmq.SUB)
+alive_socket = context.socket(zmq.REP)
 alive_socket.bind("tcp://{}:{}".format(host, alive_port))
-
-# Set socket options to subscribe to all topics
-alive_socket.setsockopt_string(zmq.SUBSCRIBE, '')
-
-# Create a poller to listen for incoming messages from subscribers
-poller = zmq.Poller()
-poller.register(alive_socket, zmq.POLLIN)
 
 while True:
 
@@ -41,11 +34,16 @@ while True:
     print(f"Waiting for {num_subscribers} subscribers to send a message...")
     messages_received = 0
     while messages_received < num_subscribers:
-        socks = dict(poller.poll())
-        if alive_socket in socks and socks[alive_socket] == zmq.POLLIN:
-            alive_socket.recv()
-            print("Subscriber sent a message.")
-            messages_received += 1
+        message = alive_socket.recv_string()
+        print("Received request:", message)
+
+        # Process the request (for example, you could perform some computation here)
+        response = "Response from server"
+
+        # Send the response back to the client
+        alive_socket.send_string(response)
+
+        messages_received += 1
 
     print("Press Enter to send 'SYNC' message...")
     try:
