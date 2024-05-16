@@ -33,7 +33,7 @@ CAPTURE_TIME = 10
 server_ip = "10.128.52.53"
 MAX_RETRIES = 10
 
-connected = False
+
 
 with open(os.path.join(os.path.dirname(__file__), "cal-settings.yml"), 'r') as file:
     vars = yaml.safe_load(file)
@@ -71,6 +71,9 @@ class LogFormatter(logging.Formatter):
 
 global logger
 global begin_time
+global connected_to_server
+
+connected_to_server = False
 
 begin_time = 2.0
 
@@ -246,15 +249,17 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
 def wait_till_go_from_server(ip):
 
     # Connect to the publisher's address
-    # if not connected:
-    logger.debug("Connecting to server %s.", ip)
-    sync_socket.connect(f"tcp://{ip}:{5557}")
-    alive_socket.connect(f"tcp://{ip}:{5558}")
-    # Subscribe to topics
-    sync_socket.subscribe("SYNC")
-    # connected = True
-
-    logger.debug("Already connected to server %s, sending ALIVE", ip)
+    if not connected_to_server:
+        logger.debug("Connecting to server %s.", ip)
+        sync_socket.connect(f"tcp://{ip}:{5557}")
+        alive_socket.connect(f"tcp://{ip}:{5558}")
+        # Subscribe to topics
+        sync_socket.subscribe("SYNC")
+        connected_to_server = True
+    else:
+        logger.debug("Already connected to server %s", ip)
+    
+    logger.debug("Sending ALIVE")
     alive_socket.send_string("ALIVE")
     # Receives a string format message
     logger.debug("Waiting on SYNC from server %s.", ip)
