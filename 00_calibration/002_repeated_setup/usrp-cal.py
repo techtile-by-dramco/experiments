@@ -714,7 +714,7 @@ def main():
             margin = 6.0
             cmd_time = CAPTURE_TIME + margin
 
-            start_time = begin_time + margin -4.0 # -4.0 emperically determined
+            start_time = begin_time + margin -5.0 # -5.0 emperically determined
 
             tx_rx_phase = measure_loopback(
                 usrp, tx_streamer, rx_streamer, at_time=start_time)
@@ -722,12 +722,12 @@ def main():
 
             phase_corr = - tx_rx_phase
 
-            start_time += cmd_time
+            start_time += cmd_time - 1.0  # -1.0 emperically determined
             pll_rx_phase = measure_pll(
                 usrp, rx_streamer, at_time=start_time)
             print("DONE")
 
-            start_time += cmd_time -2.0  # -2.0 emperically determined
+            start_time += cmd_time -3.0  # -3.0 emperically determined
             remainig_phase = check_loopback(usrp, tx_streamer, rx_streamer,
                                             phase_corr=phase_corr, at_time=start_time)
 
@@ -740,7 +740,7 @@ def main():
             print("DONE")
 
             quit_event = threading.Event()
-            start_time += cmd_time
+            start_time += cmd_time - 1.0  # -1.0 emperically determined
             tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr=(pll_rx_phase - tx_rx_phase),
                          at_time=start_time)
 
