@@ -709,7 +709,7 @@ def main():
 
             tx_thr = tx_meta_thr = None
 
-            margin = 10.0
+            margin = 6.0
             cmd_time = CAPTURE_TIME + margin
 
             start_time = begin_time + margin
