@@ -247,20 +247,20 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
 def wait_till_go_from_server(ip, _connect=True):
 
     # Connect to the publisher's address
-    if _connect:
-        logger.debug("Connecting to server %s.", ip)
-        sync_socket.connect(f"tcp://{ip}:{5557}")
-        alive_socket.connect(f"tcp://{ip}:{5558}")
-        # Subscribe to topics
-        sync_socket.subscribe("SYNC")
-    else:
-        logger.debug("Already connected to server %s", ip)
+    logger.debug("Connecting to server %s.", ip)
+    sync_socket.connect(f"tcp://{ip}:{5557}")
+    alive_socket.connect(f"tcp://{ip}:{5558}")
+    # Subscribe to topics
+    sync_socket.subscribe("SYNC")
 
     logger.debug("Sending ALIVE")
     alive_socket.send_string("ALIVE")
     # Receives a string format message
     logger.debug("Waiting on SYNC from server %s.", ip)
     sync_socket.recv_string()
+
+    alive_socket.close()
+    sync_socket.close()
 
 
 def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time=None):
