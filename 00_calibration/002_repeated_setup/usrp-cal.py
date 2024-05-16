@@ -439,7 +439,7 @@ def setup(usrp, server_ip, connect=True):
     # Step2: set the time at the next pps (synchronous for all boards)
     # this is better than set_time_next_pps as we wait till the next PPS to transition and after that we set the time.
     # this ensures that the FPGA has enough time to clock in the new timespec (otherwise it could be too close to a PPS edge)
-    wait_till_go_from_server(server_ip, _connect)
+    wait_till_go_from_server(server_ip, connect)
     logger.info("Setting device timestamp to 0...")
     usrp.set_time_unknown_pps(uhd.types.TimeSpec(0.0))
     logger.debug("[SYNC] Resetting time.")
