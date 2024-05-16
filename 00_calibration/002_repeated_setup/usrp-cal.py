@@ -247,15 +247,16 @@ def wait_till_go_from_server(ip):
 
     # Connect to the publisher's address
     if not connected:
+        logger.debug("Connecting to server %s.", ip)
         sync_socket.connect(f"tcp://{ip}:{5557}")
         alive_socket.connect(f"tcp://{ip}:{5558}")
         # Subscribe to topics
         sync_socket.subscribe("SYNC")
         connected = True
-    logger.debug("Waiting on SYNC from server %s.", ip)
 
     alive_socket.send_string("ALIVE")
     # Receives a string format message
+    logger.debug("Waiting on SYNC from server %s.", ip)
     sync_socket.recv_string()
 
 
