@@ -105,7 +105,7 @@ iq_socket.bind(f"tcp://*:{50001}")
 
 sync_socket = context.socket(zmq.SUB)
 
-alive_socket = context.socket(zmq.PUB)
+alive_socket = context.socket(zmq.REQ)
 
 
 
