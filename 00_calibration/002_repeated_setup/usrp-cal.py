@@ -638,7 +638,7 @@ def tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr, at_time):
     amplitudes = [0.0, 0.0]
 
     phases[FREE_TX_CH] = phase_corr
-    amplitudes[FREE_TX_CH] = 0.8
+    amplitudes[FREE_TX_CH] = 0.5
 
     start_time = uhd.types.TimeSpec(at_time)
 
