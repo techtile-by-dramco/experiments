@@ -1,11 +1,14 @@
 # This is a simple setup to test if we can get the USRPs phase synchronized using an external USRP as reference
 
+![image](https://github.com/techtile-by-dramco/experiments/assets/8626571/1db06b0d-3859-4b75-bd3f-593b0993bf9e)
+
+
 
 ## Setup description
 
 
 All USRPs (3) are being fed by the same PPS and 10MHz. This is done by using 2-way splitters.
-**No** PLL board was attached,
+**No** PLL board was attached, but the FPGA loopback was used. Hence, LO leakage was exploited.
 
 ### Reference USRP (Tile 2)
 
