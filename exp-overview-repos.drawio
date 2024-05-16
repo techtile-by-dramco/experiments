@@ -1,0 +1,95 @@
+<mxfile host="Electron" modified="2024-05-16T18:19:17.058Z" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/24.4.0 Chrome/120.0.6099.109 Electron/28.1.0 Safari/537.36" etag="2ZBiQ7gmjtbdvpBvQXZm" version="24.4.0" type="device">
+  <diagram name="Page-1" id="J_XWSi8upQrbnxDRXobb">
+    <mxGraphModel dx="995" dy="606" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="gKcYweBXVD4Q9zNhiPqW-3" value="Experirment REPO&lt;div&gt;&lt;br&gt;&lt;div&gt;&lt;font color=&quot;#cc6600&quot;&gt;&quot;client&quot; folder --&amp;gt; client_script.py&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font color=&quot;#00cc00&quot;&gt;&quot;server&quot; folder --&amp;gt;&amp;nbsp;&lt;span style=&quot;background-color: initial;&quot;&gt;main.py&lt;/span&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&quot;data&quot; folder --&amp;gt; data.csv + log.yaml&lt;/div&gt;&lt;div&gt;&lt;font color=&quot;#cc00cc&quot;&gt;plot --&amp;gt; plot.py&lt;/font&gt;&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;font color=&quot;#cc00cc&quot;&gt;config.yaml&lt;/font&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F2CC8F;fontColor=#393C56;strokeColor=#E07A5F;labelBackgroundColor=none;" vertex="1" parent="1">
+          <mxGeometry x="160" y="110" width="210" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="gKcYweBXVD4Q9zNhiPqW-5" value="Ansible REPO&lt;div&gt;&lt;br&gt;&lt;div&gt;copy_client_script.yaml&lt;/div&gt;&lt;div&gt;start_client_script.yaml&lt;/div&gt;&lt;div&gt;stop_client_script.yaml&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;(clean up scripts)&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F2CC8F;fontColor=#393C56;strokeColor=#E07A5F;labelBackgroundColor=none;" vertex="1" parent="1">
+          <mxGeometry x="470" y="110" width="210" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="gKcYweBXVD4Q9zNhiPqW-6" value="&lt;font color=&quot;#cc00cc&quot;&gt;techtile plotter REPO&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F2CC8F;fontColor=#393C56;strokeColor=#E07A5F;labelBackgroundColor=none;" vertex="1" parent="1">
+          <mxGeometry x="450" y="330" width="210" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="gKcYweBXVD4Q9zNhiPqW-7" value="&lt;font color=&quot;#00cc00&quot;&gt;scope REPO&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F2CC8F;fontColor=#393C56;strokeColor=#E07A5F;labelBackgroundColor=none;" vertex="1" parent="1">
+          <mxGeometry x="450" y="410" width="210" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="gKcYweBXVD4Q9zNhiPqW-10" value="" style="endArrow=classic;html=1;rounded=0;strokeColor=#E07A5F;fontColor=#393C56;fillColor=#F2CC8F;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="gKcYweBXVD4Q9zNhiPqW-3" target="gKcYweBXVD4Q9zNhiPqW-6">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="390" y="400" as="sourcePoint" />
+            <mxPoint x="440" y="350" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="gKcYweBXVD4Q9zNhiPqW-18" value="&lt;font color=&quot;#ffffff&quot;&gt;plot.py&lt;/font&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];strokeColor=#E07A5F;fontColor=#393C56;fillColor=#F2CC8F;" vertex="1" connectable="0" parent="gKcYweBXVD4Q9zNhiPqW-10">
+          <mxGeometry x="0.0251" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="gKcYweBXVD4Q9zNhiPqW-11" value="" style="endArrow=classic;html=1;rounded=0;strokeColor=#E07A5F;fontColor=#393C56;fillColor=#F2CC8F;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="gKcYweBXVD4Q9zNhiPqW-3" target="gKcYweBXVD4Q9zNhiPqW-7">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="275" y="270" as="sourcePoint" />
+            <mxPoint x="460" y="375" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="gKcYweBXVD4Q9zNhiPqW-19" value="&lt;font color=&quot;#ffffff&quot;&gt;main.py&lt;/font&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];strokeColor=#E07A5F;fontColor=#393C56;fillColor=#F2CC8F;" vertex="1" connectable="0" parent="gKcYweBXVD4Q9zNhiPqW-11">
+          <mxGeometry x="0.0405" y="-2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="gKcYweBXVD4Q9zNhiPqW-12" value="" style="endArrow=classic;html=1;rounded=0;strokeColor=#E07A5F;fontColor=#393C56;fillColor=#F2CC8F;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="gKcYweBXVD4Q9zNhiPqW-3">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="275" y="270" as="sourcePoint" />
+            <mxPoint x="450" y="525" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="gKcYweBXVD4Q9zNhiPqW-20" value="&lt;span style=&quot;color: rgb(255, 255, 255);&quot;&gt;main.py&lt;/span&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];strokeColor=#E07A5F;fontColor=#393C56;fillColor=#F2CC8F;" vertex="1" connectable="0" parent="gKcYweBXVD4Q9zNhiPqW-12">
+          <mxGeometry x="-0.0048" y="2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="gKcYweBXVD4Q9zNhiPqW-13" value="&lt;font color=&quot;#cc6600&quot;&gt;ursp REPO&lt;/font&gt;&lt;div&gt;&lt;font color=&quot;#cc6600&quot;&gt;(fpga, client, host)&lt;/font&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F2CC8F;fontColor=#393C56;strokeColor=#E07A5F;labelBackgroundColor=none;" vertex="1" parent="1">
+          <mxGeometry x="450" y="570" width="210" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="gKcYweBXVD4Q9zNhiPqW-14" value="" style="endArrow=classic;html=1;rounded=0;strokeColor=#E07A5F;fontColor=#393C56;fillColor=#F2CC8F;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="gKcYweBXVD4Q9zNhiPqW-3" target="gKcYweBXVD4Q9zNhiPqW-13">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="275" y="270" as="sourcePoint" />
+            <mxPoint x="460" y="535" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="gKcYweBXVD4Q9zNhiPqW-21" value="&lt;font color=&quot;#ffffff&quot;&gt;client_script.py&lt;/font&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];strokeColor=#E07A5F;fontColor=#393C56;fillColor=#F2CC8F;" vertex="1" connectable="0" parent="gKcYweBXVD4Q9zNhiPqW-14">
+          <mxGeometry x="-0.0223" y="-4" relative="1" as="geometry">
+            <mxPoint y="40" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="gKcYweBXVD4Q9zNhiPqW-15" value="&lt;div&gt;WHERE TO PLACE&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;zmq-experiment-control.py&lt;/div&gt;&lt;div&gt;(send out &#39;init&#39;, &#39;start&#39;, &#39;stop&#39;, &#39;end&#39;)&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F2CC8F;fontColor=#393C56;strokeColor=#E07A5F;labelBackgroundColor=none;" vertex="1" parent="1">
+          <mxGeometry x="118" y="540" width="210" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="gKcYweBXVD4Q9zNhiPqW-16" value="" style="endArrow=classic;html=1;rounded=0;strokeColor=#E07A5F;fontColor=#393C56;fillColor=#F2CC8F;exitX=0.25;exitY=0;exitDx=0;exitDy=0;entryX=0.25;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="gKcYweBXVD4Q9zNhiPqW-15" target="gKcYweBXVD4Q9zNhiPqW-3">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="275" y="270" as="sourcePoint" />
+            <mxPoint x="460" y="615" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="gKcYweBXVD4Q9zNhiPqW-17" value="&lt;font color=&quot;#ffffff&quot; style=&quot;font-size: 20px;&quot;&gt;Control main.py&lt;/font&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];strokeColor=#E07A5F;fontColor=#393C56;fillColor=#F2CC8F;" vertex="1" connectable="0" parent="gKcYweBXVD4Q9zNhiPqW-16">
+          <mxGeometry x="0.4029" y="4" relative="1" as="geometry">
+            <mxPoint x="-16" y="67" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="gKcYweBXVD4Q9zNhiPqW-23" value="" style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Symbol_OK.svg/1024px-Symbol_OK.svg.png;" vertex="1" parent="1">
+          <mxGeometry x="630" y="360" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="gKcYweBXVD4Q9zNhiPqW-24" value="" style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Symbol_OK.svg/1024px-Symbol_OK.svg.png;" vertex="1" parent="1">
+          <mxGeometry x="630" y="595" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="gKcYweBXVD4Q9zNhiPqW-25" value="" style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Symbol_OK.svg/1024px-Symbol_OK.svg.png;" vertex="1" parent="1">
+          <mxGeometry x="650" y="220" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="gKcYweBXVD4Q9zNhiPqW-26" value="" style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Symbol_OK.svg/1024px-Symbol_OK.svg.png;" vertex="1" parent="1">
+          <mxGeometry x="340" y="220" width="40" height="40" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
