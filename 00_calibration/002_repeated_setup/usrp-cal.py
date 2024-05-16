@@ -337,6 +337,7 @@ def setup_clock(usrp, clock_src, num_mboards):
 
 
 def setup_pps(usrp, pps):
+    logger.debug("Setting PPS")
     """Setup the PPS source"""
     usrp.set_time_source(pps)
     return True
