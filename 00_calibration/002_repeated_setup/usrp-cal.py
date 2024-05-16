@@ -728,15 +728,20 @@ def main():
             print("DONE")
 
             start_time += cmd_time - 2.0  # -2.0 emperically determined
-            remainig_phase = check_loopback(usrp, tx_streamer, rx_streamer,
+            remainig_loopback_phase = check_loopback(usrp, tx_streamer, rx_streamer,
                                             phase_corr=phase_corr, at_time=start_time)
-
-            calibrated = False
             logger.debug(
-                f"Remaining phase is {np.rad2deg(remainig_phase)} degrees.")
-            calibrated = (np.rad2deg(remainig_phase) <
-                          1 or np.rad2deg(remainig_phase) > 359)
+                f"Remaining phase is {np.rad2deg(remainig_loopback_phase)} degrees.")
+            
 
+            start_time += cmd_time
+            remainig_test_phase = check_loopback(usrp, tx_streamer, rx_streamer,
+                                                     phase_corr=(pll_rx_phase - tx_rx_phase), at_time=start_time)
+            logger.debug(
+                f"Remaining phase is {np.rad2deg(remainig_test_phase)} degrees.")
+
+
+        
             print("DONE")
 
             quit_event = threading.Event()
