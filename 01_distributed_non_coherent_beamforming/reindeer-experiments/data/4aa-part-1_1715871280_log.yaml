@@ -1,0 +1,21 @@
+playbook_copy_files:
+  Copy config file:
+  - T01
+  Copy script file:
+  - T01
+  Ensure exp directory exists:
+  - T01
+  Ensure experiment name directory exists:
+  - T01
+  tile_states:
+    changed:
+    - T01
+    dark: []
+    failures: []
+    ignored: []
+    ok:
+    - T01
+    processed:
+    - T01
+    rescued: []
+    skipped: []

@@ -33,7 +33,7 @@ def parse_args():
     """Parse the command line arguments"""
     parser = argparse.ArgumentParser()
     parser.add_argument("-a", "--args", default="", type=str)
-    parser.add_argument("-f", "--freq", type=float, required=True)
+    parser.add_argument("-f", "--freq", type=float)#, required=True)
     parser.add_argument("-r", "--rate", default=1e6, type=float)
     parser.add_argument("-d", "--duration", default=1.0, type=float)
     parser.add_argument("-c", "--channels", default=0, nargs="+", type=int)
@@ -47,7 +47,7 @@ def parse_args():
     if args.config:
         # read from config file
         with open("config.yml", "r") as yaml_file:
-            config_data = yaml.safe_load(yaml_file)["usrp"]["hosts"]
+            config_data = yaml.safe_load(yaml_file)["client"]["hosts"]
             print(config_data)
             if config_data["all"]:
                 update(args, config_data["all"])

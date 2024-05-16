@@ -2,7 +2,7 @@ info: # SERVER
   description: Measurement for WP5 Reindeer Exp. 4aa PART 1
   exp_name: 4aa-part-1
   server_user_name: jarne
-  ip: 'localhost'
+  ip: "localhost"
   port: 5558 # EXTERNAL CONTROL
 ansible: # SERVER
   inventory: hosts.yaml
@@ -22,22 +22,25 @@ client: # CLIENT
     T04: 
       gain: 30
 positioning: # MEASUREMENT EQUIPMENT
+  enabled: true
   ip: 192.108.0.13
   protocol: zmq
-  port: 5555S
+  port: 5555
   system: QUALYSIS
   xaxisoffset: 0
   yaxisoffset: 0
   zaxisoffset: 0
   csv_header: ['x', 'y', 'z', 'utc']
 scope: # MEASUREMENT EQUIPMENT
+  enabled: false
   cable_loss: 0
-  center_Hz: 5850000000.0
+  center_Hz: 917000000.0
   ip: 192.108.0.251
   rbw_Hz: 100.0
   span_Hz: 10000000.0
   csv_header: ['dbm']
 ep: # MEASUREMENT EQUIPMENT
+  enabled: true
   ip: 192.108.0.13
   protocol: zmq
   port: 5556
