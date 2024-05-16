@@ -714,7 +714,7 @@ def main():
             margin = 6.0
             cmd_time = CAPTURE_TIME + margin
 
-            start_time = begin_time + margin
+            start_time = begin_time + margin -4.0 # -4.0 emperically determined
 
             tx_rx_phase = measure_loopback(
                 usrp, tx_streamer, rx_streamer, at_time=start_time)
@@ -727,7 +727,7 @@ def main():
                 usrp, rx_streamer, at_time=start_time)
             print("DONE")
 
-            start_time += cmd_time
+            start_time += cmd_time -2.0  # -2.0 emperically determined
             remainig_phase = check_loopback(usrp, tx_streamer, rx_streamer,
                                             phase_corr=phase_corr, at_time=start_time)
 
