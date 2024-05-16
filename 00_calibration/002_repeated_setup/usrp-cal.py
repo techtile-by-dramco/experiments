@@ -107,7 +107,7 @@ sync_socket = context.socket(zmq.SUB)
 
 alive_socket = context.socket(zmq.PUB)
 
-alive_socket.bind(f"tcp://*:{5558}")
+
 
 
 def publish(data, channel: int):
@@ -249,6 +249,7 @@ def wait_till_go_from_server(ip):
 
     # Connect to the publisher's address
     sync_socket.connect(f"tcp://{ip}:{5557}")
+    alive_socket.bind(f"tcp://{ip}:{5558}")
     # Subscribe to topics
     sync_socket.subscribe("SYNC")
     logger.debug("Waiting on SYNC from server %s.", ip)
