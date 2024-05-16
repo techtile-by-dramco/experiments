@@ -246,13 +246,13 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
 def wait_till_go_from_server(ip):
 
     # Connect to the publisher's address
-    if not connected:
-        logger.debug("Connecting to server %s.", ip)
-        sync_socket.connect(f"tcp://{ip}:{5557}")
-        alive_socket.connect(f"tcp://{ip}:{5558}")
-        # Subscribe to topics
-        sync_socket.subscribe("SYNC")
-        connected = True
+    # if not connected:
+    logger.debug("Connecting to server %s.", ip)
+    sync_socket.connect(f"tcp://{ip}:{5557}")
+    alive_socket.connect(f"tcp://{ip}:{5558}")
+    # Subscribe to topics
+    sync_socket.subscribe("SYNC")
+    # connected = True
 
     logger.debug("Already connected to server %s, sending ALIVE", ip)
     alive_socket.send_string("ALIVE")
