@@ -245,10 +245,10 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
         logger.debug(f"Amplitude CH0:{avg_ampl[0]:.2f} CH1:{avg_ampl[1]:.2f}")
 
 
-def wait_till_go_from_server(ip):
+def wait_till_go_from_server(ip, connect=True):
 
     # Connect to the publisher's address
-    if True:
+    if connect:
         logger.debug("Connecting to server %s.", ip)
         sync_socket.connect(f"tcp://{ip}:{5557}")
         alive_socket.connect(f"tcp://{ip}:{5558}")
@@ -396,7 +396,7 @@ def tune_usrp(usrp, freq, channels, at_time):
     logger.info("TX LO is locked")
 
 
-def setup(usrp, server_ip):
+def setup(usrp, server_ip, _connect):
 
     rate = RATE
 
@@ -440,7 +440,7 @@ def setup(usrp, server_ip):
     # Step2: set the time at the next pps (synchronous for all boards)
     # this is better than set_time_next_pps as we wait till the next PPS to transition and after that we set the time.
     # this ensures that the FPGA has enough time to clock in the new timespec (otherwise it could be too close to a PPS edge)
-    wait_till_go_from_server(server_ip)
+    wait_till_go_from_server(server_ip, _connect)
     logger.info("Setting device timestamp to 0...")
     usrp.set_time_unknown_pps(uhd.types.TimeSpec(0.0))
     logger.debug("[SYNC] Resetting time.")
@@ -700,10 +700,13 @@ def main():
     usrp = uhd.usrp.MultiUSRP(
         "fpga=usrp_b210_fpga_loopback.bin, mode_n=integer")
     logger.info("Using Device: %s", usrp.get_pp_string())
+    _connect = True
     try:
 
         while True:
-            tx_streamer, rx_streamer = setup(usrp, server_ip)
+            tx_streamer, rx_streamer = setup(usrp, server_ip, connect=_connect)
+
+            _connect = False
 
             tx_thr = tx_meta_thr = None
 
