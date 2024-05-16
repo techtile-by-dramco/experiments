@@ -71,7 +71,6 @@ class LogFormatter(logging.Formatter):
 
 global logger
 global begin_time
-global connected_to_server
 
 connected_to_server = False
 
