@@ -14,25 +14,26 @@ else:
     num_subscribers = 2
 
 host = "*"
-port = "5557"
+sync_port = "5557"
+alive_port = "5558"
 
 # Creates a socket instance
 context = zmq.Context()
 
-start_socket = context.socket(zmq.PUB)
+sync_socket = context.socket(zmq.PUB)
 # Binds the socket to a predefined port on localhost
-start_socket.bind("tcp://{}:{}".format(host, port))
+sync_socket.bind("tcp://{}:{}".format(host, sync_port))
 
 # Create a SUB socket to listen for subscribers
-subscriber_socket = context.socket(zmq.SUB)
-subscriber_socket.bind("tcp://{}:{}".format(host, port + "1"))
+alive_socket = context.socket(zmq.SUB)
+alive_socket.bind("tcp://{}:{}".format(host, alive_port))
 
 # Set socket options to subscribe to all topics
-subscriber_socket.setsockopt_string(zmq.SUBSCRIBE, '')
+alive_socket.setsockopt_string(zmq.SUBSCRIBE, '')
 
 # Create a poller to listen for incoming messages from subscribers
 poller = zmq.Poller()
-poller.register(subscriber_socket, zmq.POLLIN)
+poller.register(alive_socket, zmq.POLLIN)
 
 while True:
 
@@ -41,8 +42,8 @@ while True:
     messages_received = 0
     while messages_received < num_subscribers:
         socks = dict(poller.poll())
-        if subscriber_socket in socks and socks[subscriber_socket] == zmq.POLLIN:
-            subscriber_socket.recv()
+        if alive_socket in socks and socks[alive_socket] == zmq.POLLIN:
+            alive_socket.recv()
             print("Subscriber sent a message.")
             messages_received += 1
 
@@ -56,7 +57,7 @@ while True:
     time.sleep(delay)
 
     try:
-        start_socket.send_string("SYNC")
+        sync_socket.send_string("SYNC")
         print("SYNC")
     except KeyboardInterrupt:
         print("Exiting...")
