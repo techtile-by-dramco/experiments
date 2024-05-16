@@ -254,6 +254,7 @@ def wait_till_go_from_server(ip):
         sync_socket.subscribe("SYNC")
         connected = True
 
+    logger.debug("Already connected to server %s, sending ALIVE", ip)
     alive_socket.send_string("ALIVE")
     # Receives a string format message
     logger.debug("Waiting on SYNC from server %s.", ip)
