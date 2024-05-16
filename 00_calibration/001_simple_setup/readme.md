@@ -8,7 +8,7 @@
 
 
 All USRPs (3) are being fed by the same PPS and 10MHz. This is done by using 2-way splitters.
-**No** PLL board was attached,
+**No** PLL board was attached, but the FPGA loopback was used. Hence, LO leakage was exploited.
 
 ### Reference USRP (Tile 2)
 
