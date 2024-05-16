@@ -34,7 +34,6 @@ server_ip = "10.128.52.53"
 MAX_RETRIES = 10
 
 
-
 with open(os.path.join(os.path.dirname(__file__), "cal-settings.yml"), 'r') as file:
     vars = yaml.safe_load(file)
     globals().update(vars)  # update the global variables with the vars in yaml
@@ -245,10 +244,10 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
         logger.debug(f"Amplitude CH0:{avg_ampl[0]:.2f} CH1:{avg_ampl[1]:.2f}")
 
 
-def wait_till_go_from_server(ip, connect=True):
+def wait_till_go_from_server(ip, _connect=True):
 
     # Connect to the publisher's address
-    if connect:
+    if _connect:
         logger.debug("Connecting to server %s.", ip)
         sync_socket.connect(f"tcp://{ip}:{5557}")
         alive_socket.connect(f"tcp://{ip}:{5558}")
@@ -256,7 +255,7 @@ def wait_till_go_from_server(ip, connect=True):
         sync_socket.subscribe("SYNC")
     else:
         logger.debug("Already connected to server %s", ip)
-    
+
     logger.debug("Sending ALIVE")
     alive_socket.send_string("ALIVE")
     # Receives a string format message
