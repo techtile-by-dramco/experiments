@@ -2,11 +2,10 @@
 
 # start RX on both "frontends" (A and B)
 
-# idea is to check the phase diff between 2 USRPS without any compensation
-
 
 # measure the phase difference between both
 
+import argparse
 import logging
 import os
 import sys
@@ -350,7 +349,7 @@ def wait_till_time(usrp, at_time):
     usrp.clear_command_time()
 
 
-def tune_usrp(usrp, freq, channels):
+def tune_usrp(usrp, freq, channels, at_time):
     """Synchronously set the device's frequency.
        If a channel is using an internal LO it will be tuned first
        and every other channel will be manually tuned based on the response.
@@ -359,6 +358,7 @@ def tune_usrp(usrp, freq, channels):
 
     treq = uhd.types.TuneRequest(freq)
 
+    usrp.set_command_time(uhd.types.TimeSpec(at_time))
 
     treq.dsp_freq = 0.0
     treq.target_freq = freq
@@ -372,6 +372,8 @@ def tune_usrp(usrp, freq, channels):
         logger.debug(print_tune_result(usrp.set_rx_freq(treq, chan)))
         logger.debug(print_tune_result(usrp.set_tx_freq(treq, chan)))
 
+    wait_till_time(usrp, at_time) 
+
 
     while not usrp.get_rx_sensor("lo_locked").to_bool():
         time.sleep(0.01)
@@ -384,7 +386,8 @@ def tune_usrp(usrp, freq, channels):
     logger.info("TX LO is locked")
 
 
-def setup(usrp):
+def setup(usrp, server_ip):
+
     rate = RATE
 
     mcr = 20e6
@@ -414,6 +417,8 @@ def setup(usrp):
     usrp.set_rx_gain(LOOPBACK_RX_GAIN, LOOPBACK_RX_CH)
     usrp.set_rx_gain(REF_RX_GAIN, REF_RX_CH)
 
+
+
     # streaming arguments
 
     st_args = uhd.usrp.StreamArgs("fc32", "sc16")
@@ -423,7 +428,18 @@ def setup(usrp):
     tx_streamer = usrp.get_tx_stream(st_args)
     rx_streamer = usrp.get_rx_stream(st_args)
 
-    tune_usrp(usrp, FREQ, channels)
+    # Step1: wait for the last pps time to transition to catch the edge
+    # Step2: set the time at the next pps (synchronous for all boards)
+    # this is better than set_time_next_pps as we wait till the next PPS to transition and after that we set the time.
+    # this ensures that the FPGA has enough time to clock in the new timespec (otherwise it could be too close to a PPS edge)
+    wait_till_go_from_server(server_ip)
+    logger.info("Setting device timestamp to 0...")
+    usrp.set_time_unknown_pps(uhd.types.TimeSpec(0.0))
+    logger.debug("[SYNC] Resetting time.")
+    # we wait 2 seconds to ensure a PPS rising edge occurs and latches the 0.000s value to both USRPs.
+    time.sleep(2)
+
+    tune_usrp(usrp, FREQ, channels, at_time=begin_time)
 
     logger.info(
         f"USRP has been tuned and setup. ({usrp.get_time_now().get_real_secs()})")
@@ -594,17 +610,24 @@ def check_loopback(usrp, tx_streamer, rx_streamer, phase_corr, at_time) -> float
     return phase_to_compensate[LOOPBACK_RX_CH]
 
 
-def tx(usrp, tx_streamer, quit_event):
+def tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr, at_time):
     logger.debug("########### STEP 4 - TX with adjusted phases ###########")
 
     phases = [0.0, 0.0]
     amplitudes = [0.0, 0.0]
 
+    phases[FREE_TX_CH] = phase_corr
     amplitudes[FREE_TX_CH] = 0.8
 
+    start_time = uhd.types.TimeSpec(at_time)
+
+    logger.debug(starting_in(usrp, at_time))
+
+    logger.debug(
+        f"Applying phase correction CH0:{np.rad2deg(phases[0]):.2f} and CH1:{np.rad2deg(phases[1]):.2f}")
 
     tx_thr = tx_thread(usrp, tx_streamer, quit_event,
-                       amplitude=amplitudes, phase=phases)
+                       amplitude=amplitudes, phase=phases, start_time=start_time)
 
     tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
 
@@ -615,26 +638,92 @@ def get_current_time(usrp):
     return usrp.get_time_now().get_real_secs()
 
 
+def start_PLL():
+    import pll
+
+    p = pll.PLL()
+
+    p.set_LED_mode(pll.LED_MODE_LOCK_DETECT)
+
+    p.power_on()
+    p.enable_output()
+
+    freq = FREQ/1e6
+
+    print(f"Frequency {freq}MHz")
+
+    assert freq % 10 == 0, "Frequency should be a muliple of 10MHz"
+
+    p.frequency(freq)
+
+    print("locking PLL", end="")
+    while not p.locked():
+        print(".", end="")
+        time.sleep(0.1)
+
+    print("\nLocked")
+
+
+
+
 def main():
     # "mode_n=integer" # 
-    usrp = uhd.usrp.MultiUSRP("mode_n=integer")
+
+    start_PLL()
+
+    usrp = uhd.usrp.MultiUSRP(
+        "fpga=/home/pi/experiments/00_calibration/usrp_b210_fpga_loopback.bin, mode_n=integer")
     logger.info("Using Device: %s", usrp.get_pp_string())
-    
+    tx_streamer, rx_streamer = setup(usrp, server_ip)
+
+    tx_thr = tx_meta_thr = None
 
     try:
 
-        while 1:
-            tx_streamer, rx_streamer = setup(usrp)
-            tx_thr = tx_meta_thr = None
-            quit_event = threading.Event()
-            tx_thr, tx_meta_thr = tx(usrp, tx_streamer, quit_event)
+        
+        cmd_time = CAPTURE_TIME*2
 
-            time.sleep(2)
-            quit_event.set()
-            if tx_thr:
-                tx_thr.join()
-            if tx_meta_thr:
-                tx_meta_thr.join()
+        tx_rx_phase = measure_loopback(
+            usrp, tx_streamer, rx_streamer, at_time=begin_time+cmd_time)
+        print("DONE")
+
+        phase_corr = - tx_rx_phase
+
+        pll_rx_phase = measure_pll(
+            usrp, rx_streamer, at_time=begin_time+2*cmd_time)
+        print("DONE")
+
+        remainig_phase = check_loopback(usrp, tx_streamer, rx_streamer,
+                       phase_corr=phase_corr, at_time=begin_time+3*cmd_time)
+        
+        calibrated = False
+        logger.debug(f"Remaining phase is {np.rad2deg(remainig_phase)} degrees.")
+        calibrated = (np.rad2deg(remainig_phase) <
+                      1 or np.rad2deg(remainig_phase) > 359)
+        # num_calibrated = 0
+
+        # while not calibrated and num_calibrated < MAX_RETRIES:
+        #     remainig_phase = check_loopback(usrp, tx_streamer, rx_streamer,
+        #                                     phase_corr=phase_corr, at_time=begin_time+(4*(num_calibrated+1))*cmd_time)
+        #     logger.debug(
+        #         f"Remaining phase is {np.rad2deg(remainig_phase)} degrees.")
+        #     calibrated = (np.rad2deg(remainig_phase) <
+        #                   1 or np.rad2deg(remainig_phase) > 359)
+        #     pll_rx_phase = measure_pll(
+        #         usrp, rx_streamer, at_time=get_current_time(usrp)+2)
+        #     if not calibrated:
+        #         phase_corr -= remainig_phase
+        #         logger.debug("Adjusting phase and retrying.")
+        #         num_calibrated += 1
+
+        # if num_calibrated >= MAX_RETRIES:
+        #     logger.error("Could not calibrate")
+
+        print("DONE")
+
+        quit_event = threading.Event()
+        tx_thr, tx_meta_thr = tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr=0, #(pll_rx_phase - tx_rx_phase),
+                                           at_time=begin_time+4*cmd_time)
 
     except KeyboardInterrupt:
 
@@ -657,6 +746,63 @@ def main():
         context.term()
 
         sys.exit(130)
+
+    # time.sleep(DURATION)
+
+    # print(phase_to_compensate)
+
+    # tx_phase = phase_to_compensate[0]
+
+    # pll_phase = phase_to_compensate[1]
+
+    # phase_comp = -tx_phase
+
+    # print(np.rad2deg(phase_comp))
+
+    # threads = []
+
+    # phase_to_compensate = []
+
+    # # Make a signal for the threads to stop running
+
+    # quit_event = threading.Event()
+
+    # rx_thread = threading.Thread(target=rx_ref,
+
+    #                                 args=(usrp, rx_streamer, quit_event, phase_to_compensate))
+
+    # # tx_thread = threading.Thread(target=tx_ref,
+
+    # #                                 args=(usrp, tx_streamer, quit_event, [phase_comp,0.0], [0.0,0.8]))
+
+    # tx_thread = threading.Thread(target=tx_ref,
+
+    #                                 args=(usrp, tx_streamer, quit_event, [0.0,0.0],[0.0,0.8]))
+
+    # threads.append(tx_thread)  # tx_thread.start()
+
+    # tx_thread.setName("TX_thread")  # threads.append(rx_thread)  # rx_thread.start()
+
+    # rx_thread.setName("RX_thread")
+
+    # time.sleep(duration)
+
+    # # Interrupt and join the threads
+
+    # logger.debug("Sending signal to stop!")
+
+    # quit_event.set()
+
+    # for thr in threads:
+
+    #     thr.join()
+
+    # print(phase_to_compensate)
+
+    # pll_phase = phase_to_compensate[0]
+
+    # tx_phase = phase_to_compensate[1]
+
 
 if __name__ == "__main__":
     main()
