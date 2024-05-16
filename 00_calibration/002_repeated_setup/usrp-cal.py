@@ -727,7 +727,7 @@ def main():
                 usrp, rx_streamer, at_time=start_time)
             print("DONE")
 
-            start_time += cmd_time -3.0  # -3.0 emperically determined
+            start_time += cmd_time - 2.0  # -2.0 emperically determined
             remainig_phase = check_loopback(usrp, tx_streamer, rx_streamer,
                                             phase_corr=phase_corr, at_time=start_time)
 
