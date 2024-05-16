@@ -249,7 +249,7 @@ def wait_till_go_from_server(ip):
 
     # Connect to the publisher's address
     sync_socket.connect(f"tcp://{ip}:{5557}")
-    alive_socket.bind(f"tcp://{ip}:{5558}")
+    alive_socket.connect(f"tcp://{ip}:{5558}")
     # Subscribe to topics
     sync_socket.subscribe("SYNC")
     logger.debug("Waiting on SYNC from server %s.", ip)
