@@ -395,7 +395,7 @@ def tune_usrp(usrp, freq, channels, at_time):
     logger.info("TX LO is locked")
 
 
-def setup(usrp, server_ip, _connect):
+def setup(usrp, server_ip, connect=True):
 
     rate = RATE
 
