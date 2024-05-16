@@ -29,34 +29,28 @@ alive_socket = context.socket(zmq.REP)
 alive_socket.bind("tcp://{}:{}".format(host, alive_port))
 
 while True:
-
-    # Wait for specified number of subscribers to send a message
-    print(f"Waiting for {num_subscribers} subscribers to send a message...")
-    messages_received = 0
-    while messages_received < num_subscribers:
-        message = alive_socket.recv_string()
-        print("Received request:", message)
-
-        # Process the request (for example, you could perform some computation here)
-        response = "Response from server"
-
-        # Send the response back to the client
-        alive_socket.send_string(response)
-
-        messages_received += 1
-
-    print("Press Enter to send 'SYNC' message...")
     try:
-        input()
-    except KeyboardInterrupt:
-        print("Exiting...")
-        sys.exit()
+        # Wait for specified number of subscribers to send a message
+        print(f"Waiting for {num_subscribers} subscribers to send a message...")
+        messages_received = 0
+        while messages_received < num_subscribers:
+            message = alive_socket.recv_string()
+            print("Received request:", message)
 
-    time.sleep(delay)
+            # Process the request (for example, you could perform some computation here)
+            response = "Response from server"
 
-    try:
+            # Send the response back to the client
+            alive_socket.send_string(response)
+
+            messages_received += 1
+
+        print(f"sending 'SYNC' message in {delay}s...")
+        time.sleep(delay)
+
         sync_socket.send_string("SYNC")
         print("SYNC")
+
     except KeyboardInterrupt:
         print("Exiting...")
         sys.exit()

@@ -108,8 +108,6 @@ sync_socket = context.socket(zmq.SUB)
 alive_socket = context.socket(zmq.REQ)
 
 
-
-
 def publish(data, channel: int):
     # logger.debug(f"sending data of size {len(data)}")
 
@@ -245,8 +243,6 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
 
 def wait_till_go_from_server(ip):
 
-
-
     # Connect to the publisher's address
     sync_socket.connect(f"tcp://{ip}:{5557}")
     alive_socket.connect(f"tcp://{ip}:{5558}")
@@ -377,8 +373,7 @@ def tune_usrp(usrp, freq, channels, at_time):
         logger.debug(print_tune_result(usrp.set_rx_freq(treq, chan)))
         logger.debug(print_tune_result(usrp.set_tx_freq(treq, chan)))
 
-    wait_till_time(usrp, at_time) 
-
+    wait_till_time(usrp, at_time)
 
     while not usrp.get_rx_sensor("lo_locked").to_bool():
         time.sleep(0.01)
@@ -421,8 +416,6 @@ def setup(usrp, server_ip):
 
     usrp.set_rx_gain(LOOPBACK_RX_GAIN, LOOPBACK_RX_CH)
     usrp.set_rx_gain(REF_RX_GAIN, REF_RX_CH)
-
-
 
     # streaming arguments
 
@@ -546,7 +539,7 @@ def measure_loopback(usrp, tx_streamer, rx_streamer, at_time) -> float:
     # #TODO double check
     # import math
     # def closest_multiple_of(value, base=math.pi/8):
-       
+
     #     if value < 0:
     #         value = value + math.pi*2
 
@@ -648,6 +641,14 @@ def tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr, at_time):
 
     tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
 
+    time.sleep(CAPTURE_TIME + delta(usrp, at_time))
+
+    quit_event.set()
+
+    tx_thr.join()
+
+    tx_meta_thr.join()
+
     return tx_thr, tx_meta_thr
 
 
@@ -681,74 +682,53 @@ def get_current_time(usrp):
 #     print("\nLocked")
 
 
-
-
 def main():
-    # "mode_n=integer" # 
+    # "mode_n=integer" #
 
     # start_PLL()
 
     usrp = uhd.usrp.MultiUSRP(
-        "fpga=/home/pi/experiments/00_calibration/usrp_b210_fpga_loopback.bin, mode_n=integer")
+        "fpga=usrp_b210_fpga_loopback.bin, mode_n=integer")
     logger.info("Using Device: %s", usrp.get_pp_string())
-    tx_streamer, rx_streamer = setup(usrp, server_ip)
-
-    tx_thr = tx_meta_thr = None
-
     try:
 
-        
-        
+        while True:
+            tx_streamer, rx_streamer = setup(usrp, server_ip)
 
-        margin = 10.0
-        cmd_time = CAPTURE_TIME + margin
+            tx_thr = tx_meta_thr = None
 
-        start_time = begin_time + margin
+            margin = 10.0
+            cmd_time = CAPTURE_TIME + margin
 
-        tx_rx_phase = measure_loopback(
-            usrp, tx_streamer, rx_streamer, at_time=start_time)
-        print("DONE")
+            start_time = begin_time + margin
 
-        phase_corr = - tx_rx_phase
+            tx_rx_phase = measure_loopback(
+                usrp, tx_streamer, rx_streamer, at_time=start_time)
+            print("DONE")
 
-        start_time += cmd_time + margin
-        pll_rx_phase = measure_pll(
-            usrp, rx_streamer, at_time=start_time)
-        print("DONE")
+            phase_corr = - tx_rx_phase
 
-        start_time += cmd_time + margin
-        remainig_phase = check_loopback(usrp, tx_streamer, rx_streamer,
-                       phase_corr=phase_corr, at_time=start_time)
-        
-        calibrated = False
-        logger.debug(f"Remaining phase is {np.rad2deg(remainig_phase)} degrees.")
-        calibrated = (np.rad2deg(remainig_phase) <
-                      1 or np.rad2deg(remainig_phase) > 359)
-        # num_calibrated = 0
+            start_time += cmd_time
+            pll_rx_phase = measure_pll(
+                usrp, rx_streamer, at_time=start_time)
+            print("DONE")
 
-        # while not calibrated and num_calibrated < MAX_RETRIES:
-        #     remainig_phase = check_loopback(usrp, tx_streamer, rx_streamer,
-        #                                     phase_corr=phase_corr, at_time=begin_time+(4*(num_calibrated+1))*cmd_time)
-        #     logger.debug(
-        #         f"Remaining phase is {np.rad2deg(remainig_phase)} degrees.")
-        #     calibrated = (np.rad2deg(remainig_phase) <
-        #                   1 or np.rad2deg(remainig_phase) > 359)
-        #     pll_rx_phase = measure_pll(
-        #         usrp, rx_streamer, at_time=get_current_time(usrp)+2)
-        #     if not calibrated:
-        #         phase_corr -= remainig_phase
-        #         logger.debug("Adjusting phase and retrying.")
-        #         num_calibrated += 1
+            start_time += cmd_time
+            remainig_phase = check_loopback(usrp, tx_streamer, rx_streamer,
+                                            phase_corr=phase_corr, at_time=start_time)
 
-        # if num_calibrated >= MAX_RETRIES:
-        #     logger.error("Could not calibrate")
+            calibrated = False
+            logger.debug(
+                f"Remaining phase is {np.rad2deg(remainig_phase)} degrees.")
+            calibrated = (np.rad2deg(remainig_phase) <
+                          1 or np.rad2deg(remainig_phase) > 359)
 
-        print("DONE")
+            print("DONE")
 
-        quit_event = threading.Event()
-        start_time += cmd_time + margin
-        tx_thr, tx_meta_thr = tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr=(pll_rx_phase - tx_rx_phase),
-                                           at_time=start_time)
+            quit_event = threading.Event()
+            start_time += cmd_time
+            tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr=(pll_rx_phase - tx_rx_phase),
+                         at_time=start_time)
 
     except KeyboardInterrupt:
 
@@ -769,65 +749,9 @@ def main():
 
         iq_socket.close()
         context.term()
-        time.sleep(0.1) # give it some time to close
+        time.sleep(0.1)  # give it some time to close
 
         sys.exit(130)
-
-    # time.sleep(DURATION)
-
-    # print(phase_to_compensate)
-
-    # tx_phase = phase_to_compensate[0]
-
-    # pll_phase = phase_to_compensate[1]
-
-    # phase_comp = -tx_phase
-
-    # print(np.rad2deg(phase_comp))
-
-    # threads = []
-
-    # phase_to_compensate = []
-
-    # # Make a signal for the threads to stop running
-
-    # quit_event = threading.Event()
-
-    # rx_thread = threading.Thread(target=rx_ref,
-
-    #                                 args=(usrp, rx_streamer, quit_event, phase_to_compensate))
-
-    # # tx_thread = threading.Thread(target=tx_ref,
-
-    # #                                 args=(usrp, tx_streamer, quit_event, [phase_comp,0.0], [0.0,0.8]))
-
-    # tx_thread = threading.Thread(target=tx_ref,
-
-    #                                 args=(usrp, tx_streamer, quit_event, [0.0,0.0],[0.0,0.8]))
-
-    # threads.append(tx_thread)  # tx_thread.start()
-
-    # tx_thread.setName("TX_thread")  # threads.append(rx_thread)  # rx_thread.start()
-
-    # rx_thread.setName("RX_thread")
-
-    # time.sleep(duration)
-
-    # # Interrupt and join the threads
-
-    # logger.debug("Sending signal to stop!")
-
-    # quit_event.set()
-
-    # for thr in threads:
-
-    #     thr.join()
-
-    # print(phase_to_compensate)
-
-    # pll_phase = phase_to_compensate[0]
-
-    # tx_phase = phase_to_compensate[1]
 
 
 if __name__ == "__main__":
