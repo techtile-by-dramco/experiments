@@ -698,13 +698,14 @@ def main():
 
     # start_PLL()
 
-    usrp = uhd.usrp.MultiUSRP(
-        "fpga=usrp_b210_fpga_loopback.bin, mode_n=integer")
-    logger.info("Using Device: %s", usrp.get_pp_string())
+    
     _connect = True
     try:
 
         while True:
+            usrp = uhd.usrp.MultiUSRP(
+                "fpga=usrp_b210_fpga_loopback.bin, mode_n=integer")
+            logger.info("Using Device: %s", usrp.get_pp_string())
             tx_streamer, rx_streamer = setup(usrp, server_ip, connect=_connect)
 
             _connect = False
@@ -748,6 +749,7 @@ def main():
             start_time += cmd_time - 1.0  # -1.0 emperically determined
             tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr=(pll_rx_phase - tx_rx_phase),
                          at_time=start_time)
+            del usrp
 
     except KeyboardInterrupt:
 
