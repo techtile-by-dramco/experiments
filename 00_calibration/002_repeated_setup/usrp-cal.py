@@ -138,6 +138,12 @@ def send_rx(samples):
     publish(angles[1], 1)
 
 
+def circmedian(angs):
+    pdists = angs[np.newaxis, :] - angs[:, np.newaxis]
+    pdists = (pdists + np.pi) % (2 * np.pi) - np.pi
+    pdists = np.abs(pdists).sum(1)
+    return angs[np.argmin(pdists)]
+
 def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_time=None):
     # https://files.ettus.com/manual/page_sync.html#sync_phase_cordics
 
@@ -230,13 +236,18 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
         avg_angles = circmean(np.angle(samples[:, int(RATE//10):]), axis=1)
         var_angles = circvar(np.angle(samples[:, int(RATE//10):]), axis=1)
 
+        median_angles0 = circmedian(np.angle(samples[0, int(RATE//10):]))
+        median_angles1 = circmedian(np.angle(samples[1, int(RATE//10):]))
+
         phase_to_compensate.extend(avg_angles)
 
         avg_ampl = np.mean(np.abs(samples), axis=1)
         var_ampl = np.var(np.abs(samples), axis=1)
 
         logger.debug(
-            f"Angle CH0:{np.rad2deg(avg_angles[0]):.2f} CH1:{np.rad2deg(avg_angles[1]):.2f}")
+            f"Angle (mean) CH0:{np.rad2deg(avg_angles[0]):.2f} CH1:{np.rad2deg(avg_angles[1]):.2f}")
+        logger.debug(
+            f"Angle (median) CH0:{np.rad2deg(median_angles0):.2f} CH1:{np.rad2deg(median_angles1):.2f}")
         logger.debug(
             f"Angle var CH0:{var_angles[0]:.2f} CH1:{var_angles[1]:.2f}")
         # keep this just below this final stage
