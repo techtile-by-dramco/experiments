@@ -751,7 +751,6 @@ def main():
             start_time += cmd_time - 1.0  # -1.0 emperically determined
             tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr=(pll_rx_phase - tx_rx_phase),
                          at_time=start_time)
-            del usrp
             time.sleep(10)
 
     except KeyboardInterrupt:
