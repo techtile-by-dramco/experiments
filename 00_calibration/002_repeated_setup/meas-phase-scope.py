@@ -9,6 +9,7 @@ ip = "192.108.0.251"
 
 rm = visa.ResourceManager()
 scope = rm.open_resource(f'TCPIP::{ip}::4000::SOCKET', write_termination='\n', read_termination='\n')
+scope.timeout = None # to ensure no error when waiting for query results
 print(scope.query('*IDN?'))
 
 
