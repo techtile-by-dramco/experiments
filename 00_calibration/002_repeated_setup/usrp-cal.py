@@ -236,8 +236,8 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
         avg_angles = circmean(np.angle(samples[:, int(RATE//10):]), axis=1)
         var_angles = circvar(np.angle(samples[:, int(RATE//10):]), axis=1)
 
-        median_angles0 = circmedian(np.angle(samples[0, int(RATE//10):]))
-        median_angles1 = circmedian(np.angle(samples[1, int(RATE//10):]))
+        # median_angles0 = circmedian(np.angle(samples[0, int(RATE//10):]))
+        # median_angles1 = circmedian(np.angle(samples[1, int(RATE//10):]))
 
         phase_to_compensate.extend(avg_angles)
 
@@ -246,8 +246,8 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
 
         logger.debug(
             f"Angle (mean) CH0:{np.rad2deg(avg_angles[0]):.2f} CH1:{np.rad2deg(avg_angles[1]):.2f}")
-        logger.debug(
-            f"Angle (median) CH0:{np.rad2deg(median_angles0):.2f} CH1:{np.rad2deg(median_angles1):.2f}")
+        # logger.debug(
+        #     f"Angle (median) CH0:{np.rad2deg(median_angles0):.2f} CH1:{np.rad2deg(median_angles1):.2f}")
         logger.debug(
             f"Angle var CH0:{var_angles[0]:.2f} CH1:{var_angles[1]:.2f}")
         # keep this just below this final stage
