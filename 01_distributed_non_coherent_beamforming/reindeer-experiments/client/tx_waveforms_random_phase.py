@@ -46,14 +46,17 @@ def parse_args():
 
     if args.config:
         # read from config file
-        with open("config.yml", "r") as yaml_file:
+        with open("config.yaml", "r") as yaml_file:
             config_data = yaml.safe_load(yaml_file)["client"]["hosts"]
             print(config_data)
             if config_data["all"]:
                 update(args, config_data["all"])
-                # args.config should contain the ansible hostname
-            if config_data[args.config]:
-                update(args, config_data[args.config])
+                # args.config should contain the ansible hostname 
+            try:
+                if config_data[args.config]:
+                    update(args, config_data[args.config])
+            except:
+                None
             
     print(args)
     return args

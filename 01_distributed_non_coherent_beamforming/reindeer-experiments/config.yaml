@@ -15,6 +15,7 @@ client: # CLIENT
   tiles: multiON # Define tiles that should be accessed by ansible
   script: tx_waveforms_random_phase.py # ENSURE script is under folder *** <<ROOT-EXP>>/client/<<NAME>>.py ***
   # ansibletiles: segmentA
+  ip: 192.108.0.204
   hosts:
     all:
       freq: 917000000.0

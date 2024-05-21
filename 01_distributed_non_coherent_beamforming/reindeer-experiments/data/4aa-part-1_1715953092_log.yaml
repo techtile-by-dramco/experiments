@@ -1,0 +1,42 @@
+playbook_copy_files:
+  Copy config file:
+  - T01
+  Copy script file:
+  - T01
+  Ensure exp directory exists:
+  - T01
+  Ensure experiment name directory exists:
+  - T01
+  tile_states:
+    changed:
+    - T01
+    dark: []
+    failures: []
+    ignored: []
+    ok:
+    - T01
+    processed:
+    - T01
+    rescued: []
+    skipped: []
+playbook_start_client_script:
+  Execute specified client script in the background:
+  - T01
+  Gathering Facts:
+  - T01
+  Get the current hostname:
+  - T01
+  Print the variable:
+  - T01
+  tile_states:
+    changed:
+    - T01
+    dark: []
+    failures: []
+    ignored: []
+    ok:
+    - T01
+    processed:
+    - T01
+    rescued: []
+    skipped: []
