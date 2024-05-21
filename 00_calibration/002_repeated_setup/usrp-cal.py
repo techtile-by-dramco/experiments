@@ -233,6 +233,7 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
         phase_to_compensate.extend(avg_angles)
 
         avg_ampl = np.mean(np.abs(samples), axis=1)
+        var_ampl = np.var(np.abs(samples), axis=1)
 
         logger.debug(
             f"Angle CH0:{np.rad2deg(avg_angles[0]):.2f} CH1:{np.rad2deg(avg_angles[1]):.2f}")
@@ -240,6 +241,7 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
             f"Angle var CH0:{var_angles[0]:.2f} CH1:{var_angles[1]:.2f}")
         # keep this just below this final stage
         logger.debug(f"Amplitude CH0:{avg_ampl[0]:.2f} CH1:{avg_ampl[1]:.2f}")
+        logger.debug(f"Amplitude var CH0:{var_ampl[0]:.2f} CH1:{var_ampl[1]:.2f}")
 
 
 def wait_till_go_from_server(ip, _connect=True):
@@ -750,6 +752,7 @@ def main():
             tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr=(pll_rx_phase - tx_rx_phase),
                          at_time=start_time)
             del usrp
+            time.sleep(10)
 
     except KeyboardInterrupt:
 
