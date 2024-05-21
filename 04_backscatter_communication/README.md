@@ -71,6 +71,7 @@ The MISO backscattering experiments are conducted in the context of the European
  * Find firmware experiment 4b part 2 [here](https://github.com/techtile-by-dramco/EN-device-backscatter/tree/main/firmware-vscode-exp-4b-part-2)
  * Try to demodulate signal with multiple receivers
  	* ❗ ToDo  create new demodulation script '>>NAME<<.py' + ❗ADD FILE LOCATION❗ BERT C.
+  	* Explanation of the script can be found here.
   	* Previous work is located [here](https://github.com/techtile-by-dramco/EN-device-backscatter/tree/main/gnuradio/receiver)
 
 ##### Detail experiment desciption
