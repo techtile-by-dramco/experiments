@@ -16,7 +16,7 @@ def ansible_start_client_script(user_name, ansible_config_yaml, client_config_ya
     r = ansible_runner.run(
     inventory=f"/home/{user_name}/ansible/inventory/{ansible_config_yaml.get('inventory')}",
     playbook=f"/home/{user_name}/ansible/experiments/{ansible_config_yaml.get('start_client_script')}",
-    extravars={"script": client_config_yaml.get('start_client_script'), 
+    extravars={"script": client_config_yaml.get('script'), 
                 "tiles": client_config_yaml.get('tiles'), 
                 "zmq_ip": client_config_yaml.get('ip'),
                 "experiment_name": f"{client_experiment_name}",
