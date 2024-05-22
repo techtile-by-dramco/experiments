@@ -2,6 +2,7 @@ import time  # std module
 import pyvisa as visa  # http://github.com/hgrecco/pyvisa
 import numpy as np  # http://www.numpy.org/
 from scipy.stats import circmean
+import zmq
 
 from enum import Enum
 
@@ -41,9 +42,27 @@ meas_data = []
 
 num_valid_in_meas = 0
 
+context = zmq.Context()
+sync_socket = context.socket(zmq.SUB)
+sync_socket.connect(f"tcp://10.128.52.53:{5557}")
+sync_socket.subscribe("")
+meas_id = sync_socket.recv_string()
 
+# Create a poller
+poller = zmq.Poller()
+poller.register(sync_socket, zmq.POLLIN)
+
+meas_id = 0
 
 while 1:
+
+    # Poll the socket with a timeout of 1 second (1000 ms)
+    socks = dict(poller.poll(1000))
+
+    if sync_socket in socks and socks[sync_socket] == zmq.POLLIN:
+        # Message is available
+        meas_id = sync_socket.recv_string()
+        print("Received message:", meas_id)
 
     res = scope.query(f"MEASUrement:{meas_name}:RESUlts:HISTory:MEAN?")
 
@@ -64,7 +83,7 @@ while 1:
         meas_ongoing = False
         if num_valid_in_meas > 10:
             # skip the last and first 5 meas
-            print(np.rad2deg(circmean(np.deg2rad(meas_data[2:-2]))))
+            print(f"{meas_id} {np.rad2deg(circmean(np.deg2rad(meas_data[2:-2])))}")
         meas_data = []
         num_valid_in_meas = 0
     
