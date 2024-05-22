@@ -83,6 +83,7 @@ if __name__ == '__main__':
     context = zmq.Context()
     sub_socket = context.socket(zmq.SUB)
     sub_socket.connect(f"tcp://{info.get('ip')}:{info.get('port')}")
+    print(f"Connecting to {info.get('ip')}:{info.get('port')}")
     sub_socket.setsockopt_string(zmq.SUBSCRIBE, "")
 
     #   Subscribe to the localisation system

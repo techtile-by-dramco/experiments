@@ -9,10 +9,32 @@
 ### 1️⃣ Equipment
 - Techtile base infrastructure N tile with RPI + USRP + PSU
 - Max. 280 path antennas (917 MHz) can be used for these measurements.
-- (PPS and 10 MHz are not used, thus no frequency synchronisation)
+- PPS and 10 MHz required for these measurements.
 
 ### 2️⃣ Controlling Techtile transmitters (non coherent)
 
+#### Experiment details
+
+Tiles of the ceiling are involved in following measurements.
+
+Via this ZMQ [script](https://github.com/techtile-by-dramco/ansible/blob/main/src/server/random_phases_ZMQ.py), the server can take control over client phases and start captures.
+- Send "init" --> The server will start all the client scripts.
+- Send "start"
+  - --> The client script will start the transmission. (Only if client script is active.)
+  - --> The server will start logging the 'measurement data'.
+- Send "stop" --> Alle clients scripts will be terminated.
+- Send "close" --> Close the server script.
+
+#### Script locations
+
+| Script name | Info | Location |
+|-|-|-|
+| Client (RPI) script | Controlling USRP | [tx_waveforms_random_phase.py](https://github.com/techtile-by-dramco/ansible/blob/main/src/client/tx_waveforms_random_phase.py) |
+| Ansible copy files | Copy config.yaml and SCRIPT_NAME.py to all hosts/clients | [copy_client_script.yaml.yaml](https://github.com/techtile-by-dramco/ansible/blob/main/experiments/copy_client_script.yaml) |
+| Ansible start up scripts | Start up all client scripts | [start_client_script.yaml](https://github.com/techtile-by-dramco/ansible/blob/main/experiments/start_client_script.yaml) |
+| Measurement script | Control capture EP/scope/location data |
+
+<!--
 ❗❗ Change name of the scripts
 
 Start transmitters
@@ -23,6 +45,7 @@ Stop transmitters
 ```
 ansible-playbook -i inventory/hosts.yaml kill-transmitter.yaml -e tiles=walls"
 ```
+-->
 
 ## Receiver side
 
@@ -54,20 +77,12 @@ The location will be determined via Qualisys system.
 
 ## Combined to perform measurements
 
-Script ... combines following scripts:
+Server script [server/main.py](https://github.com/techtile-by-dramco/experiments/blob/main/01_distributed_non_coherent_beamforming/reindeer-experiments/server/main.py) supports following features:
 - TX Ansible instructions to control Techtile transmitters
 - RX **Location script**
 - RX **RSS oscilloscope script**
 - RX **Energy profiler data**
 
-## Experiment details
-
-Tiles of the ceiling are involved in following measurements.
-
-Via this ZMQ [script](https://github.com/techtile-by-dramco/ansible/blob/main/src/server/random_phases_ZMQ.py), the server can take control over client phases and start captures.
-- Send "start" --> Send "start" causes new phases at both channels.
-- Send "stop" --> Send "stop" causes all clients scripts are terminated.
-- Send "close" --> Close this script
 
 ### 1️⃣ Experiment 4aa PART 1: 🧪 >> Transmit signals with exactly the same frequency << 🧪
 
@@ -75,21 +90,50 @@ Via this ZMQ [script](https://github.com/techtile-by-dramco/ansible/blob/main/sr
 - Proof occurance of dead spots in the room (This is expected, caused by frequency synchronization)
 - Measure harvested power with energy profiler
 
-#### Script locations
-| Script name | Info | location | Remark |
-|-|-|-|-|
-| Client (RPI) script | Controlling USRP | [tx_waveforms_random_phase.py](https://github.com/techtile-by-dramco/ansible/blob/main/src/client/tx_waveforms_random_phase.py) | Ensure it is copied to all RPIs |
-| Ansible YAML | Start up all client scripts | [start_transmitters_random_phase.yaml](https://github.com/techtile-by-dramco/ansible/blob/main/start_transmitters_random_phase.yaml) | |
-| Measurement script | Control capture EP/scope/location data | | |
-
+Ceiling tile [A -> G][5 -> 10] could be set by using the 'all' function.
+```
+client:
+  hosts:
+    all:
+      freq: 920000000.0
+      gain: 70
+      channels: [0, 1]
+      duration: 3600
+```
 Measurement settings
-- gain 70
-- fixed frequency 920 MHz
+- USRP gain 70
+- LO frequency 920 MHz
+- Duration 3600 seconds (should be sufficient high, otherwize the relative phases between multiple USRPs will change.)
 
 ### 2️⃣ Experiment 4aa PART 2: 🧪 >> Transmit signals with exactly the same frequency and change phase randomly << 🧪
 
+Ceiling tile [A -> G][5 -> 10] could be set by using the 'all' function.
+```
+client:
+  hosts:
+    all:
+      freq: 917000000.0
+      gain: 80
+      channels: [0, 1]
+      duration: 1
+```
+
 ### 3️⃣ Experiment 4aa PART 3: 🧪 >> Random beamforming << 🧪
 
+Ceiling tile [A -> G][5 -> 10] should be set individually by selecting a different frequency for every tile.
+```
+client:
+  hosts:
+    all:
+      freq: 917000000.0
+      gain: 80
+      channels: [0, 1]
+      duration: 1
+    G05:
+      freq: 917000000.0
+    G06:
+      freq: 917500000.0
+```
 
 ## Results
 
