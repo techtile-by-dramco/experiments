@@ -288,7 +288,7 @@ def wait_till_go_from_server(ip, _connect=True):
     sync_socket.connect(f"tcp://{ip}:{5557}")
     alive_socket.connect(f"tcp://{ip}:{5558}")
     # Subscribe to topics
-    sync_socket.subscribe("SYNC")
+    sync_socket.subscribe("")
 
     logger.debug("Sending ALIVE")
     alive_socket.send_string("ALIVE")
