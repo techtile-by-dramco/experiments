@@ -279,6 +279,9 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
 
 def wait_till_go_from_server(ip, _connect=True):
 
+
+    global meas_id
+    
     # Connect to the publisher's address
     logger.debug("Connecting to server %s.", ip)
     sync_socket = context.socket(zmq.SUB)
@@ -294,6 +297,8 @@ def wait_till_go_from_server(ip, _connect=True):
     alive_socket.send_string("ALIVE")
     # Receives a string format message
     logger.debug("Waiting on SYNC from server %s.", ip)
+    
+
     meas_id = sync_socket.recv_string()
 
     logger.debug(meas_id)
