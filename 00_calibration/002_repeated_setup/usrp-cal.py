@@ -19,6 +19,8 @@ import yaml
 import zmq
 from scipy.stats import circmean, circvar
 from datetime import datetime, timedelta
+import socket
+
 
 CMD_DELAY = 0.05  # set a 50mS delay in commands
 # default values which will be overwritten by the conf YML
@@ -32,6 +34,13 @@ REF_RX_GAIN = 22  # empirical determined 22 without splitter, 27 with splitter
 CAPTURE_TIME = 10
 server_ip = "10.128.52.53"
 MAX_RETRIES = 10
+
+
+MEAS_TYPE_LOOPBACK = "LB"
+MEAS_TYPE_PLL = "PLL"
+MEAS_TYPE_LOOPBACK_CHECK = "LBCK"
+MEAS_TYPE_PLL_CHECK = "PLLCK"
+MEAS_TYPE_PHASE_DIFF = "PDIFF"
 
 
 with open(os.path.join(os.path.dirname(__file__), "cal-settings.yml"), 'r') as file:
@@ -107,6 +116,18 @@ iq_socket = context.socket(zmq.PUB)
 iq_socket.bind(f"tcp://*:{50001}")
 
 
+def write_data(meas_type, data):
+    # Connect to the publisher's address
+    logger.debug("Writing data to server %s.", server_ip)
+
+    data_socket = context.socket(zmq.REQ)
+    data_socket.connect(f"tcp://{server_ip}:{5559}")
+
+    # TX_ANGLE_CH0 ; TX_ANGLE_CH1 ; RX_ANGLE_CH0 ; RX_ANGLE_CH1 ; RX_AMPL_CH0 ; RX_AMPL_CH1
+    # 4 to remove "rpi-" in the name
+    data_socket.send_string(socket.gethostname()[4:]+";"+meas_type+";".join(data))
+
+    data_socket.close()
 
 
 def publish(data, channel: int):
@@ -572,6 +593,10 @@ def measure_loopback(usrp, tx_streamer, rx_streamer, at_time) -> float:
     # # ensure it is a multiple of 45 degrees, as we would expect @ this frequency given the dividers
     # phase_to_compensate[LOOPBACK_RX_CH] = closest_multiple_of(phase_to_compensate[LOOPBACK_RX_CH])
 
+    # TX_ANGLE_CH0 ; TX_ANGLE_CH1 ; RX_ANGLE_CH0 ; RX_ANGLE_CH1 ; RX_AMPL_CH0 ; RX_AMPL_CH1
+    write_data(MEAS_TYPE_LOOPBACK, [
+               0.0, 0.0, phase_to_compensate[0], phase_to_compensate[1],0.0,0.0]) #TODO ADD AMPL
+
     return phase_to_compensate[LOOPBACK_RX_CH]
 
 
@@ -599,6 +624,10 @@ def measure_pll(usrp, rx_streamer, at_time) -> float:
     rx_thr.join()
 
     pll_phase = phase_to_compensate[REF_RX_CH]
+
+    # TX_ANGLE_CH0 ; TX_ANGLE_CH1 ; RX_ANGLE_CH0 ; RX_ANGLE_CH1 ; RX_AMPL_CH0 ; RX_AMPL_CH1
+    write_data(MEAS_TYPE_PLL, [
+               0.0, 0.0, phase_to_compensate[0], phase_to_compensate[1], 0.0, 0.0])  # TODO ADD AMPL
 
     return pll_phase
 
@@ -640,6 +669,10 @@ def check_loopback(usrp, tx_streamer, rx_streamer, phase_corr, at_time) -> float
     rx_thr.join()
 
     tx_meta_thr.join()
+
+    # TX_ANGLE_CH0 ; TX_ANGLE_CH1 ; RX_ANGLE_CH0 ; RX_ANGLE_CH1 ; RX_AMPL_CH0 ; RX_AMPL_CH1
+    write_data(MEAS_TYPE_LOOPBACK_CHECK, [
+               phases[0], phases[1], phase_to_compensate[0], phase_to_compensate[1], 0.0, 0.0])  # TODO ADD AMPL
 
     return phase_to_compensate[LOOPBACK_RX_CH]
 
