@@ -125,7 +125,7 @@ def write_data(meas_type, data):
 
     # TX_ANGLE_CH0 ; TX_ANGLE_CH1 ; RX_ANGLE_CH0 ; RX_ANGLE_CH1 ; RX_AMPL_CH0 ; RX_AMPL_CH1
     # 4 to remove "rpi-" in the name
-    data = socket.gethostname()[4:]+";"+meas_type+";".join(data)
+    data = socket.gethostname()[4:]+";"+meas_type + ";".join(str(v) for v in data)
     logger.debug("Writing data %s.", data)
     data_socket.send_string(data)
 
