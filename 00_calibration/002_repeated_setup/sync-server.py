@@ -53,6 +53,7 @@ data_socket.bind("tcp://{}:{}".format(host, data_port))
 
 
 def parse_data(data_str):
+    print(data_str)
     # format
     # TILE ; MEAS_TYPE ; TX_ANGLE_CH0 ; TX_ANGLE_CH1 ; RX_ANGLE_CH0 ; RX_ANGLE_CH1 ; RX_AMPL_CH0 ; RX_AMPL_CH1 ; PHASE_DIFF
     vals = data_str.split(";")
@@ -70,11 +71,11 @@ script_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)))
 
 
 # Get current UTC timestamp
-timestamp = datetime.now(datetime.UTC).strftime("%Y-%m-%d_%H-%M-%S")
+# timestamp = datetime.utcnow().strftime("%Y-%m-%d_%H-%M-%S")
 
-file_path = os.path.join(script_dir, f"data_{timestamp}.csv")
+# file_path = os.path.join(script_dir, f"data_{timestamp}.csv")
 
-print(f"Saving to {file_path}")
+# print(f"Saving to {file_path}")
 
 
 # TILE ; MEAS_TYPE ; TX_ANGLE_CH0 ; TX_ANGLE_CH1 ; RX_ANGLE_CH0 ; RX_ANGLE_CH1 ; RX_AMPL_CH0 ; RX_AMPL_CH1
@@ -85,14 +86,15 @@ fields = ["meas_id", "tile", "meas_type", "tx_angle_ch0"
           "rx_ampl_ch0",
           "rx_ampl_ch1", "phase_diff"]
 
+try:
+     
+    # # with open(file_path, 'w') as file:
+    #     csvwriter = csv.writer(file)
 
-with open(file_path, 'w') as file:
-    csvwriter = csv.writer(file)
-
-    csvwriter.writerow(fields)
+    #     csvwriter.writerow(fields)
 
     while True:
-        try:
+        
             # Wait for specified number of subscribers to send a message
             print(
                 f"Waiting for {num_subscribers} subscribers to send a message...")
@@ -112,28 +114,29 @@ with open(file_path, 'w') as file:
             print(f"sending 'SYNC' message in {delay}s...")
             time.sleep(delay)
 
-            sync_socket.send_string("SYNC")
-            print("SYNC")
             meas_id = meas_id+1
+            sync_socket.send_string(str(meas_id))
+            print("SYNC")
+                
+                # collect the data from the subscribers and the scope
+                # each rpi transmits 4 measurements per meas
+                # for _ in range(num_subscribers*4):
+                #     print("waiting for data...",end="")
+                #     data_str = data_socket.recv_string()
+                #     print("done.")
+                #     data = parse_data(data_str)
 
-            # collect the data from the subscribers and the scope
-            # each rpi transmits 4 measurements per meas
-            for _ in range(num_subscribers*4):
-                print("waiting for data...",end="")
-                data_str = data_socket.recv_string()
-                print("done.")
-                data = parse_data(data_str)
+                #     row = [meas_id] + data
 
-                rows = [meas_id] + data
+                #     print(row)
 
-                csvwriter.writerows(rows)
-            file.flush()
-
-        except KeyboardInterrupt:
-            print("Exiting...")
-            sys.exit()
-        finally:
-            data_socket.close()
-            alive_socket.close()
-            sync_socket.close()
-            context.term()
+                #     csvwriter.writerow(row)
+                # file.flush()
+except KeyboardInterrupt:
+    print("Exiting...")
+    sys.exit()
+finally:
+    data_socket.close()
+    alive_socket.close()
+    sync_socket.close()
+    context.term()
