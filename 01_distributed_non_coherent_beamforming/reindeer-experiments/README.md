@@ -77,7 +77,7 @@ The location will be determined via Qualisys system.
 
 ## Combined to perform measurements
 
-Script ... combines following scripts:
+Server script [server/main.py](https://github.com/techtile-by-dramco/experiments/blob/main/01_distributed_non_coherent_beamforming/reindeer-experiments/server/main.py) supports following features:
 - TX Ansible instructions to control Techtile transmitters
 - RX **Location script**
 - RX **RSS oscilloscope script**
