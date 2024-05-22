@@ -117,7 +117,7 @@ iq_socket = context.socket(zmq.PUB)
 
 iq_socket.bind(f"tcp://*:{50001}")
 
-file = open('log.txt', 'w')
+file = open('log.txt', 'a')
 
 
 def write_data(meas_type, data):
