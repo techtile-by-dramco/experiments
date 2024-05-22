@@ -42,6 +42,10 @@ MEAS_TYPE_LOOPBACK_CHECK = "LBCK"
 MEAS_TYPE_PLL_CHECK = "PLLCK"
 MEAS_TYPE_PHASE_DIFF = "PDIFF"
 
+global meas_id
+
+meas_id = 0
+
 
 with open(os.path.join(os.path.dirname(__file__), "cal-settings.yml"), 'r') as file:
     vars = yaml.safe_load(file)
@@ -115,21 +119,18 @@ iq_socket = context.socket(zmq.PUB)
 
 iq_socket.bind(f"tcp://*:{50001}")
 
+file = open('log.txt', 'w')
+
 
 def write_data(meas_type, data):
     # Connect to the publisher's address
-    logger.debug("Writing data to server %s.", server_ip)
-
-    data_socket = context.socket(zmq.REQ)
-    data_socket.connect(f"tcp://{server_ip}:{5559}")
-
+    logger.debug("Writing data to local file.")
+    
     # TX_ANGLE_CH0 ; TX_ANGLE_CH1 ; RX_ANGLE_CH0 ; RX_ANGLE_CH1 ; RX_AMPL_CH0 ; RX_AMPL_CH1
     # 4 to remove "rpi-" in the name
-    data = socket.gethostname()[4:]+";"+meas_type + ";"+";".join(str(v) for v in data)
+    data = str(meas_id)+socket.gethostname()[4:]+";"+meas_type + ";"+";".join(str(v) for v in data)
     logger.debug("Writing data %s.", data)
-    data_socket.send_string(data)
-
-    data_socket.close()
+    file.write(data) 
 
 
 def publish(data, channel: int):
@@ -295,7 +296,7 @@ def wait_till_go_from_server(ip, _connect=True):
     alive_socket.send_string("ALIVE")
     # Receives a string format message
     logger.debug("Waiting on SYNC from server %s.", ip)
-    sync_socket.recv_string()
+    meas_id = sync_socket.recv_string()
 
     alive_socket.close()
     sync_socket.close()
@@ -813,6 +814,7 @@ def main():
 
         iq_socket.close()
         context.term()
+        file.close()
         time.sleep(0.1)  # give it some time to close
 
         sys.exit(0)
