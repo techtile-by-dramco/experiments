@@ -114,7 +114,7 @@ try:
             time.sleep(delay)
 
             meas_id = meas_id+1
-            sync_socket.send_string(f"number {meas_id}")  # str(meas_id)
+            sync_socket.send_string(str(meas_id))  # str(meas_id)
             print(f"SYNC {meas_id}")
                 
                 # collect the data from the subscribers and the scope
