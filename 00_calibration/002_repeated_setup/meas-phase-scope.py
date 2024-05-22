@@ -62,11 +62,11 @@ while 1:
         # stop previous measurements
         print()
         meas_ongoing = False
-        if num_valid_in_meas > 20:
+        if num_valid_in_meas > 10:
             # skip the last and first 5 meas
-            print(np.rad2deg(circmean(np.deg2rad(meas_data[5:-5]))))
+            print(np.rad2deg(circmean(np.deg2rad(meas_data[2:-2]))))
         meas_data = []
         num_valid_in_meas = 0
     
-    time.sleep(1)
+    time.sleep(0.5)
 
