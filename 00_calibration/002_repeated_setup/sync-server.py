@@ -86,15 +86,14 @@ fields = ["meas_id", "tile", "meas_type", "tx_angle_ch0"
           "rx_ampl_ch0",
           "rx_ampl_ch1", "phase_diff"]
 
-try:
+
      
     # # with open(file_path, 'w') as file:
     #     csvwriter = csv.writer(file)
 
     #     csvwriter.writerow(fields)
-
+try:
     while True:
-        
             # Wait for specified number of subscribers to send a message
             print(
                 f"Waiting for {num_subscribers} subscribers to send a message...")
@@ -115,8 +114,8 @@ try:
             time.sleep(delay)
 
             meas_id = meas_id+1
-            sync_socket.send_string(str(meas_id))
-            print("SYNC")
+            sync_socket.send_string(f"number {meas_id}")  # str(meas_id)
+            print(f"SYNC {meas_id}")
                 
                 # collect the data from the subscribers and the scope
                 # each rpi transmits 4 measurements per meas
