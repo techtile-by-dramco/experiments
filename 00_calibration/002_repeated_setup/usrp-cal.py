@@ -42,8 +42,6 @@ MEAS_TYPE_LOOPBACK_CHECK = "LBCK"
 MEAS_TYPE_PLL_CHECK = "PLLCK"
 MEAS_TYPE_PHASE_DIFF = "PDIFF"
 
-global meas_id
-
 meas_id = 0
 
 
@@ -297,6 +295,8 @@ def wait_till_go_from_server(ip, _connect=True):
     # Receives a string format message
     logger.debug("Waiting on SYNC from server %s.", ip)
     meas_id = sync_socket.recv_string()
+
+    logger.debug(meas_id)
 
     alive_socket.close()
     sync_socket.close()
