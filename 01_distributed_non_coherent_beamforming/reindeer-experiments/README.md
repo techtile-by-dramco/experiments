@@ -88,8 +88,33 @@ Measurement settings
 
 ### 2️⃣ Experiment 4aa PART 2: 🧪 >> Transmit signals with exactly the same frequency and change phase randomly << 🧪
 
+Ceiling tile [A -> G][5 -> 10] could be set by using the all function.
+```
+client:
+  hosts:
+    all:
+      freq: 917000000.0
+      gain: 80
+      channels: [0, 1]
+      duration: 1
+```
+
 ### 3️⃣ Experiment 4aa PART 3: 🧪 >> Random beamforming << 🧪
 
+Ceiling tile [A -> G][5 -> 10] should be set individually by selecting a different frequency for every tile.
+```
+client:
+  hosts:
+    all:
+      freq: 917000000.0
+      gain: 80
+      channels: [0, 1]
+      duration: 1
+    G05:
+      freq: 917000000.0
+    G06:
+      freq: 917500000.0
+```
 
 ## Results
 
