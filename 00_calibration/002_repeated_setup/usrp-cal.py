@@ -294,9 +294,9 @@ def wait_till_go_from_server(ip, _connect=True):
     alive_socket.send_string("ALIVE")
     # Receives a string format message
     logger.debug("Waiting on SYNC from server %s.", ip)
-    msg = sync_socket.recv_string()
+    meas_id = sync_socket.recv_string()
 
-    logger.debug(msg)
+    logger.debug(meas_id)
 
     alive_socket.close()
     sync_socket.close()
