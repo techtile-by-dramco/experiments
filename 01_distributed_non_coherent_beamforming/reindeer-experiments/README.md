@@ -1,8 +1,6 @@
 # Reindeer experiments 🧪
 
-❗❗ script should be exectuted in Python on LINUX server
-
-▶️ First test exectuted with vitual machine (Jarne)
+▶️ These experiments are conducted for the european Reindeer project. The main objective here is to find out how much energy is available in the Techtile space at initial access for a certain energy neutral device. A subset of tiles is taken to perform the measurements. Three techniques to provide the energy during the initial access phase are compared.
 
 ## Transmitter side
 
