@@ -117,7 +117,9 @@ iq_socket = context.socket(zmq.PUB)
 
 iq_socket.bind(f"tcp://*:{50001}")
 
-file = open('log.txt', 'a')
+
+
+file_open = False
 
 
 def write_data(meas_type, data):
@@ -280,7 +282,7 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
 def wait_till_go_from_server(ip, _connect=True):
 
 
-    global meas_id
+    global meas_id, file_open, file
 
     # Connect to the publisher's address
     logger.debug("Connecting to server %s.", ip)
@@ -298,8 +300,11 @@ def wait_till_go_from_server(ip, _connect=True):
     # Receives a string format message
     logger.debug("Waiting on SYNC from server %s.", ip)
     
+    meas_id, unique_id = sync_socket.recv_string().split(" ")
 
-    meas_id = sync_socket.recv_string()
+    if not file_open:
+        file = open(f"data_{unique_id}.txt", "a")
+        file_open = True
 
     logger.debug(meas_id)
 

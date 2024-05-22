@@ -46,11 +46,13 @@ context = zmq.Context()
 sync_socket = context.socket(zmq.SUB)
 sync_socket.connect(f"tcp://10.128.52.53:{5557}")
 sync_socket.subscribe("")
-meas_id = sync_socket.recv_string()
 
 # Create a poller
 poller = zmq.Poller()
 poller.register(sync_socket, zmq.POLLIN)
+
+
+file_open = False
 
 meas_id = 0
 
@@ -61,7 +63,11 @@ while 1:
 
     if sync_socket in socks and socks[sync_socket] == zmq.POLLIN:
         # Message is available
-        meas_id = sync_socket.recv_string()
+        meas_id, unique_id = sync_socket.recv_string().split(" ")
+
+        if not file_open:
+            file = open(f"data_{unique_id}.txt", "a")
+            file_open = True
         print("Received message:", meas_id)
 
     res = scope.query(f"MEASUrement:{meas_name}:RESUlts:HISTory:MEAN?")
@@ -83,6 +89,8 @@ while 1:
         meas_ongoing = False
         if num_valid_in_meas > 10:
             # skip the last and first 5 meas
+            file.write(
+                f"{meas_id} {np.rad2deg(circmean(np.deg2rad(meas_data[2:-2])))}")
             print(f"{meas_id} {np.rad2deg(circmean(np.deg2rad(meas_data[2:-2])))}")
         meas_data = []
         num_valid_in_meas = 0

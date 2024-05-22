@@ -66,6 +66,7 @@ def parse_data(data_str):
 
 
 meas_id = 0
+unique_id = str(datetime.utcnow().strftime("%Y%m%d%H%M%S"))
 
 script_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)))
 
@@ -114,7 +115,7 @@ try:
             time.sleep(delay)
 
             meas_id = meas_id+1
-            sync_socket.send_string(str(meas_id))  # str(meas_id)
+            sync_socket.send_string(f"{meas_id} {unique_id}")  # str(meas_id)
             print(f"SYNC {meas_id}")
                 
                 # collect the data from the subscribers and the scope
