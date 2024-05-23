@@ -93,31 +93,31 @@ fields = ["meas_id", "tile", "meas_type", "tx_angle_ch0"
     #     csvwriter = csv.writer(file)
 
     #     csvwriter.writerow(fields)
-try:
-    while True:
-            # Wait for specified number of subscribers to send a message
-            print(
-                f"Waiting for {num_subscribers} subscribers to send a message...")
-            messages_received = 0
-            while messages_received < num_subscribers:
-                message = alive_socket.recv_string()
-                print("Received request:", message)
+# try:
+while True:
+        # Wait for specified number of subscribers to send a message
+        print(
+            f"Waiting for {num_subscribers} subscribers to send a message...")
+        messages_received = 0
+        while messages_received < num_subscribers:
+            message = alive_socket.recv_string()
+            print("Received request:", message)
 
-                # Process the request (for example, you could perform some computation here)
-                response = "Response from server"
+            # Process the request (for example, you could perform some computation here)
+            response = "Response from server"
 
-                # Send the response back to the client
-                alive_socket.send_string(response)
+            # Send the response back to the client
+            alive_socket.send_string(response)
 
-                messages_received += 1
+            messages_received += 1
 
-            print(f"sending 'SYNC' message in {delay}s...")
-            time.sleep(delay)
+        print(f"sending 'SYNC' message in {delay}s...")
+        time.sleep(delay)
 
-            meas_id = meas_id+1
-            sync_socket.send_string(f"{meas_id} {unique_id}")  # str(meas_id)
-            print(f"SYNC {meas_id}")
-                
+        meas_id = meas_id+1
+        sync_socket.send_string(f"{meas_id} {unique_id}")  # str(meas_id)
+        print(f"SYNC {meas_id}")
+            
                 # collect the data from the subscribers and the scope
                 # each rpi transmits 4 measurements per meas
                 # for _ in range(num_subscribers*4):
@@ -132,9 +132,9 @@ try:
 
                 #     csvwriter.writerow(row)
                 # file.flush()
-except KeyboardInterrupt:
-    print("Exiting...")
-    sys.exit()
+# except KeyboardInterrupt:
+#     print("Exiting...")
+#     sys.exit()
 # finally:
 #     context.term()
 #     data_socket.close()
