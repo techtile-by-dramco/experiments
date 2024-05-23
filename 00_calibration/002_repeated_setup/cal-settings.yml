@@ -11,4 +11,4 @@ FREQ: !!float 1e9
 
 CAPTURE_TIME: !!float 12
 
-server_ip: "172.24.129.182" #10.128.52.53
+server_ip: "10.39.226.46" #10.128.52.53
