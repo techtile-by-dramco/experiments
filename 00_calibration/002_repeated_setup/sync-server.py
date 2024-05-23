@@ -136,7 +136,8 @@ except KeyboardInterrupt:
     print("Exiting...")
     sys.exit()
 finally:
+    context.term()
     data_socket.close()
     alive_socket.close()
     sync_socket.close()
-    context.term()
+    
