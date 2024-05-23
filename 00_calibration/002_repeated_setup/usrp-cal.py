@@ -32,7 +32,7 @@ LOOPBACK_TX_GAIN = 70  # empirical determined
 LOOPBACK_RX_GAIN = 23  # empirical determined
 REF_RX_GAIN = 22  # empirical determined 22 without splitter, 27 with splitter
 CAPTURE_TIME = 10
-server_ip = "10.128.52.53"
+# server_ip = "10.128.52.53"
 MAX_RETRIES = 10
 
 
