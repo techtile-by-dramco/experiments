@@ -7,3 +7,4 @@ There are two options:
 2. run `usrp-cal.sh` which repeatedly calls `usrp-cal.py`.
 
 
+![image](https://github.com/techtile-by-dramco/experiments/assets/8626571/7ebfb2bf-89e2-4532-8864-b87ea08126e1)
