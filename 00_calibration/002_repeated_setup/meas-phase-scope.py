@@ -90,7 +90,8 @@ while 1:
         if num_valid_in_meas > 10:
             # skip the last and first 5 meas
             file.write(
-                f"{meas_id} {np.rad2deg(circmean(np.deg2rad(meas_data[2:-2])))}")
+                f"{meas_id} {np.rad2deg(circmean(np.deg2rad(meas_data[2:-2])))}\n")
+            file.flush()
             print(f"{meas_id} {np.rad2deg(circmean(np.deg2rad(meas_data[2:-2])))}")
         meas_data = []
         num_valid_in_meas = 0
