@@ -130,7 +130,7 @@ def write_data(meas_type, data):
     # 4 to remove "rpi-" in the name
     data = str(meas_id)+";"+socket.gethostname()[4:]+";"+meas_type + ";"+";".join(str(v) for v in data)
     logger.debug("Writing data %s.", data)
-    file.write(data) 
+    file.write(data+"\n")
 
 
 def publish(data, channel: int):
