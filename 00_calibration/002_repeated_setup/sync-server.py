@@ -87,7 +87,8 @@ fields = ["meas_id", "tile", "meas_type", "tx_angle_ch0"
           "rx_ampl_ch0",
           "rx_ampl_ch1", "phase_diff"]
 
-
+poller = zmq.Poller()
+poller.register(alive_socket, zmq.POLLIN)
      
     # # with open(file_path, 'w') as file:
     #     csvwriter = csv.writer(file)
@@ -100,17 +101,17 @@ while True:
             f"Waiting for {num_subscribers} subscribers to send a message...")
         messages_received = 0
         while messages_received < num_subscribers:
-            message = alive_socket.recv_string()
-            print("Received request:", message)
+            socks = dict(poller.poll(1000))  # Poll with a timeout of 100 ms
+            if alive_socket in socks and socks[alive_socket] == zmq.POLLIN:
+                message = alive_socket.recv_string()
+                print("Received message:", message)
+                messages_received += 1
+                # Process the request (for example, you could perform some computation here)
+                response = "Response from server"
 
-            # Process the request (for example, you could perform some computation here)
-            response = "Response from server"
-
-            # Send the response back to the client
-            alive_socket.send_string(response)
-
-            messages_received += 1
-
+                # Send the response back to the client
+                alive_socket.send_string(response)
+          
         print(f"sending 'SYNC' message in {delay}s...")
         time.sleep(delay)
 
