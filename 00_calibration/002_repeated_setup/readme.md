@@ -7,7 +7,8 @@ There are two options:
 2. run `usrp-cal.sh` which repeatedly calls `usrp-cal.py`.
 
 The following window can be replicated by adding the following to the command setting in Windows Terminal:
-´´´json
+
+```json
  "command": 
             {
                 "action": "multipleActions",
@@ -58,5 +59,5 @@ The following window can be replicated by adding the following to the command se
             },
             "name": "Create Exp 002 Layout"
         }, ...
-´´´
+```
 ![image](https://github.com/techtile-by-dramco/experiments/assets/8626571/7ebfb2bf-89e2-4532-8864-b87ea08126e1)
