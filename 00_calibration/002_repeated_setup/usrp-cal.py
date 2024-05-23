@@ -117,6 +117,8 @@ iq_socket = context.socket(zmq.PUB)
 
 iq_socket.bind(f"tcp://*:{50001}")
 
+HOSTNAME = socket.gethostname()[4:]
+
 
 
 file_open = False
@@ -128,7 +130,8 @@ def write_data(meas_type, data):
     
     # TX_ANGLE_CH0 ; TX_ANGLE_CH1 ; RX_ANGLE_CH0 ; RX_ANGLE_CH1 ; RX_AMPL_CH0 ; RX_AMPL_CH1
     # 4 to remove "rpi-" in the name
-    data = str(meas_id)+";"+socket.gethostname()[4:]+";"+meas_type + ";"+";".join(str(v) for v in data)
+    data = str(meas_id)+";"+HOSTNAME+";"+meas_type + \
+        ";"+";".join(str(v) for v in data)
     logger.debug("Writing data %s.", data)
     file.write(data) 
 
@@ -303,7 +306,7 @@ def wait_till_go_from_server(ip, _connect=True):
     meas_id, unique_id = sync_socket.recv_string().split(" ")
 
     if not file_open:
-        file = open(f"data_{unique_id}.txt", "a")
+        file = open(f"data_{HOSTNAME}_{unique_id}.txt", "a")
         file_open = True
 
     logger.debug(meas_id)

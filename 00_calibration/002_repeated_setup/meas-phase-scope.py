@@ -66,7 +66,7 @@ while 1:
         meas_id, unique_id = sync_socket.recv_string().split(" ")
 
         if not file_open:
-            file = open(f"data_{unique_id}.txt", "a")
+            file = open(f"data_scope_{unique_id}.txt", "a")
             file_open = True
         print("Received message:", meas_id)
 
