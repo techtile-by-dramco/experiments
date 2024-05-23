@@ -694,6 +694,50 @@ def check_loopback(usrp, tx_streamer, rx_streamer, phase_corr, at_time) -> float
     return phase_to_compensate[LOOPBACK_RX_CH]
 
 
+def check_pll_loopback(usrp, tx_streamer, rx_streamer, phase_corr, at_time) -> float:
+    logger.debug(
+        " ########### STEP 3 - Check self-correction TX-RX phase ###########")
+
+    quit_event = threading.Event()
+
+    amplitudes = [0.0, 0.0]
+
+    amplitudes[LOOPBACK_TX_CH] = 0.8
+
+    phases = [0.0, 0.0]
+
+    phases[LOOPBACK_TX_CH] = phase_corr
+
+    start_time = uhd.types.TimeSpec(at_time)
+
+    logger.debug(starting_in(usrp, at_time))
+
+    phase_to_compensate = []
+
+    tx_thr = tx_thread(usrp, tx_streamer, quit_event,
+                       amplitude=amplitudes, phase=phases, start_time=start_time)
+    tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
+    rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate,
+                       duration=CAPTURE_TIME, start_time=start_time)
+
+    time.sleep(CAPTURE_TIME + delta(usrp, at_time))
+
+    quit_event.set()
+
+    # wait till both threads are done before proceeding
+
+    tx_thr.join()
+
+    rx_thr.join()
+
+    tx_meta_thr.join()
+
+    # TX_ANGLE_CH0 ; TX_ANGLE_CH1 ; RX_ANGLE_CH0 ; RX_ANGLE_CH1 ; RX_AMPL_CH0 ; RX_AMPL_CH1
+    write_data(MEAS_TYPE_PLL_CHECK, [
+               phases[0], phases[1], phase_to_compensate[0], phase_to_compensate[1], 0.0, 0.0])  # TODO ADD AMPL
+
+    return phase_to_compensate[LOOPBACK_RX_CH]
+
 def tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr, at_time):
     logger.debug("########### STEP 4 - TX with adjusted phases ###########")
 
@@ -797,7 +841,7 @@ def main():
         
 
         start_time += cmd_time
-        _ = check_loopback(usrp, tx_streamer, rx_streamer,
+        _ = check_pll_loopback(usrp, tx_streamer, rx_streamer,
                                                     phase_corr=(pll_rx_phase - tx_rx_phase), at_time=start_time)
 
 
