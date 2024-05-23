@@ -61,3 +61,14 @@ The following window can be replicated by adding the following to the command se
         }, ...
 ```
 ![image](https://github.com/techtile-by-dramco/experiments/assets/8626571/7ebfb2bf-89e2-4532-8864-b87ea08126e1)
+
+### Settings T02
+```
+~/experiments/00_calibration/002_repeated_setup $ uhd_siggen --args "mode_n=integer, fpga=usrp_b210_fpga_loopback.bin" --freq 1e9 --clock-source 'external' --sync 'pps' --const -g 70 --offset 0 -m 0.8
+```
+
+### Settings T03 and T04
+```
+~/experiments/00_calibration/002_repeated_setup $ ./usrp-cal.sh
+```
+
