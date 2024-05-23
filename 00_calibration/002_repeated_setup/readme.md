@@ -6,5 +6,57 @@ There are two options:
 1. run `usrp-cal-while.py` which in a loop executes the code
 2. run `usrp-cal.sh` which repeatedly calls `usrp-cal.py`.
 
-
+The following window can be replicated by adding the following to the command setting in Windows Terminal:
+´´´json
+ "command": 
+            {
+                "action": "multipleActions",
+                "actions": 
+                [
+                    {
+                        "action": "newTab",
+                        "profile": "Ubuntu",
+                        "tabTitle": "EXP1",
+                        "commandline":"ssh techtile@192.108.0.1"
+                    },
+                    {
+                        "action": "splitPane",
+                        "profile": "Ubuntu",
+                        "size": 0.66,
+                        "split": "right",
+                        "tabTitle": "T02",
+                        "commandline": "ssh techtile@192.108.0.1"
+                    },
+                    {
+                        "action": "splitPane",
+                        "profile": "Ubuntu",
+                        "size": 0.5,
+                        "split": "right",
+                        "tabTitle": "T0",
+                        "commandline": "ssh techtile@192.108.0.1"
+                    },
+                    {
+                        "action": "splitPane",
+                        "profile": "Command Prompt",
+                        "size": 0.5,
+                        "split": "up",
+                        "tabTitle": "T0",
+                        "startingDirectory": "C:/Users/Calle/OneDrive/Documenten/GitHub/experiments/00_calibration/002_repeated_setup",
+                        "commandline": "python sync-server.py 2 2"
+                    }
+                    ,
+                    {
+                        "action": "splitPane",
+                        "profile": "Command Prompt",
+                        "size": 0.5,
+                        "split": "vertical",
+                        "tabTitle": "T0",
+                        "startingDirectory": "C:/Users/Calle/OneDrive/Documenten/GitHub/experiments/00_calibration/002_repeated_setup",
+                        "commandline": "python meas-phase-scope.py"
+                    }
+                ]
+            },
+            "name": "Create Exp 002 Layout"
+        }, ...
+´´´
 ![image](https://github.com/techtile-by-dramco/experiments/assets/8626571/7ebfb2bf-89e2-4532-8864-b87ea08126e1)
