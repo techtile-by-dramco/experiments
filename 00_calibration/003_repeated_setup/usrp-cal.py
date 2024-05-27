@@ -828,19 +828,19 @@ def main():
 
         phase_corr = - tx_rx_phase
 
-        start_time += cmd_time
+        start_time += cmd_time -2.0
         pll_rx_phase = measure_pll(
             usrp, rx_streamer, at_time=start_time)
         print("DONE")
 
-        start_time += cmd_time - 2.0  # -2.0 emperically determined
+        start_time += cmd_time - 4.0  # -2.0 emperically determined
         remainig_loopback_phase = check_loopback(usrp, tx_streamer, rx_streamer,
                                         phase_corr=phase_corr, at_time=start_time)
         logger.debug(
             f"Remaining phase is {np.rad2deg(remainig_loopback_phase):.2f} degrees.")
         
 
-        start_time += cmd_time
+        start_time += cmd_time -2.0
         _ = check_pll_loopback(usrp, tx_streamer, rx_streamer,
                                                     phase_corr=(pll_rx_phase - tx_rx_phase), at_time=start_time)
 
