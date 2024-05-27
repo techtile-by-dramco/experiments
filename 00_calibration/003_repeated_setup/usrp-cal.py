@@ -19,6 +19,8 @@ import yaml
 import zmq
 from scipy.stats import circmean, circvar
 from datetime import datetime, timedelta
+import socket
+
 
 CMD_DELAY = 0.05  # set a 50mS delay in commands
 # default values which will be overwritten by the conf YML
@@ -30,8 +32,17 @@ LOOPBACK_TX_GAIN = 70  # empirical determined
 LOOPBACK_RX_GAIN = 23  # empirical determined
 REF_RX_GAIN = 22  # empirical determined 22 without splitter, 27 with splitter
 CAPTURE_TIME = 10
-server_ip = "10.128.52.53"
+# server_ip = "10.128.52.53"
 MAX_RETRIES = 10
+
+
+MEAS_TYPE_LOOPBACK = "LB"
+MEAS_TYPE_PLL = "PLL"
+MEAS_TYPE_LOOPBACK_CHECK = "LBCK"
+MEAS_TYPE_PLL_CHECK = "PLLCK"
+MEAS_TYPE_PHASE_DIFF = "PDIFF"
+
+meas_id = 0
 
 
 with open(os.path.join(os.path.dirname(__file__), "cal-settings.yml"), 'r') as file:
@@ -106,7 +117,24 @@ iq_socket = context.socket(zmq.PUB)
 
 iq_socket.bind(f"tcp://*:{50001}")
 
+HOSTNAME = socket.gethostname()[4:]
 
+
+
+file_open = False
+
+
+def write_data(meas_type, data):
+    # Connect to the publisher's address
+    logger.debug("Writing data to local file.")
+    
+    # TX_ANGLE_CH0 ; TX_ANGLE_CH1 ; RX_ANGLE_CH0 ; RX_ANGLE_CH1 ; RX_AMPL_CH0 ; RX_AMPL_CH1
+    # 4 to remove "rpi-" in the name
+    data = str(meas_id)+";"+HOSTNAME+";"+meas_type + \
+        ";"+";".join(str(v) for v in data)
+    logger.debug("Writing data %s.", data)
+    file.write(data+"\n")
+    file.flush()
 
 
 def publish(data, channel: int):
@@ -257,22 +285,32 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
 
 def wait_till_go_from_server(ip, _connect=True):
 
+
+    global meas_id, file_open, file
+
     # Connect to the publisher's address
     logger.debug("Connecting to server %s.", ip)
     sync_socket = context.socket(zmq.SUB)
 
     alive_socket = context.socket(zmq.REQ)
-
+ 
     sync_socket.connect(f"tcp://{ip}:{5557}")
     alive_socket.connect(f"tcp://{ip}:{5558}")
     # Subscribe to topics
-    sync_socket.subscribe("SYNC")
+    sync_socket.subscribe("")
 
     logger.debug("Sending ALIVE")
     alive_socket.send_string("ALIVE")
     # Receives a string format message
     logger.debug("Waiting on SYNC from server %s.", ip)
-    sync_socket.recv_string()
+    
+    meas_id, unique_id = sync_socket.recv_string().split(" ")
+
+    if not file_open:
+        file = open(f"data_{HOSTNAME}_{unique_id}.txt", "a")
+        file_open = True
+
+    logger.debug(meas_id)
 
     alive_socket.close()
     sync_socket.close()
@@ -572,6 +610,10 @@ def measure_loopback(usrp, tx_streamer, rx_streamer, at_time) -> float:
     # # ensure it is a multiple of 45 degrees, as we would expect @ this frequency given the dividers
     # phase_to_compensate[LOOPBACK_RX_CH] = closest_multiple_of(phase_to_compensate[LOOPBACK_RX_CH])
 
+    # TX_ANGLE_CH0 ; TX_ANGLE_CH1 ; RX_ANGLE_CH0 ; RX_ANGLE_CH1 ; RX_AMPL_CH0 ; RX_AMPL_CH1
+    write_data(MEAS_TYPE_LOOPBACK, [
+               0.0, 0.0, phase_to_compensate[0], phase_to_compensate[1],0.0,0.0]) #TODO ADD AMPL
+
     return phase_to_compensate[LOOPBACK_RX_CH]
 
 
@@ -599,6 +641,10 @@ def measure_pll(usrp, rx_streamer, at_time) -> float:
     rx_thr.join()
 
     pll_phase = phase_to_compensate[REF_RX_CH]
+
+    # TX_ANGLE_CH0 ; TX_ANGLE_CH1 ; RX_ANGLE_CH0 ; RX_ANGLE_CH1 ; RX_AMPL_CH0 ; RX_AMPL_CH1
+    write_data(MEAS_TYPE_PLL, [
+               0.0, 0.0, phase_to_compensate[0], phase_to_compensate[1], 0.0, 0.0])  # TODO ADD AMPL
 
     return pll_phase
 
@@ -641,8 +687,56 @@ def check_loopback(usrp, tx_streamer, rx_streamer, phase_corr, at_time) -> float
 
     tx_meta_thr.join()
 
+    # TX_ANGLE_CH0 ; TX_ANGLE_CH1 ; RX_ANGLE_CH0 ; RX_ANGLE_CH1 ; RX_AMPL_CH0 ; RX_AMPL_CH1
+    write_data(MEAS_TYPE_LOOPBACK_CHECK, [
+               phases[0], phases[1], phase_to_compensate[0], phase_to_compensate[1], 0.0, 0.0])  # TODO ADD AMPL
+
     return phase_to_compensate[LOOPBACK_RX_CH]
 
+
+def check_pll_loopback(usrp, tx_streamer, rx_streamer, phase_corr, at_time) -> float:
+    logger.debug(
+        " ########### STEP 3 - Check self-correction TX-RX phase ###########")
+
+    quit_event = threading.Event()
+
+    amplitudes = [0.0, 0.0]
+
+    amplitudes[LOOPBACK_TX_CH] = 0.8
+
+    phases = [0.0, 0.0]
+
+    phases[LOOPBACK_TX_CH] = phase_corr
+
+    start_time = uhd.types.TimeSpec(at_time)
+
+    logger.debug(starting_in(usrp, at_time))
+
+    phase_to_compensate = []
+
+    tx_thr = tx_thread(usrp, tx_streamer, quit_event,
+                       amplitude=amplitudes, phase=phases, start_time=start_time)
+    tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
+    rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate,
+                       duration=CAPTURE_TIME, start_time=start_time)
+
+    time.sleep(CAPTURE_TIME + delta(usrp, at_time))
+
+    quit_event.set()
+
+    # wait till both threads are done before proceeding
+
+    tx_thr.join()
+
+    rx_thr.join()
+
+    tx_meta_thr.join()
+
+    # TX_ANGLE_CH0 ; TX_ANGLE_CH1 ; RX_ANGLE_CH0 ; RX_ANGLE_CH1 ; RX_AMPL_CH0 ; RX_AMPL_CH1
+    write_data(MEAS_TYPE_PLL_CHECK, [
+               phases[0], phases[1], phase_to_compensate[0], phase_to_compensate[1], 0.0, 0.0])  # TODO ADD AMPL
+
+    return phase_to_compensate[LOOPBACK_RX_CH]
 
 def tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr, at_time):
     logger.debug("########### STEP 4 - TX with adjusted phases ###########")
@@ -714,53 +808,50 @@ def main():
     
     _connect = True
     try:
+        usrp = uhd.usrp.MultiUSRP(
+            "fpga=usrp_b210_fpga.bin, mode_n=integer")
+        logger.info("Using Device: %s", usrp.get_pp_string())
+        tx_streamer, rx_streamer = setup(usrp, server_ip, connect=_connect)
 
-        while True:
-            usrp = uhd.usrp.MultiUSRP(
-                "fpga=usrp_b210_fpga_loopback.bin, mode_n=integer")
-            logger.info("Using Device: %s", usrp.get_pp_string())
-            tx_streamer, rx_streamer = setup(usrp, server_ip, connect=_connect)
+        _connect = False
 
-            _connect = False
+        tx_thr = tx_meta_thr = None
 
-            tx_thr = tx_meta_thr = None
+        margin = 6.0
+        cmd_time = CAPTURE_TIME + margin
 
-            margin = 6.0
-            cmd_time = CAPTURE_TIME + margin
+        start_time = begin_time + margin -5.0 # -5.0 emperically determined
 
-            start_time = begin_time + margin -5.0 # -5.0 emperically determined
+        tx_rx_phase = measure_loopback(
+            usrp, tx_streamer, rx_streamer, at_time=start_time)
+        print("DONE")
 
-            tx_rx_phase = measure_loopback(
-                usrp, tx_streamer, rx_streamer, at_time=start_time)
-            print("DONE")
+        phase_corr = - tx_rx_phase
 
-            phase_corr = - tx_rx_phase
+        start_time += cmd_time
+        pll_rx_phase = measure_pll(
+            usrp, rx_streamer, at_time=start_time)
+        print("DONE")
 
-            start_time += cmd_time
-            pll_rx_phase = measure_pll(
-                usrp, rx_streamer, at_time=start_time)
-            print("DONE")
-
-            start_time += cmd_time - 2.0  # -2.0 emperically determined
-            remainig_loopback_phase = check_loopback(usrp, tx_streamer, rx_streamer,
-                                            phase_corr=phase_corr, at_time=start_time)
-            logger.debug(
-                f"Remaining phase is {np.rad2deg(remainig_loopback_phase):.2f} degrees.")
-            
-
-            start_time += cmd_time
-            _ = check_loopback(usrp, tx_streamer, rx_streamer,
-                                                     phase_corr=(pll_rx_phase - tx_rx_phase), at_time=start_time)
-
-
+        start_time += cmd_time - 2.0  # -2.0 emperically determined
+        remainig_loopback_phase = check_loopback(usrp, tx_streamer, rx_streamer,
+                                        phase_corr=phase_corr, at_time=start_time)
+        logger.debug(
+            f"Remaining phase is {np.rad2deg(remainig_loopback_phase):.2f} degrees.")
         
-            print("DONE")
 
-            quit_event = threading.Event()
-            start_time += cmd_time - 1.0  # -1.0 emperically determined
-            tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr=(pll_rx_phase - tx_rx_phase),
-                         at_time=start_time)
-            time.sleep(10)
+        start_time += cmd_time
+        _ = check_pll_loopback(usrp, tx_streamer, rx_streamer,
+                                                    phase_corr=(pll_rx_phase - tx_rx_phase), at_time=start_time)
+
+
+    
+        print("DONE")
+
+        quit_event = threading.Event()
+        start_time += cmd_time - 1.0  # -1.0 emperically determined
+        tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr=(pll_rx_phase - tx_rx_phase),
+                        at_time=start_time)
 
     except KeyboardInterrupt:
 
@@ -781,9 +872,10 @@ def main():
 
         iq_socket.close()
         context.term()
+        file.close()
         time.sleep(0.1)  # give it some time to close
 
-        sys.exit(130)
+        sys.exit(0)
 
 
 if __name__ == "__main__":
