@@ -394,28 +394,34 @@ def setup(usrp):
     # smallest as possible (https://files.ettus.com/manual/page_usrp_b200.html#b200_fe_bw)
     rx_bw = 200e3
 
+    logger.debug("Setting RX")
+
     for chan in channels:
         usrp.set_rx_rate(rate, chan)
         usrp.set_rx_dc_offset(False, chan)
         usrp.set_rx_bandwidth(rx_bw, chan)
+    
+    usrp.set_rx_gain(LOOPBACK_RX_GAIN, LOOPBACK_RX_CH)
+    usrp.set_rx_gain(REF_RX_GAIN, REF_RX_CH)
 
+    logger.debug("Setting TX")
     # specific settings from loopback/REF PLL
     usrp.set_tx_rate(rate, LOOPBACK_TX_CH)
     usrp.set_tx_gain(LOOPBACK_TX_GAIN, LOOPBACK_TX_CH)
     # usrp.set_tx_gain(REF_TX_GAIN, FREE_TX_CH)
 
-    usrp.set_rx_gain(LOOPBACK_RX_GAIN, LOOPBACK_RX_CH)
-    usrp.set_rx_gain(REF_RX_GAIN, REF_RX_CH)
 
     # streaming arguments
-
+    logger.debug("Creating args")
     st_args = uhd.usrp.StreamArgs("fc32", "sc16")
     st_args.channels = channels
 
     # streamers
+    logger.debug("Get RX stream")
     rx_streamer = usrp.get_rx_stream(st_args)
 
     st_args.channels = [1]
+    logger.debug("Get TX stream")
     tx_streamer = usrp.get_tx_stream(st_args)
 
     # Step1: wait for the last pps time to transition to catch the edge
