@@ -406,8 +406,7 @@ def setup(usrp):
 
     logger.debug("Setting TX")
     # specific settings from loopback/REF PLL
-    logger.debug(usrp.get_tx_antennas(1))
-    # usrp.set_tx_antenna(ant, channel)
+    usrp.set_tx_antenna(usrp.get_tx_antennas(1)[0], 1)
     usrp.set_tx_rate(rate, LOOPBACK_TX_CH)
     usrp.set_tx_gain(LOOPBACK_TX_GAIN, LOOPBACK_TX_CH)
     # usrp.set_tx_gain(REF_TX_GAIN, FREE_TX_CH)
