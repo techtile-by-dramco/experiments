@@ -421,7 +421,7 @@ def setup(usrp):
     logger.debug("Get RX stream")
     rx_streamer = usrp.get_rx_stream(st_args)
 
-    st_args.channels = [1]
+    # st_args.channels = [1]
     logger.debug("Get TX stream")
     tx_streamer = usrp.get_tx_stream(st_args)
 
