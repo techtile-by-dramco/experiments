@@ -562,10 +562,8 @@ def starting_in(usrp, at_time):
     return f"Starting in {delta(usrp, at_time):.2f}s"
 
 
-def measure_loopback(usrp, tx_streamer, rx_streamer) -> float:
+def measure_loopback(usrp, tx_streamer, rx_streamer, quit_event) -> float:
     logger.debug(" ########### STEP 1 - measure self TX-RX phase ###########")
-
-    quit_event = threading.Event()
 
     amplitudes = [0.0, 0.0]
 
