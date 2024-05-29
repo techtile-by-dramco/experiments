@@ -137,12 +137,9 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
 
     # The CORDICs are reset at each start-of-burst command, so users should ensure that every start-of-burst also has a time spec set.
 
-    num_channels = rx_streamer.get_num_channels()
-
     max_samps_per_packet = rx_streamer.get_max_num_samps()
 
-    iq_data = np.empty(
-        (num_channels, int(duration * RATE * 2)), dtype=np.complex64)
+    iq_data = np.empty(int(duration * RATE * 2), dtype=np.complex64)
 
     # Make a rx buffer
 
@@ -151,8 +148,7 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
     # recv_buffer = np.zeros((num_channels, min([1000 * max_samps_per_packet, int(duration * RATE * 2)])),
     #                        dtype=np.complex64, )\
 
-    recv_buffer = np.zeros(
-        (num_channels, max_samps_per_packet), dtype=np.complex64)
+    recv_buffer = np.zeros(max_samps_per_packet, dtype=np.complex64)
 
     rx_md = uhd.types.RXMetadata()
 
@@ -194,9 +190,9 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
                         # samples = recv_buffer[:,:num_rx_i]
                         # send_rx(samples)
 
-                        samples = recv_buffer[:, :num_rx_i]
+                        samples = recv_buffer[:num_rx_i]
 
-                        iq_data[:, num_rx: num_rx + num_rx_i] = samples
+                        iq_data[num_rx: num_rx + num_rx_i] = samples
 
                         # threading.Thread(target=send_rx,
                         #                  args=(samples,)).start()
@@ -218,29 +214,29 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
         rx_streamer.issue_stream_cmd(
             uhd.types.StreamCMD(uhd.types.StreamMode.stop_cont))
 
-        samples = iq_data[:, :num_rx]
+        samples = iq_data[:num_rx]
 
         # np.angle(np.sum(np.exp(np.angle(samples)*1j), axis=1)) # circular mean https://en.wikipedia.org/wiki/Circular_mean
-        avg_angles = circmean(np.angle(samples[:, int(RATE//10):]), axis=1)
-        var_angles = circvar(np.angle(samples[:, int(RATE//10):]), axis=1)
+        avg_angles = circmean(np.angle(samples[int(RATE//10):]))
+        var_angles = circvar(np.angle(samples[int(RATE//10):]))
 
         # median_angles0 = circmedian(np.angle(samples[0, int(RATE//10):]))
         # median_angles1 = circmedian(np.angle(samples[1, int(RATE//10):]))
 
         phase_to_compensate.extend(avg_angles)
 
-        avg_ampl = np.mean(np.abs(samples), axis=1)
-        var_ampl = np.var(np.abs(samples), axis=1)
+        avg_ampl = np.mean(np.abs(samples))
+        var_ampl = np.var(np.abs(samples))
 
         logger.debug(
-            f"Angle (mean) CH0:{np.rad2deg(avg_angles[0]):.2f} CH1:{np.rad2deg(avg_angles[1]):.2f}")
+            f"Angle (mean) CH0:{np.rad2deg(avg_angles):.2f}")
         # logger.debug(
         #     f"Angle (median) CH0:{np.rad2deg(median_angles0):.2f} CH1:{np.rad2deg(median_angles1):.2f}")
         logger.debug(
-            f"Angle var CH0:{var_angles[0]:.2f} CH1:{var_angles[1]:.2f}")
+            f"Angle var CH0:{var_angles:.2f}")
         # keep this just below this final stage
-        logger.debug(f"Amplitude CH0:{avg_ampl[0]:.2f} CH1:{avg_ampl[1]:.2f}")
-        logger.debug(f"Amplitude var CH0:{var_ampl[0]:.2f} CH1:{var_ampl[1]:.2f}")
+        logger.debug(f"Amplitude CH0:{avg_ampl:.2f}")
+        logger.debug(f"Amplitude var CH0:{var_ampl:.2f}")
 
 
 
@@ -533,7 +529,7 @@ def measure_loopback(usrp, tx_streamer, rx_streamer, quit_event, _meas_id, file)
     tx_meta_thr.join()
 
     write_data(file, _meas_id, MEAS_TYPE_LOOPBACK, [
-               0.0, 0.0, phase_to_compensate[0], phase_to_compensate[1],0.0,0.0]) #TODO ADD AMPL
+               0.0, 0.0, phase_to_compensate[0], 0.0,0.0,0.0]) #TODO ADD AMPL
 
     return phase_to_compensate[LOOPBACK_RX_CH]
 
