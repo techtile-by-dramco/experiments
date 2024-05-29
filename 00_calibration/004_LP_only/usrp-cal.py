@@ -559,13 +559,20 @@ def get_current_time(usrp):
 
 def main():
     global file
+
+    parser = argparse.ArgumentParser(description="")
+    parser.add_argument("counter", type=int, help="Counter value")
+    args = parser.parse_args()
+
+    meas_id = args.counter
+
+
     # "mode_n=integer" #
 
     # start_PLL()
 
     file = open(
         f'data_{HOSTNAME}_{str(datetime.utcnow().strftime("%Y%m%d%H%M%S"))}.txt', "a")
-    meas_id = 0
     
     try:
         usrp = uhd.usrp.MultiUSRP(
@@ -575,7 +582,6 @@ def main():
 
         quit_event = threading.Event()
         _ = measure_loopback(usrp, tx_streamer, rx_streamer, quit_event, meas_id, file)
-        meas_id += 1
         print("DONE")
         
     except KeyboardInterrupt:
