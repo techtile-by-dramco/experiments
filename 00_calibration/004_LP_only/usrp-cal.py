@@ -783,7 +783,7 @@ def main():
 
         
         if not file_open:
-            file = open(f"data_{HOSTNAME}_{str(datetime.utcnow().strftime("%Y%m%d%H%M%S"))}.txt", "a")
+            file = open(f'data_{HOSTNAME}_{str(datetime.utcnow().strftime("%Y%m%d%H%M%S"))}.txt', "a")
             file_open = True
 
         quit_event = threading.Event()
