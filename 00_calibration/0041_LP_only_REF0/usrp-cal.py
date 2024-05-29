@@ -402,7 +402,7 @@ def setup(usrp):
     
     usrp.set_rx_gain(LOOPBACK_RX_GAIN, LOOPBACK_RX_CH)
     usrp.set_rx_gain(REF_RX_GAIN, REF_RX_CH)
-    usrp.set_rx_antenna(usrp.get_rx_antennas(LOOPBACK_RX_CH)[0], LOOPBACK_RX_CH)
+    usrp.set_rx_antenna('RX', LOOPBACK_RX_CH)
 
     logger.debug("Setting TX")
     # specific settings from loopback/REF PLL
