@@ -414,8 +414,10 @@ def setup(usrp):
     st_args.channels = channels
 
     # streamers
-    tx_streamer = usrp.get_tx_stream(st_args)
     rx_streamer = usrp.get_rx_stream(st_args)
+
+    st_args.channels = [1]
+    tx_streamer = usrp.get_tx_stream(st_args)
 
     # Step1: wait for the last pps time to transition to catch the edge
     # Step2: set the time at the next pps (synchronous for all boards)
