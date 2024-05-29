@@ -283,37 +283,6 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
         logger.debug(f"Amplitude var CH0:{var_ampl[0]:.2f} CH1:{var_ampl[1]:.2f}")
 
 
-def wait_till_go_from_server(ip, _connect=True):
-
-
-    global meas_id, file_open, file
-
-    # Connect to the publisher's address
-    logger.debug("Connecting to server %s.", ip)
-    sync_socket = context.socket(zmq.SUB)
-
-    alive_socket = context.socket(zmq.REQ)
- 
-    sync_socket.connect(f"tcp://{ip}:{5557}")
-    alive_socket.connect(f"tcp://{ip}:{5558}")
-    # Subscribe to topics
-    sync_socket.subscribe("")
-
-    logger.debug("Sending ALIVE")
-    alive_socket.send_string("ALIVE")
-    # Receives a string format message
-    logger.debug("Waiting on SYNC from server %s.", ip)
-    
-    meas_id, unique_id = sync_socket.recv_string().split(" ")
-
-    if not file_open:
-        file = open(f"data_{HOSTNAME}_{unique_id}.txt", "a")
-        file_open = True
-
-    logger.debug(meas_id)
-
-    alive_socket.close()
-    sync_socket.close()
 
 
 def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time=None):
@@ -795,6 +764,7 @@ def get_current_time(usrp):
 
 
 def main():
+    global meas_id, file_open, file
     # "mode_n=integer" #
 
     # start_PLL()
@@ -810,6 +780,11 @@ def main():
         _connect = False
 
         tx_thr = tx_meta_thr = None
+
+        
+        if not file_open:
+            file = open(f"data_{HOSTNAME}_{str(datetime.utcnow().strftime("%Y%m%d%H%M%S"))}.txt", "a")
+            file_open = True
 
         quit_event = threading.Event()
         _ = measure_loopback(usrp, tx_streamer, rx_streamer, quit_event)
