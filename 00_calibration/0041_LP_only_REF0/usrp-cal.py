@@ -394,14 +394,13 @@ def setup(usrp):
     # smallest as possible (https://files.ettus.com/manual/page_usrp_b200.html#b200_fe_bw)
     rx_bw = 200e3
 
-    usrp.set_tx_rate(rate, 1)
-
     for chan in channels:
         usrp.set_rx_rate(rate, chan)
         usrp.set_rx_dc_offset(False, chan)
         usrp.set_rx_bandwidth(rx_bw, chan)
 
     # specific settings from loopback/REF PLL
+    usrp.set_tx_rate(rate, LOOPBACK_TX_CH)
     usrp.set_tx_gain(LOOPBACK_TX_GAIN, LOOPBACK_TX_CH)
     # usrp.set_tx_gain(REF_TX_GAIN, FREE_TX_CH)
 
@@ -577,7 +576,7 @@ def main():
     file = open(
         f'data_{HOSTNAME}_{args.timestamp}.txt', "a")
     
-    try:
+    try: 
         usrp = uhd.usrp.MultiUSRP(
             "fpga=usrp_b210_fpga.bin, mode_n=integer")
         logger.info("Using Device: %s", usrp.get_pp_string())
