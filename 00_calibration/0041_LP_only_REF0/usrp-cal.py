@@ -259,7 +259,7 @@ def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time=None):
     # amplitude[:,np.newaxis]
     transmit_buffer = np.ones((1,1000 * max_samps_per_packet), dtype=np.complex64)
 
-    transmit_buffer *= sample[0]
+    transmit_buffer *= sample[LOOPBACK_TX_CH]
 
     # transmit_buffer[1, :] *= sample[1]
 
