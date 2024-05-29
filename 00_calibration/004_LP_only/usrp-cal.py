@@ -562,6 +562,7 @@ def main():
 
     parser = argparse.ArgumentParser(description="")
     parser.add_argument("counter", type=int, help="Counter value")
+    parser.add_argument("timestamp", type=str, help="Timestamp value")
     args = parser.parse_args()
 
     meas_id = args.counter
@@ -572,7 +573,7 @@ def main():
     # start_PLL()
 
     file = open(
-        f'data_{HOSTNAME}_{str(datetime.utcnow().strftime("%Y%m%d%H%M%S"))}.txt', "a")
+        f'data_{HOSTNAME}_{args.timestamp}.txt', "a")
     
     try:
         usrp = uhd.usrp.MultiUSRP(

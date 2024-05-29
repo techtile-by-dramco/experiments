@@ -2,8 +2,10 @@
 git pull
 # Initialize counter
 counter=0
+timestamp=$(date -u +"%Y%m%d%H%M%S")
+
 while true; do
-  python3 usrp-cal.py "$counter"
+  python3 usrp-cal.py "$counter" "$timestamp"
   if [ $? -ne 0 ]; then
     echo "your script encountered an error."
     # Optionally, you can add a break or continue statement here to handle errors
