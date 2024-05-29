@@ -223,7 +223,7 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
         # median_angles0 = circmedian(np.angle(samples[0, int(RATE//10):]))
         # median_angles1 = circmedian(np.angle(samples[1, int(RATE//10):]))
 
-        phase_to_compensate.extend(avg_angles)
+        phase_to_compensate.extend([avg_angles])
 
         avg_ampl = np.mean(np.abs(samples))
         var_ampl = np.var(np.abs(samples))
