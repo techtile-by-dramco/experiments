@@ -109,56 +109,21 @@ else:
     REF_RX_CH = LOOPBACK_TX_CH = 1
     logger.debug("\nPLL REF-->CH1 RX\nCH1 TX-->CH0 RX\nCH0 TX -->")
 
-context = zmq.Context()
-
-iq_socket = context.socket(zmq.PUB)
-
-iq_socket.bind(f"tcp://*:{50001}")
-
 HOSTNAME = socket.gethostname()[4:]
 
 
 
-def write_data(file, meas_id, meas_type, data):
+def write_data(file, _meas_id:int, meas_type, data):
     # Connect to the publisher's address
     logger.debug("Writing data to local file.")
     
     # TX_ANGLE_CH0 ; TX_ANGLE_CH1 ; RX_ANGLE_CH0 ; RX_ANGLE_CH1 ; RX_AMPL_CH0 ; RX_AMPL_CH1
     # 4 to remove "rpi-" in the name
-    data = str(meas_id)+";"+HOSTNAME+";"+meas_type + \
+    data = str(_meas_id)+";"+HOSTNAME+";"+meas_type + \
         ";"+";".join(str(v) for v in data)
     logger.debug("Writing data %s.", data)
     file.write(data+"\n")
     file.flush()
-
-
-def publish(data, channel: int):
-    # logger.debug(f"sending data of size {len(data)}")
-
-    if channel == 0:
-        topic = TOPIC_CH0
-    elif channel == 1:
-        topic = TOPIC_CH1
-    else:
-        logger.error(f"Channel should be 0 or 1, not {channel}")
-
-    iq_socket.send_multipart([topic, data.tobytes()])
-
-
-def send_rx(samples):
-    # avg_angles = np.angle(np.sum(np.exp(np.angle(samples)*1j), axis=1)) # circular mean https://en.wikipedia.org/wiki/Circular_mean
-
-    # avg_ampl = np.mean(np.abs(samples),axis=1)
-
-    # print(f"Angle CH0:{np.rad2deg(avg_angles[0]):.2f} CH1:{np.rad2deg(avg_angles[1]):.2f}")
-
-    # print(f"Amplitude CH0:{avg_ampl[0]:.2f} CH1:{avg_ampl[1]:.2f}")
-
-    angles = np.rad2deg(np.angle(samples))
-
-    publish(angles[0], 0)
-
-    publish(angles[1], 1)
 
 
 def circmedian(angs):
@@ -526,7 +491,7 @@ def starting_in(usrp, at_time):
     return f"Starting in {delta(usrp, at_time):.2f}s"
 
 
-def measure_loopback(usrp, tx_streamer, rx_streamer, quit_event, meas_id, file) -> float:
+def measure_loopback(usrp, tx_streamer, rx_streamer, quit_event, _meas_id, file) -> float:
     logger.debug(" ########### STEP 1 - measure self TX-RX phase ###########")
 
     amplitudes = [0.0, 0.0]
@@ -556,176 +521,10 @@ def measure_loopback(usrp, tx_streamer, rx_streamer, quit_event, meas_id, file) 
 
     tx_meta_thr.join()
 
-    # #TODO double check
-    # import math
-    # def closest_multiple_of(value, base=math.pi/8):
-
-    #     if value < 0:
-    #         value = value + math.pi*2
-
-    #     return base * round(value/base)
-
-    # # ensure it is a multiple of 45 degrees, as we would expect @ this frequency given the dividers
-    # phase_to_compensate[LOOPBACK_RX_CH] = closest_multiple_of(phase_to_compensate[LOOPBACK_RX_CH])
-
-    # TX_ANGLE_CH0 ; TX_ANGLE_CH1 ; RX_ANGLE_CH0 ; RX_ANGLE_CH1 ; RX_AMPL_CH0 ; RX_AMPL_CH1
-    write_data(file, meas_id, MEAS_TYPE_LOOPBACK, [
+    write_data(file, _meas_id, MEAS_TYPE_LOOPBACK, [
                0.0, 0.0, phase_to_compensate[0], phase_to_compensate[1],0.0,0.0]) #TODO ADD AMPL
 
     return phase_to_compensate[LOOPBACK_RX_CH]
-
-
-def measure_pll(usrp, rx_streamer, at_time, quit_event) -> float:
-    # Make a signal for the threads to stop running
-
-    logger.debug("########### STEP 2 - Measure PLL REF phase ###########")
-
-    
-
-    phase_to_compensate = []
-
-    start_time = uhd.types.TimeSpec(at_time)
-
-    logger.debug(starting_in(usrp, at_time))
-
-    rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate,
-                       duration=CAPTURE_TIME, start_time=start_time)
-
-    time.sleep(CAPTURE_TIME + delta(usrp, at_time))
-
-    quit_event.set()
-
-    # wait till both threads are done before proceding
-    rx_thr.join()
-
-    pll_phase = phase_to_compensate[REF_RX_CH]
-
-    # TX_ANGLE_CH0 ; TX_ANGLE_CH1 ; RX_ANGLE_CH0 ; RX_ANGLE_CH1 ; RX_AMPL_CH0 ; RX_AMPL_CH1
-    write_data(MEAS_TYPE_PLL, [
-               0.0, 0.0, phase_to_compensate[0], phase_to_compensate[1], 0.0, 0.0])  # TODO ADD AMPL
-
-    return pll_phase
-
-
-def check_loopback(usrp, tx_streamer, rx_streamer, phase_corr, at_time) -> float:
-    logger.debug(
-        " ########### STEP 3 - Check self-correction TX-RX phase ###########")
-
-    quit_event = threading.Event()
-
-    amplitudes = [0.0, 0.0]
-
-    amplitudes[LOOPBACK_TX_CH] = 0.8
-
-    phases = [0.0, 0.0]
-
-    phases[LOOPBACK_TX_CH] = phase_corr
-
-    start_time = uhd.types.TimeSpec(at_time)
-
-    logger.debug(starting_in(usrp, at_time))
-
-    phase_to_compensate = []
-
-    tx_thr = tx_thread(usrp, tx_streamer, quit_event,
-                       amplitude=amplitudes, phase=phases, start_time=start_time)
-    tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
-    rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate,
-                       duration=CAPTURE_TIME, start_time=start_time)
-
-    time.sleep(CAPTURE_TIME + delta(usrp, at_time))
-
-    quit_event.set()
-
-    # wait till both threads are done before proceeding
-
-    tx_thr.join()
-
-    rx_thr.join()
-
-    tx_meta_thr.join()
-
-    # TX_ANGLE_CH0 ; TX_ANGLE_CH1 ; RX_ANGLE_CH0 ; RX_ANGLE_CH1 ; RX_AMPL_CH0 ; RX_AMPL_CH1
-    write_data(MEAS_TYPE_LOOPBACK_CHECK, [
-               phases[0], phases[1], phase_to_compensate[0], phase_to_compensate[1], 0.0, 0.0])  # TODO ADD AMPL
-
-    return phase_to_compensate[LOOPBACK_RX_CH]
-
-
-def check_pll_loopback(usrp, tx_streamer, rx_streamer, phase_corr, at_time) -> float:
-    logger.debug(
-        " ########### STEP 3 - Check self-correction TX-RX phase ###########")
-
-    quit_event = threading.Event()
-
-    amplitudes = [0.0, 0.0]
-
-    amplitudes[LOOPBACK_TX_CH] = 0.8
-
-    phases = [0.0, 0.0]
-
-    phases[LOOPBACK_TX_CH] = phase_corr
-
-    start_time = uhd.types.TimeSpec(at_time)
-
-    logger.debug(starting_in(usrp, at_time))
-
-    phase_to_compensate = []
-
-    tx_thr = tx_thread(usrp, tx_streamer, quit_event,
-                       amplitude=amplitudes, phase=phases, start_time=start_time)
-    tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
-    rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate,
-                       duration=CAPTURE_TIME, start_time=start_time)
-
-    time.sleep(CAPTURE_TIME + delta(usrp, at_time))
-
-    quit_event.set()
-
-    # wait till both threads are done before proceeding
-
-    tx_thr.join()
-
-    rx_thr.join()
-
-    tx_meta_thr.join()
-
-    # TX_ANGLE_CH0 ; TX_ANGLE_CH1 ; RX_ANGLE_CH0 ; RX_ANGLE_CH1 ; RX_AMPL_CH0 ; RX_AMPL_CH1
-    write_data(MEAS_TYPE_PLL_CHECK, [
-               phases[0], phases[1], phase_to_compensate[0], phase_to_compensate[1], 0.0, 0.0])  # TODO ADD AMPL
-
-    return phase_to_compensate[LOOPBACK_RX_CH]
-
-def tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr, at_time):
-    logger.debug("########### STEP 4 - TX with adjusted phases ###########")
-
-    phases = [0.0, 0.0]
-    amplitudes = [0.0, 0.0]
-
-    phases[FREE_TX_CH] = phase_corr
-    amplitudes[FREE_TX_CH] = 0.5
-
-    start_time = uhd.types.TimeSpec(at_time)
-
-    logger.debug(starting_in(usrp, at_time))
-
-    logger.debug(
-        f"Applying phase correction CH0:{np.rad2deg(phases[0]):.2f} and CH1:{np.rad2deg(phases[1]):.2f}")
-
-    tx_thr = tx_thread(usrp, tx_streamer, quit_event,
-                       amplitude=amplitudes, phase=phases, start_time=start_time)
-
-    tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
-
-    time.sleep(CAPTURE_TIME*2 + delta(usrp, at_time))
-
-    quit_event.set()
-
-    tx_thr.join()
-
-    tx_meta_thr.join()
-
-    return tx_thr, tx_meta_thr
 
 
 def get_current_time(usrp):
@@ -774,11 +573,6 @@ def main():
         logger.info("Using Device: %s", usrp.get_pp_string())
         tx_streamer, rx_streamer = setup(usrp)
 
-        _connect = False
-
-        tx_thr = tx_meta_thr = None
-
-
         quit_event = threading.Event()
         _ = measure_loopback(usrp, tx_streamer, rx_streamer, quit_event, meas_id, file)
         meas_id += 1
@@ -792,17 +586,9 @@ def main():
 
         quit_event.set()
 
-        # wait till finished before closing of
-
-        if tx_thr:
-            tx_thr.join()
-        if tx_meta_thr:
-            tx_meta_thr.join()
 
     finally:
 
-        iq_socket.close()
-        context.term()
         file.close()
         time.sleep(0.1)  # give it some time to close
 
