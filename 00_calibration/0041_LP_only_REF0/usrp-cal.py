@@ -266,7 +266,7 @@ def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time=None):
 
     transmit_buffer[0, :] *= sample[0]
 
-    transmit_buffer[1, :] *= sample[1]
+    # transmit_buffer[1, :] *= sample[1]
 
     # print(transmit_buffer.shape)
 
@@ -362,7 +362,7 @@ def tune_usrp(usrp, freq, channels, at_time):
 
     for chan in channels:
         logger.debug(print_tune_result(usrp.set_rx_freq(treq, chan)))
-        logger.debug(print_tune_result(usrp.set_tx_freq(treq, chan)))
+        logger.debug(print_tune_result(usrp.set_tx_freq(treq, 1)))
 
     wait_till_time(usrp, at_time)
 
@@ -395,15 +395,16 @@ def setup(usrp):
     # smallest as possible (https://files.ettus.com/manual/page_usrp_b200.html#b200_fe_bw)
     rx_bw = 200e3
 
+    usrp.set_tx_rate(rate, 1)
+
     for chan in channels:
         usrp.set_rx_rate(rate, chan)
-        usrp.set_tx_rate(rate, chan)
         usrp.set_rx_dc_offset(False, chan)
         usrp.set_rx_bandwidth(rx_bw, chan)
 
     # specific settings from loopback/REF PLL
     usrp.set_tx_gain(LOOPBACK_TX_GAIN, LOOPBACK_TX_CH)
-    usrp.set_tx_gain(REF_TX_GAIN, FREE_TX_CH)
+    # usrp.set_tx_gain(REF_TX_GAIN, FREE_TX_CH)
 
     usrp.set_rx_gain(LOOPBACK_RX_GAIN, LOOPBACK_RX_CH)
     usrp.set_rx_gain(REF_RX_GAIN, REF_RX_CH)
