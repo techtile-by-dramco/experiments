@@ -42,9 +42,6 @@ MEAS_TYPE_LOOPBACK_CHECK = "LBCK"
 MEAS_TYPE_PLL_CHECK = "PLLCK"
 MEAS_TYPE_PHASE_DIFF = "PDIFF"
 
-global meas_id
-meas_id = 0
-
 
 with open(os.path.join(os.path.dirname(__file__), "cal-settings.yml"), 'r') as file:
     vars = yaml.safe_load(file)
@@ -122,11 +119,7 @@ HOSTNAME = socket.gethostname()[4:]
 
 
 
-file_open = False
-
-
-def write_data(meas_type, data):
-    global meas_id, HOSTNAME
+def write_data(file, meas_id, meas_type, data):
     # Connect to the publisher's address
     logger.debug("Writing data to local file.")
     
@@ -533,7 +526,7 @@ def starting_in(usrp, at_time):
     return f"Starting in {delta(usrp, at_time):.2f}s"
 
 
-def measure_loopback(usrp, tx_streamer, rx_streamer, quit_event) -> float:
+def measure_loopback(usrp, tx_streamer, rx_streamer, quit_event, meas_id, file) -> float:
     logger.debug(" ########### STEP 1 - measure self TX-RX phase ###########")
 
     amplitudes = [0.0, 0.0]
@@ -576,7 +569,7 @@ def measure_loopback(usrp, tx_streamer, rx_streamer, quit_event) -> float:
     # phase_to_compensate[LOOPBACK_RX_CH] = closest_multiple_of(phase_to_compensate[LOOPBACK_RX_CH])
 
     # TX_ANGLE_CH0 ; TX_ANGLE_CH1 ; RX_ANGLE_CH0 ; RX_ANGLE_CH1 ; RX_AMPL_CH0 ; RX_AMPL_CH1
-    write_data(MEAS_TYPE_LOOPBACK, [
+    write_data(file, meas_id, MEAS_TYPE_LOOPBACK, [
                0.0, 0.0, phase_to_compensate[0], phase_to_compensate[1],0.0,0.0]) #TODO ADD AMPL
 
     return phase_to_compensate[LOOPBACK_RX_CH]
@@ -766,16 +759,15 @@ def get_current_time(usrp):
 
 
 def main():
-    global meas_id, file_open, file
+    global file
     # "mode_n=integer" #
 
     # start_PLL()
 
     file = open(
         f'data_{HOSTNAME}_{str(datetime.utcnow().strftime("%Y%m%d%H%M%S"))}.txt', "a")
-
+    meas_id = 0
     
-    _connect = True
     try:
         usrp = uhd.usrp.MultiUSRP(
             "fpga=usrp_b210_fpga.bin, mode_n=integer")
@@ -788,7 +780,7 @@ def main():
 
 
         quit_event = threading.Event()
-        _ = measure_loopback(usrp, tx_streamer, rx_streamer, quit_event)
+        _ = measure_loopback(usrp, tx_streamer, rx_streamer, quit_event, meas_id, file)
         meas_id += 1
         print("DONE")
         
