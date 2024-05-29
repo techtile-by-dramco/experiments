@@ -290,7 +290,7 @@ def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time=None):
 
         tx_md.end_of_burst = True
 
-        tx_streamer.send(np.zeros(0,
+        tx_streamer.send(np.zeros((1, 0),
                          dtype=np.complex64), tx_md)
 
 
