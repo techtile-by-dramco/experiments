@@ -42,6 +42,7 @@ MEAS_TYPE_LOOPBACK_CHECK = "LBCK"
 MEAS_TYPE_PLL_CHECK = "PLLCK"
 MEAS_TYPE_PHASE_DIFF = "PDIFF"
 
+global meas_id
 meas_id = 0
 
 
@@ -125,6 +126,7 @@ file_open = False
 
 
 def write_data(meas_type, data):
+    global meas_id, HOSTNAME
     # Connect to the publisher's address
     logger.debug("Writing data to local file.")
     
@@ -417,7 +419,7 @@ def tune_usrp(usrp, freq, channels, at_time):
     logger.info("TX LO is locked")
 
 
-def setup(usrp, server_ip, connect=True):
+def setup(usrp):
 
     rate = RATE
 
@@ -769,22 +771,21 @@ def main():
 
     # start_PLL()
 
+    file = open(
+        f'data_{HOSTNAME}_{str(datetime.utcnow().strftime("%Y%m%d%H%M%S"))}.txt', "a")
+
     
     _connect = True
     try:
         usrp = uhd.usrp.MultiUSRP(
             "fpga=usrp_b210_fpga.bin, mode_n=integer")
         logger.info("Using Device: %s", usrp.get_pp_string())
-        tx_streamer, rx_streamer = setup(usrp, server_ip, connect=_connect)
+        tx_streamer, rx_streamer = setup(usrp)
 
         _connect = False
 
         tx_thr = tx_meta_thr = None
 
-        
-        if not file_open:
-            file = open(f'data_{HOSTNAME}_{str(datetime.utcnow().strftime("%Y%m%d%H%M%S"))}.txt', "a")
-            file_open = True
 
         quit_event = threading.Event()
         _ = measure_loopback(usrp, tx_streamer, rx_streamer, quit_event)
