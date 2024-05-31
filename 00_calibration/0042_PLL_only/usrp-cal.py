@@ -497,42 +497,6 @@ def starting_in(usrp, at_time):
     return f"Starting in {delta(usrp, at_time):.2f}s"
 
 
-def measure_loopback(usrp, tx_streamer, rx_streamer, quit_event, _meas_id, file) -> float:
-    logger.debug(" ########### STEP 1 - measure self TX-RX phase ###########")
-
-    amplitudes = [0.0, 0.0]
-
-    amplitudes[LOOPBACK_TX_CH] = 0.8
-
-    phase_to_compensate = []
-
-    tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=amplitudes, phase=[
-                       0.0, 0.0])
-
-    tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
-    rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate,
-                       duration=CAPTURE_TIME)
-
-    time.sleep(CAPTURE_TIME)
-
-    quit_event.set()
-
-    # wait till both threads are done before proceding
-
-    tx_thr.join()
-
-    rx_thr.join()
-
-    # logger.debug(f"Phases to compensate: {phase_to_compensate}")
-
-    tx_meta_thr.join()
-
-    write_data(file, _meas_id, MEAS_TYPE_LOOPBACK, [
-               0.0, 0.0, phase_to_compensate[0], 0.0,0.0,0.0]) #TODO ADD AMPL
-
-    return phase_to_compensate[LOOPBACK_RX_CH]
-
-
 def measure_pll(usrp, rx_streamer, quit_event, meas_id, file) -> float:
     # Make a signal for the threads to stop running
 
@@ -553,8 +517,7 @@ def measure_pll(usrp, rx_streamer, quit_event, meas_id, file) -> float:
 
 
     # TX_ANGLE_CH0 ; TX_ANGLE_CH1 ; RX_ANGLE_CH0 ; RX_ANGLE_CH1 ; RX_AMPL_CH0 ; RX_AMPL_CH1
-    write_data(file, _meas_id, MEAS_TYPE_PLL, [
-               0.0, 0.0, 0.0, phase_to_compensate[0], 0.0, 0.0])  # TODO ADD AMPL
+    write_data(file, _meas_id, MEAS_TYPE_PLL, 0.0, 0.0, 0.0, phase_to_compensate[1], 0.0, 0.0])  # TODO ADD AMPL
 
     return None
 
