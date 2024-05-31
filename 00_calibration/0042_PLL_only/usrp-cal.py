@@ -517,7 +517,7 @@ def measure_pll(usrp, rx_streamer, quit_event, meas_id, file) -> float:
 
 
     # TX_ANGLE_CH0 ; TX_ANGLE_CH1 ; RX_ANGLE_CH0 ; RX_ANGLE_CH1 ; RX_AMPL_CH0 ; RX_AMPL_CH1
-    write_data(file, _meas_id, MEAS_TYPE_PLL, 0.0, 0.0, 0.0, phase_to_compensate[1], 0.0, 0.0])  # TODO ADD AMPL
+    write_data(file, _meas_id, MEAS_TYPE_PLL, [0.0, 0.0, 0.0, phase_to_compensate[1], 0.0, 0.0])  # TODO ADD AMPL
 
     return None
 
