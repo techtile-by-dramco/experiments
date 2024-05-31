@@ -497,7 +497,7 @@ def starting_in(usrp, at_time):
     return f"Starting in {delta(usrp, at_time):.2f}s"
 
 
-def measure_pll(usrp, rx_streamer, quit_event, meas_id, file) -> float:
+def measure_pll(usrp, rx_streamer, quit_event, _meas_id, file) -> float:
     # Make a signal for the threads to stop running
 
     logger.debug("########### STEP 1 - Measure PLL REF phase ###########")
