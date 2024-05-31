@@ -392,37 +392,36 @@ def setup(usrp):
 
     logger.debug("Setting RX")
 
-    usrp.set_rx_rate(rate, LOOPBACK_RX_CH)
-    usrp.set_rx_dc_offset(False, LOOPBACK_RX_CH)
-    usrp.set_rx_bandwidth(rx_bw, LOOPBACK_RX_CH)
+    usrp.set_rx_rate(rate, REF_RX_CH)
+    usrp.set_rx_dc_offset(False, REF_RX_CH)
+    usrp.set_rx_bandwidth(rx_bw, REF_RX_CH)
     
-    usrp.set_rx_gain(LOOPBACK_RX_GAIN, LOOPBACK_RX_CH)
     usrp.set_rx_gain(REF_RX_GAIN, REF_RX_CH)
     logger.debug(usrp.get_rx_antennas(
-        LOOPBACK_RX_CH))
-    usrp.set_rx_antenna('RX2', LOOPBACK_RX_CH)
+        REF_RX_CH))
+    usrp.set_rx_antenna('RX2', REF_RX_CH)
 
-    logger.debug("Setting TX")
-    # specific settings from loopback/REF PLL
-    usrp.set_tx_antenna(usrp.get_tx_antennas(
-        LOOPBACK_TX_CH)[0], LOOPBACK_TX_CH)
-    usrp.set_tx_rate(rate, LOOPBACK_TX_CH)
-    usrp.set_tx_gain(LOOPBACK_TX_GAIN, LOOPBACK_TX_CH)
+    # logger.debug("Setting TX")
+    # # specific settings from loopback/REF PLL
+    # usrp.set_tx_antenna(usrp.get_tx_antennas(
+    #     LOOPBACK_TX_CH)[0], LOOPBACK_TX_CH)
+    # usrp.set_tx_rate(rate, LOOPBACK_TX_CH)
+    # usrp.set_tx_gain(LOOPBACK_TX_GAIN, LOOPBACK_TX_CH)
     # usrp.set_tx_gain(REF_TX_GAIN, FREE_TX_CH)
 
 
     # streaming arguments
     logger.debug("Creating args")
     st_args = uhd.usrp.StreamArgs("fc32", "sc16")
-    st_args.channels = [LOOPBACK_RX_CH]
+    st_args.channels = [REF_RX_CH]
 
     # streamers
     logger.debug("Get RX stream")
     rx_streamer = usrp.get_rx_stream(st_args)
 
-    st_args.channels = [LOOPBACK_TX_CH]
-    logger.debug("Get TX stream")
-    tx_streamer = usrp.get_tx_stream(st_args)
+    # st_args.channels = [LOOPBACK_TX_CH]
+    # logger.debug("Get TX stream")
+    # tx_streamer = usrp.get_tx_stream(st_args)
 
     # Step1: wait for the last pps time to transition to catch the edge
     # Step2: set the time at the next pps (synchronous for all boards)
@@ -440,7 +439,7 @@ def setup(usrp):
     logger.info(
         f"USRP has been tuned and setup. ({usrp.get_time_now().get_real_secs()})")
 
-    return tx_streamer, rx_streamer
+    return None, rx_streamer
 
 
 def tx_thread(usrp, tx_streamer, quit_event, phase=[0, 0], amplitude=[0.8, 0.8], start_time=None):
