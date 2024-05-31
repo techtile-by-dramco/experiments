@@ -515,6 +515,8 @@ def measure_pll(usrp, rx_streamer, quit_event, meas_id, file) -> float:
     # wait till both threads are done before proceding
     rx_thr.join()
 
+    print("here we are")
+
 
     # TX_ANGLE_CH0 ; TX_ANGLE_CH1 ; RX_ANGLE_CH0 ; RX_ANGLE_CH1 ; RX_AMPL_CH0 ; RX_AMPL_CH1
     write_data(file, _meas_id, MEAS_TYPE_PLL, [0.0, 0.0, 0.0, phase_to_compensate[1], 0.0, 0.0])  # TODO ADD AMPL
