@@ -454,7 +454,7 @@ def tx_thread(usrp, tx_streamer, quit_event, phase=[0, 0], amplitude=[0.8, 0.8],
     return tx_thread
 
 
-def rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_time=None, res):
+def rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_time, res):
     rx_thread = threading.Thread(target=rx_ref,
                                  args=(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_time, res))
 
@@ -509,7 +509,7 @@ def measure_pll(usrp, rx_streamer, quit_event, _meas_id, file) -> float:
     res = []
 
     rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate,
-                       duration=CAPTURE_TIME, res)
+                       duration=CAPTURE_TIME, start_time=None, res)
 
     time.sleep(CAPTURE_TIME)
 
