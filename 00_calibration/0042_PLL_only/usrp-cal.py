@@ -238,7 +238,7 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
         logger.debug(f"Amplitude mean CH0:{avg_ampl:.4f}")
         logger.debug(f"Amplitude var CH0:{var_ampl:.6f}")
 
-        res.extend(var_angles, avg_ampl, var_ampl)
+        res.extend([var_angles, avg_ampl, var_ampl])
 
 
 
