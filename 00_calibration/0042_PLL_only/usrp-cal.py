@@ -132,7 +132,7 @@ def circmedian(angs):
     pdists = np.abs(pdists).sum(1)
     return angs[np.argmin(pdists)]
 
-def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_time=None):
+def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_time=None, res):
     # https://files.ettus.com/manual/page_sync.html#sync_phase_cordics
 
     # The CORDICs are reset at each start-of-burst command, so users should ensure that every start-of-burst also has a time spec set.
@@ -237,6 +237,8 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
         # keep this just below this final stage
         logger.debug(f"Amplitude mean CH0:{avg_ampl:.4f}")
         logger.debug(f"Amplitude var CH0:{var_ampl:.6f}")
+
+        res.extend(var_angles, avg_ampl, var_ampl)
 
 
 
@@ -452,9 +454,9 @@ def tx_thread(usrp, tx_streamer, quit_event, phase=[0, 0], amplitude=[0.8, 0.8],
     return tx_thread
 
 
-def rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_time=None):
+def rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_time=None, res):
     rx_thread = threading.Thread(target=rx_ref,
-                                 args=(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_time))
+                                 args=(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_time, res))
 
     rx_thread.setName("RX_thread")
     rx_thread.start()
@@ -504,9 +506,10 @@ def measure_pll(usrp, rx_streamer, quit_event, _meas_id, file) -> float:
 
 
     phase_to_compensate = []
+    res = []
 
     rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate,
-                       duration=CAPTURE_TIME)
+                       duration=CAPTURE_TIME, res)
 
     time.sleep(CAPTURE_TIME)
 
@@ -517,9 +520,10 @@ def measure_pll(usrp, rx_streamer, quit_event, _meas_id, file) -> float:
 
     print("here we are")
 
-
-    # TX_ANGLE_CH0 ; TX_ANGLE_CH1 ; RX_ANGLE_CH0 ; RX_ANGLE_CH1 ; RX_AMPL_CH0 ; RX_AMPL_CH1
-    write_data(file, _meas_id, MEAS_TYPE_PLL, [0.0, 0.0, 0.0, phase_to_compensate[0], 0.0, 0.0])  # TODO ADD AMPL
+    #res.extend(var_angles, avg_ampl, var_ampl)
+    # TX_ANGLE_CH0 ; TX_ANGLE_CH1 ; RX_ANGLE_CH0 ; RX_ANGLE_CH1 ; RX_AMPL_CH0 ; RX_AMPL_CH1 ; RX_ANGLE_VAR_CH0 ; RX_ANGLE_VAR_CH1 ; RX_AMPL_VAR_CH0 ; RX_AMPL_VAR_CH1
+    write_data(file, _meas_id, MEAS_TYPE_PLL, [
+               0.0, 0.0, 0.0, phase_to_compensate[0], 0.0, res[1], 0.0, res[0], 0.0, res[-1]])
 
     return None
 
