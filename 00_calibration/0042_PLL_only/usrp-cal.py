@@ -509,7 +509,7 @@ def measure_pll(usrp, rx_streamer, quit_event, _meas_id, file) -> float:
     res = []
 
     rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate,
-                       duration=CAPTURE_TIME, start_time=None, res)
+                       duration=CAPTURE_TIME, start_time=None, res=res)
 
     time.sleep(CAPTURE_TIME)
 
