@@ -132,7 +132,7 @@ def circmedian(angs):
     pdists = np.abs(pdists).sum(1)
     return angs[np.argmin(pdists)]
 
-def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_time=None, res):
+def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_time, res):
     # https://files.ettus.com/manual/page_sync.html#sync_phase_cordics
 
     # The CORDICs are reset at each start-of-burst command, so users should ensure that every start-of-burst also has a time spec set.
