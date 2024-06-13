@@ -826,11 +826,11 @@ def main():
         tx_thr = tx_meta_thr = None
 
         margin = 6.0
-        cmd_time = CAPTURE_TIME + margin
+        cmd_time = CAPTURE_TIME + margin -8.0 # emperical determined
 
         quit_event = threading.Event()
         tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr=0,
-                        at_time=cmd_time)
+                        at_time=5.0)
 
     except KeyboardInterrupt:
 
