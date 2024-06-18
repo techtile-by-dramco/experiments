@@ -1,6 +1,6 @@
 info: # SERVER
   description: Measurement for WP5 Reindeer Exp. 4aa PART 1
-  exp_name: 4aa-part-1
+  exp_name: phase_75 #4aa-part-1
   server_user_name: jarne
   ip: 10.128.48.3
   port: 5558 # EXTERNAL CONTROL
@@ -19,9 +19,9 @@ client: # CLIENT
   hosts:
     all:
       freq: 920000000.0
-      gain: 80
+      gain: 75
       channels: [0, 1]
-      duration: 2 #3600
+      duration: 10 #3600
     # T04: 
     #   gain: 30
 positioning: # MEASUREMENT EQUIPMENT

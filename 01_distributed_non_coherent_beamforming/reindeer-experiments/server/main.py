@@ -206,8 +206,8 @@ if __name__ == '__main__':
 
                 #   Save data
                 try:
-                    data_to_append = [*pos.to_csv(), power_dBm, *ep_data.to_csv()]
-                    header = positioning_yaml.get("csv_header") + scope_yaml.get("csv_header") + ep_yaml.get("csv_header")
+                    data_to_append = [time.time(), *pos.to_csv(), power_dBm, *ep_data.to_csv()]
+                    header = ["timestamp"] + positioning_yaml.get("csv_header") + scope_yaml.get("csv_header") + ep_yaml.get("csv_header")
                     append_to_csv(f"{exp_dir}/data/{client_experiment_name}.csv", data_to_append, header)
                 except Exception as e:
                     print(e)
