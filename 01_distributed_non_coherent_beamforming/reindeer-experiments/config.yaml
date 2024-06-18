@@ -2,7 +2,7 @@ info: # SERVER
   description: Measurement for WP5 Reindeer Exp. 4aa PART 1
   exp_name: 4aa-part-1
   server_user_name: jarne
-  ip: 10.128.48.11
+  ip: 10.128.48.3
   port: 5558 # EXTERNAL CONTROL
 ansible: # SERVER
   inventory: hosts.yaml
@@ -12,17 +12,18 @@ ansible: # SERVER
 # usrp:
 client: # CLIENT
   enable_client_script: true
-  tiles: multiON # Define tiles that should be accessed by ansible
+  tiles: ceiling # Define tiles that should be accessed by ansible
   script: tx_waveforms_random_phase.py # ENSURE script is under folder *** <<ROOT-EXP>>/client/<<NAME>>.py ***
   # ansibletiles: segmentA
-  ip: 10.128.48.11 #192.108.0.204
+  ip: 10.128.48.3 #192.108.0.204
   hosts:
     all:
-      freq: 917000000.0
-      gain: 80
+      freq: 920000000.0
+      gain: 75
       channels: [0, 1]
-    T04: 
-      gain: 30
+      duration: 1 #3600
+    # T04: 
+    #   gain: 30
 positioning: # MEASUREMENT EQUIPMENT
   enabled: true
   ip: 192.108.0.13
@@ -34,9 +35,9 @@ positioning: # MEASUREMENT EQUIPMENT
   zaxisoffset: 0
   csv_header: ['x', 'y', 'z', 'utc']
 scope: # MEASUREMENT EQUIPMENT
-  enabled: false
-  cable_loss: 0
-  center_Hz: 917000000.0
+  enabled: true
+  cable_loss: 10
+  center_Hz: 920000000.0
   ip: 192.108.0.251
   rbw_Hz: 100.0
   span_Hz: 10000000.0
