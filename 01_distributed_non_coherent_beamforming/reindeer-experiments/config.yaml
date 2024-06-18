@@ -37,10 +37,11 @@ positioning: # MEASUREMENT EQUIPMENT
 scope: # MEASUREMENT EQUIPMENT
   enabled: true
   cable_loss: 10
-  center_Hz: 920000000.0
+  bandwidth_hz: 6E9
+  center_hz: 920000000.0
   ip: 192.108.0.251
-  rbw_Hz: 100.0
-  span_Hz: 10000000.0
+  rbw_hz: 100.0
+  span_hz: 10000000.0
   csv_header: ['dbm']
 ep: # MEASUREMENT EQUIPMENT
   enabled: true

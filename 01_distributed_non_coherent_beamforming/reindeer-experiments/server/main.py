@@ -27,7 +27,7 @@ from yaml_utils import *
 from export_data import *
 from connect_to_clients import *
 
-# Read YAML file
+#   Read YAML file
 config = read_yaml_file(f"{exp_dir}/config.yaml")
 
 #   INFO
@@ -98,7 +98,7 @@ if __name__ == '__main__':
             scope = Scope(scope_yaml.get("ip"))
             scope.setup(scope_yaml.get("bandwidth_hz"), scope_yaml.get("center_hz"), scope_yaml.get("span_hz"), scope_yaml.get("rbw_hz"))
         except:
-            print("Can not connect to the scope!")
+            print("Can not connect to the scope or something went wrong!")
             print("1) Check network connection")
             print("2) (optionally) Reboot system")
             positioner.stop()
@@ -119,6 +119,9 @@ if __name__ == '__main__':
     meas_init_time = round(time.time())
     client_experiment_name = f"{exp_name}_{meas_init_time}"
 
+    #   Save config file
+    save_config_file(exp_dir, client_experiment_name, config)
+    
     print("(1) Copy python script from server to client to folder 'home/ip/exp/{client_experiment_name}'")
 
     #   Check or copy files to the clients
@@ -193,7 +196,7 @@ if __name__ == '__main__':
                 #   Check is scope is enabled
                 if scope_yaml.get("enabled"):
                     #   Get rsv power via scope
-                    power_dBm, peaks = scope.get_power_dBm_peaks(scope.get('cable_loss'), no_active_transmitters)
+                    power_dBm, peaks = scope.get_power_dBm_peaks(scope_yaml.get("cable_loss"), no_active_transmitters)
 
                     #   Print power
                     print(f"Power [dBm] {power_dBm:.2f} - NO Peaks {len(peaks)}")

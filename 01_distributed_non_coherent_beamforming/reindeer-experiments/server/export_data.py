@@ -26,3 +26,7 @@ def append_to_csv(csv_file_path, data, csv_header):
 
         # Write the data to the CSV file
         writer.writerow(data)
+
+def save_config_file(exp_dir, client_experiment_name, config):
+      with open(f"{exp_dir}/data/{client_experiment_name}_config.yaml", "w") as yml_file:
+        yaml.dump(config, yml_file, default_flow_style=False)
