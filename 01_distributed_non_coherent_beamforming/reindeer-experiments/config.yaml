@@ -1,6 +1,6 @@
 info: # SERVER
   description: Measurement for WP5 Reindeer Exp. 4aa PART 1
-  exp_name: phase_75 #4aa-part-1
+  exp_name: phase_80 #4aa-part-1
   server_user_name: jarne
   ip: 10.128.48.3
   port: 5558 # EXTERNAL CONTROL
@@ -33,7 +33,7 @@ positioning: # MEASUREMENT EQUIPMENT
   xaxisoffset: 0
   yaxisoffset: 0
   zaxisoffset: 0
-  csv_header: ['x', 'y', 'z', 'utc']
+  csv_header: ['x', 'y', 'z', 'utc','rm']
 scope: # MEASUREMENT EQUIPMENT
   enabled: true
   cable_loss: 10

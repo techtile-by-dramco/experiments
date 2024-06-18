@@ -26,7 +26,7 @@ ep:
   protocol: zmq
 info:
   description: Measurement for WP5 Reindeer Exp. 4aa PART 1
-  exp_name: phase_75
+  exp_name: phase_80
   ip: 10.128.48.3
   port: 5558
   server_user_name: jarne
@@ -36,6 +36,7 @@ positioning:
   - y
   - z
   - utc
+  - rm
   enabled: true
   ip: 192.108.0.13
   port: 5555
