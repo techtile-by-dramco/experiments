@@ -93,7 +93,7 @@ class Scope:
 
         #   Sort peaks in descending order
         peaks_sorted = sorted(pwr_dbm[peaks], reverse=True)
-        print(peaks_sorted[:search_for_no_peaks])
+        # print(peaks_sorted[:search_for_no_peaks])
 
         #   Combine peaks to one overall power value
         power_linear = 10 ** (np.asarray(peaks_sorted[:search_for_no_peaks]) / 10)
