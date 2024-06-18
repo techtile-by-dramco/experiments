@@ -20,25 +20,71 @@ def get_last_meas_name() -> str:
 # Add new measurement phase
 scope.write("MEASUREMENT:ADDMEAS PHASE")
 
+meas = [None, None, None]
+
 
 # Define measurement number
 meas_name = get_last_meas_name().strip()
 print(f"Reading {meas_name}")
 
+meas[0] = meas_name
+
 
 # Define channels (phase measurment)
 channel_1 = "CH1"
 channel_2 = "CH2"
+channel_3 = "CH3"
 
 # Update sources from last added measurement
 scope.write(f"MEASUrement:{meas_name}:SOUrce1 {channel_1}")
 scope.write(f"MEASUrement:{meas_name}:SOUrce2 {channel_2}")
+
+# Add new measurement phase
+scope.write("MEASUREMENT:ADDMEAS PHASE")
+
+
+# Define measurement number
+meas_name = get_last_meas_name().strip()
+print(f"Reading {meas_name}")
+meas[1] = meas_name
+
+
+# Define channels (phase measurment)
+channel_1 = "CH1"
+channel_2 = "CH2"
+channel_3 = "CH3"
+
+# Update sources from last added measurement
+scope.write(f"MEASUrement:{meas_name}:SOUrce1 {channel_1}")
+scope.write(f"MEASUrement:{meas_name}:SOUrce2 {channel_3}")
+
+# Add new measurement phase
+scope.write("MEASUREMENT:ADDMEAS PHASE")
+
+
+# Define measurement number
+meas_name = get_last_meas_name().strip()
+print(f"Reading {meas_name}")
+meas[2] = meas_name
+
+
+# Define channels (phase measurment)
+channel_1 = "CH1"
+channel_2 = "CH2"
+channel_3 = "CH3"
+
+# Update sources from last added measurement
+scope.write(f"MEASUrement:{meas_name}:SOUrce1 {channel_2}")
+scope.write(f"MEASUrement:{meas_name}:SOUrce2 {channel_3}")
 
 
 
 meas_ongoing = False
 
 meas_data = []
+
+meas_data1 = []
+meas_data2 = []
 
 num_valid_in_meas = 0
 
@@ -58,8 +104,8 @@ meas_id = 0
 
 while 1:
 
-    # Poll the socket with a timeout of 1 second (1000 ms)
-    socks = dict(poller.poll(1000))
+    # Poll the socket with a timeout of 1 second (100 ms)
+    socks = dict(poller.poll(100))
 
     if sync_socket in socks and socks[sync_socket] == zmq.POLLIN:
         # Message is available
@@ -70,15 +116,18 @@ while 1:
             file_open = True
         print("Received message:", meas_id)
 
-    res = scope.query(f"MEASUrement:{meas_name}:RESUlts:HISTory:MEAN?")
+    res = scope.query(f"MEASUrement:{meas[0]}:RESUlts:HISTory:MEAN?")
+
+    res1 = scope.query(f"MEASUrement:{meas[1]}:RESUlts:HISTory:MEAN?")
+    res2 = scope.query(f"MEASUrement:{meas[2]}:RESUlts:HISTory:MEAN?")
 
     res_valid = float(res) < 360.0
-
-    # TODO ignore 1 shots
 
     if res_valid and not np.isnan(res_valid):
         print(".", end="", flush=True)
         meas_data.append(float(res))
+        meas_data1.append(float(res1))
+        meas_data2.append(float(res2))
         num_valid_in_meas += 1
         if not meas_ongoing:
             meas_ongoing = True
@@ -90,10 +139,12 @@ while 1:
         if num_valid_in_meas > 10:
             # skip the last and first 5 meas
             file.write(
-                f"{meas_id} {np.rad2deg(circmean(np.deg2rad(meas_data[2:-2])))}\n")
+                f"{meas_id} {np.rad2deg(circmean(np.deg2rad(meas_data[2:-2])))} {np.rad2deg(circmean(np.deg2rad(meas_data1[2:-2])))} {np.rad2deg(circmean(np.deg2rad(meas_data2[2:-2])))}\n")
             file.flush()
-            print(f"{meas_id} {np.rad2deg(circmean(np.deg2rad(meas_data[2:-2])))}")
+            print(f"{meas_id} {np.rad2deg(circmean(np.deg2rad(meas_data[2:-2])))} {np.rad2deg(circmean(np.deg2rad(meas_data1[2:-2])))} {np.rad2deg(circmean(np.deg2rad(meas_data2[2:-2])))}\n")
         meas_data = []
+        meas_data1 = [] 
+        meas_data2 = []
         num_valid_in_meas = 0
     
     time.sleep(0.5)

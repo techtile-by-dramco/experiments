@@ -172,7 +172,7 @@ def circmedian(angs):
     pdists = np.abs(pdists).sum(1)
     return angs[np.argmin(pdists)]
 
-def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_time=None):
+def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, res, start_time=None):
     # https://files.ettus.com/manual/page_sync.html#sync_phase_cordics
 
     # The CORDICs are reset at each start-of-burst command, so users should ensure that every start-of-burst also has a time spec set.
@@ -281,6 +281,8 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
         # keep this just below this final stage
         logger.debug(f"Amplitude CH0:{avg_ampl[0]:.2f} CH1:{avg_ampl[1]:.2f}")
         logger.debug(f"Amplitude var CH0:{var_ampl[0]:.2f} CH1:{var_ampl[1]:.2f}")
+
+        res.extend([var_angles[0], var_angles[1], var_ampl[0], var_ampl[1]])
 
 
 def wait_till_go_from_server(ip, _connect=True):
@@ -517,9 +519,9 @@ def tx_thread(usrp, tx_streamer, quit_event, phase=[0, 0], amplitude=[0.8, 0.8],
     return tx_thread
 
 
-def rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_time=None):
+def rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate, duration, res, start_time=None):
     rx_thread = threading.Thread(target=rx_ref,
-                                 args=(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_time))
+                                 args=(usrp, rx_streamer, quit_event, phase_to_compensate, duration, res, start_time))
 
     rx_thread.setName("RX_thread")
     rx_thread.start()
@@ -580,9 +582,12 @@ def measure_loopback(usrp, tx_streamer, rx_streamer, at_time) -> float:
     tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=amplitudes, phase=[
                        0.0, 0.0], start_time=start_time)
 
+
+    res = []
+
     tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
     rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate,
-                       duration=CAPTURE_TIME, start_time=start_time)
+                       duration=CAPTURE_TIME, res=res, start_time=start_time)
 
     time.sleep(CAPTURE_TIME + delta(usrp, at_time))
 
@@ -612,7 +617,7 @@ def measure_loopback(usrp, tx_streamer, rx_streamer, at_time) -> float:
 
     # TX_ANGLE_CH0 ; TX_ANGLE_CH1 ; RX_ANGLE_CH0 ; RX_ANGLE_CH1 ; RX_AMPL_CH0 ; RX_AMPL_CH1
     write_data(MEAS_TYPE_LOOPBACK, [
-               0.0, 0.0, phase_to_compensate[0], phase_to_compensate[1],0.0,0.0]) #TODO ADD AMPL
+               0.0, 0.0, phase_to_compensate[0], phase_to_compensate[1],res[0],res[1],res[2],res[3]]) #TODO ADD AMPL
 
     return phase_to_compensate[LOOPBACK_RX_CH]
 
@@ -625,13 +630,14 @@ def measure_pll(usrp, rx_streamer, at_time) -> float:
     quit_event = threading.Event()
 
     phase_to_compensate = []
+    res = []
 
     start_time = uhd.types.TimeSpec(at_time)
 
     logger.debug(starting_in(usrp, at_time))
 
     rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate,
-                       duration=CAPTURE_TIME, start_time=start_time)
+                       duration=CAPTURE_TIME, res=res, start_time=start_time)
 
     time.sleep(CAPTURE_TIME + delta(usrp, at_time))
 
@@ -644,7 +650,7 @@ def measure_pll(usrp, rx_streamer, at_time) -> float:
 
     # TX_ANGLE_CH0 ; TX_ANGLE_CH1 ; RX_ANGLE_CH0 ; RX_ANGLE_CH1 ; RX_AMPL_CH0 ; RX_AMPL_CH1
     write_data(MEAS_TYPE_PLL, [
-               0.0, 0.0, phase_to_compensate[0], phase_to_compensate[1], 0.0, 0.0])  # TODO ADD AMPL
+               0.0, 0.0, phase_to_compensate[0], phase_to_compensate[1], res[0], res[1], res[2], res[3]])  # TODO ADD AMPL
 
     return pll_phase
 
@@ -668,12 +674,13 @@ def check_loopback(usrp, tx_streamer, rx_streamer, phase_corr, at_time) -> float
     logger.debug(starting_in(usrp, at_time))
 
     phase_to_compensate = []
+    res = []
 
     tx_thr = tx_thread(usrp, tx_streamer, quit_event,
                        amplitude=amplitudes, phase=phases, start_time=start_time)
     tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
     rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate,
-                       duration=CAPTURE_TIME, start_time=start_time)
+                       duration=CAPTURE_TIME, res=res, start_time=start_time)
 
     time.sleep(CAPTURE_TIME + delta(usrp, at_time))
 
@@ -689,7 +696,7 @@ def check_loopback(usrp, tx_streamer, rx_streamer, phase_corr, at_time) -> float
 
     # TX_ANGLE_CH0 ; TX_ANGLE_CH1 ; RX_ANGLE_CH0 ; RX_ANGLE_CH1 ; RX_AMPL_CH0 ; RX_AMPL_CH1
     write_data(MEAS_TYPE_LOOPBACK_CHECK, [
-               phases[0], phases[1], phase_to_compensate[0], phase_to_compensate[1], 0.0, 0.0])  # TODO ADD AMPL
+               phases[0], phases[1], phase_to_compensate[0], phase_to_compensate[1], res[0], res[1], res[2], res[3]])  # TODO ADD AMPL
 
     return phase_to_compensate[LOOPBACK_RX_CH]
 
@@ -713,12 +720,13 @@ def check_pll_loopback(usrp, tx_streamer, rx_streamer, phase_corr, at_time) -> f
     logger.debug(starting_in(usrp, at_time))
 
     phase_to_compensate = []
+    res =[] 
 
     tx_thr = tx_thread(usrp, tx_streamer, quit_event,
                        amplitude=amplitudes, phase=phases, start_time=start_time)
     tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
     rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate,
-                       duration=CAPTURE_TIME, start_time=start_time)
+                       duration=CAPTURE_TIME, res=res, start_time=start_time)
 
     time.sleep(CAPTURE_TIME + delta(usrp, at_time))
 
@@ -734,7 +742,7 @@ def check_pll_loopback(usrp, tx_streamer, rx_streamer, phase_corr, at_time) -> f
 
     # TX_ANGLE_CH0 ; TX_ANGLE_CH1 ; RX_ANGLE_CH0 ; RX_ANGLE_CH1 ; RX_AMPL_CH0 ; RX_AMPL_CH1
     write_data(MEAS_TYPE_PLL_CHECK, [
-               phases[0], phases[1], phase_to_compensate[0], phase_to_compensate[1], 0.0, 0.0])  # TODO ADD AMPL
+               phases[0], phases[1], phase_to_compensate[0], phase_to_compensate[1], res[0], res[1], res[2], res[3]])  # TODO ADD AMPL
 
     return phase_to_compensate[LOOPBACK_RX_CH]
 
@@ -809,7 +817,7 @@ def main():
     _connect = True
     try:
         usrp = uhd.usrp.MultiUSRP(
-            "fpga=usrp_b210_fpga_loopback.bin, mode_n=integer")
+            "fpga=usrp_b210_fpga.bin, mode_n=integer")
         logger.info("Using Device: %s", usrp.get_pp_string())
         tx_streamer, rx_streamer = setup(usrp, server_ip, connect=_connect)
 
@@ -820,7 +828,7 @@ def main():
         margin = 6.0
         cmd_time = CAPTURE_TIME + margin
 
-        start_time = begin_time + margin -5.0 # -5.0 emperically determined
+        start_time = begin_time + margin -4.0 # -5.0 emperically determined
 
         tx_rx_phase = measure_loopback(
             usrp, tx_streamer, rx_streamer, at_time=start_time)
@@ -828,19 +836,19 @@ def main():
 
         phase_corr = - tx_rx_phase
 
-        start_time += cmd_time
+        start_time += cmd_time -1.0
         pll_rx_phase = measure_pll(
             usrp, rx_streamer, at_time=start_time)
         print("DONE")
 
-        start_time += cmd_time - 2.0  # -2.0 emperically determined
+        start_time += cmd_time - 3.0  # -2.0 emperically determined
         remainig_loopback_phase = check_loopback(usrp, tx_streamer, rx_streamer,
                                         phase_corr=phase_corr, at_time=start_time)
         logger.debug(
             f"Remaining phase is {np.rad2deg(remainig_loopback_phase):.2f} degrees.")
         
 
-        start_time += cmd_time
+        start_time += cmd_time -1.0
         _ = check_pll_loopback(usrp, tx_streamer, rx_streamer,
                                                     phase_corr=(pll_rx_phase - tx_rx_phase), at_time=start_time)
 
@@ -849,7 +857,7 @@ def main():
         print("DONE")
 
         quit_event = threading.Event()
-        start_time += cmd_time - 1.0  # -1.0 emperically determined
+        start_time += cmd_time  # -1.0 emperically determined
         tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr=(pll_rx_phase - tx_rx_phase),
                         at_time=start_time)
 

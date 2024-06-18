@@ -42,8 +42,6 @@ MEAS_TYPE_LOOPBACK_CHECK = "LBCK"
 MEAS_TYPE_PLL_CHECK = "PLLCK"
 MEAS_TYPE_PHASE_DIFF = "PDIFF"
 
-meas_id = 0
-
 
 with open(os.path.join(os.path.dirname(__file__), "cal-settings.yml"), 'r') as file:
     vars = yaml.safe_load(file)
@@ -111,59 +109,21 @@ else:
     REF_RX_CH = LOOPBACK_TX_CH = 1
     logger.debug("\nPLL REF-->CH1 RX\nCH1 TX-->CH0 RX\nCH0 TX -->")
 
-context = zmq.Context()
-
-iq_socket = context.socket(zmq.PUB)
-
-iq_socket.bind(f"tcp://*:{50001}")
-
 HOSTNAME = socket.gethostname()[4:]
 
 
 
-file_open = False
-
-
-def write_data(meas_type, data):
+def write_data(file, _meas_id:int, meas_type, data):
     # Connect to the publisher's address
     logger.debug("Writing data to local file.")
     
     # TX_ANGLE_CH0 ; TX_ANGLE_CH1 ; RX_ANGLE_CH0 ; RX_ANGLE_CH1 ; RX_AMPL_CH0 ; RX_AMPL_CH1
     # 4 to remove "rpi-" in the name
-    data = str(meas_id)+";"+HOSTNAME+";"+meas_type + \
+    data = str(_meas_id)+";"+HOSTNAME+";"+meas_type + \
         ";"+";".join(str(v) for v in data)
     logger.debug("Writing data %s.", data)
     file.write(data+"\n")
     file.flush()
-
-
-def publish(data, channel: int):
-    # logger.debug(f"sending data of size {len(data)}")
-
-    if channel == 0:
-        topic = TOPIC_CH0
-    elif channel == 1:
-        topic = TOPIC_CH1
-    else:
-        logger.error(f"Channel should be 0 or 1, not {channel}")
-
-    iq_socket.send_multipart([topic, data.tobytes()])
-
-
-def send_rx(samples):
-    # avg_angles = np.angle(np.sum(np.exp(np.angle(samples)*1j), axis=1)) # circular mean https://en.wikipedia.org/wiki/Circular_mean
-
-    # avg_ampl = np.mean(np.abs(samples),axis=1)
-
-    # print(f"Angle CH0:{np.rad2deg(avg_angles[0]):.2f} CH1:{np.rad2deg(avg_angles[1]):.2f}")
-
-    # print(f"Amplitude CH0:{avg_ampl[0]:.2f} CH1:{avg_ampl[1]:.2f}")
-
-    angles = np.rad2deg(np.angle(samples))
-
-    publish(angles[0], 0)
-
-    publish(angles[1], 1)
 
 
 def circmedian(angs):
@@ -283,37 +243,6 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
         logger.debug(f"Amplitude var CH0:{var_ampl[0]:.2f} CH1:{var_ampl[1]:.2f}")
 
 
-def wait_till_go_from_server(ip, _connect=True):
-
-
-    global meas_id, file_open, file
-
-    # Connect to the publisher's address
-    logger.debug("Connecting to server %s.", ip)
-    sync_socket = context.socket(zmq.SUB)
-
-    alive_socket = context.socket(zmq.REQ)
- 
-    sync_socket.connect(f"tcp://{ip}:{5557}")
-    alive_socket.connect(f"tcp://{ip}:{5558}")
-    # Subscribe to topics
-    sync_socket.subscribe("")
-
-    logger.debug("Sending ALIVE")
-    alive_socket.send_string("ALIVE")
-    # Receives a string format message
-    logger.debug("Waiting on SYNC from server %s.", ip)
-    
-    meas_id, unique_id = sync_socket.recv_string().split(" ")
-
-    if not file_open:
-        file = open(f"data_{HOSTNAME}_{unique_id}.txt", "a")
-        file_open = True
-
-    logger.debug(meas_id)
-
-    alive_socket.close()
-    sync_socket.close()
 
 
 def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time=None):
@@ -448,7 +377,7 @@ def tune_usrp(usrp, freq, channels, at_time):
     logger.info("TX LO is locked")
 
 
-def setup(usrp, server_ip, connect=True):
+def setup(usrp):
 
     rate = RATE
 
@@ -492,7 +421,7 @@ def setup(usrp, server_ip, connect=True):
     # Step2: set the time at the next pps (synchronous for all boards)
     # this is better than set_time_next_pps as we wait till the next PPS to transition and after that we set the time.
     # this ensures that the FPGA has enough time to clock in the new timespec (otherwise it could be too close to a PPS edge)
-    wait_till_go_from_server(server_ip, connect)
+    # wait_till_go_from_server(server_ip, connect)
     logger.info("Setting device timestamp to 0...")
     usrp.set_time_unknown_pps(uhd.types.TimeSpec(0.0))
     logger.debug("[SYNC] Resetting time.")
@@ -562,10 +491,8 @@ def starting_in(usrp, at_time):
     return f"Starting in {delta(usrp, at_time):.2f}s"
 
 
-def measure_loopback(usrp, tx_streamer, rx_streamer, at_time) -> float:
+def measure_loopback(usrp, tx_streamer, rx_streamer, quit_event, _meas_id, file) -> float:
     logger.debug(" ########### STEP 1 - measure self TX-RX phase ###########")
-
-    quit_event = threading.Event()
 
     amplitudes = [0.0, 0.0]
 
@@ -573,18 +500,14 @@ def measure_loopback(usrp, tx_streamer, rx_streamer, at_time) -> float:
 
     phase_to_compensate = []
 
-    start_time = uhd.types.TimeSpec(at_time)
-
-    logger.debug(starting_in(usrp, at_time))
-
     tx_thr = tx_thread(usrp, tx_streamer, quit_event, amplitude=amplitudes, phase=[
-                       0.0, 0.0], start_time=start_time)
+                       0.0, 0.0])
 
     tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
     rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate,
-                       duration=CAPTURE_TIME, start_time=start_time)
+                       duration=CAPTURE_TIME)
 
-    time.sleep(CAPTURE_TIME + delta(usrp, at_time))
+    time.sleep(CAPTURE_TIME)
 
     quit_event.set()
 
@@ -598,176 +521,10 @@ def measure_loopback(usrp, tx_streamer, rx_streamer, at_time) -> float:
 
     tx_meta_thr.join()
 
-    # #TODO double check
-    # import math
-    # def closest_multiple_of(value, base=math.pi/8):
-
-    #     if value < 0:
-    #         value = value + math.pi*2
-
-    #     return base * round(value/base)
-
-    # # ensure it is a multiple of 45 degrees, as we would expect @ this frequency given the dividers
-    # phase_to_compensate[LOOPBACK_RX_CH] = closest_multiple_of(phase_to_compensate[LOOPBACK_RX_CH])
-
-    # TX_ANGLE_CH0 ; TX_ANGLE_CH1 ; RX_ANGLE_CH0 ; RX_ANGLE_CH1 ; RX_AMPL_CH0 ; RX_AMPL_CH1
-    write_data(MEAS_TYPE_LOOPBACK, [
+    write_data(file, _meas_id, MEAS_TYPE_LOOPBACK, [
                0.0, 0.0, phase_to_compensate[0], phase_to_compensate[1],0.0,0.0]) #TODO ADD AMPL
 
     return phase_to_compensate[LOOPBACK_RX_CH]
-
-
-def measure_pll(usrp, rx_streamer, at_time) -> float:
-    # Make a signal for the threads to stop running
-
-    logger.debug("########### STEP 2 - Measure PLL REF phase ###########")
-
-    quit_event = threading.Event()
-
-    phase_to_compensate = []
-
-    start_time = uhd.types.TimeSpec(at_time)
-
-    logger.debug(starting_in(usrp, at_time))
-
-    rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate,
-                       duration=CAPTURE_TIME, start_time=start_time)
-
-    time.sleep(CAPTURE_TIME + delta(usrp, at_time))
-
-    quit_event.set()
-
-    # wait till both threads are done before proceding
-    rx_thr.join()
-
-    pll_phase = phase_to_compensate[REF_RX_CH]
-
-    # TX_ANGLE_CH0 ; TX_ANGLE_CH1 ; RX_ANGLE_CH0 ; RX_ANGLE_CH1 ; RX_AMPL_CH0 ; RX_AMPL_CH1
-    write_data(MEAS_TYPE_PLL, [
-               0.0, 0.0, phase_to_compensate[0], phase_to_compensate[1], 0.0, 0.0])  # TODO ADD AMPL
-
-    return pll_phase
-
-
-def check_loopback(usrp, tx_streamer, rx_streamer, phase_corr, at_time) -> float:
-    logger.debug(
-        " ########### STEP 3 - Check self-correction TX-RX phase ###########")
-
-    quit_event = threading.Event()
-
-    amplitudes = [0.0, 0.0]
-
-    amplitudes[LOOPBACK_TX_CH] = 0.8
-
-    phases = [0.0, 0.0]
-
-    phases[LOOPBACK_TX_CH] = phase_corr
-
-    start_time = uhd.types.TimeSpec(at_time)
-
-    logger.debug(starting_in(usrp, at_time))
-
-    phase_to_compensate = []
-
-    tx_thr = tx_thread(usrp, tx_streamer, quit_event,
-                       amplitude=amplitudes, phase=phases, start_time=start_time)
-    tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
-    rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate,
-                       duration=CAPTURE_TIME, start_time=start_time)
-
-    time.sleep(CAPTURE_TIME + delta(usrp, at_time))
-
-    quit_event.set()
-
-    # wait till both threads are done before proceeding
-
-    tx_thr.join()
-
-    rx_thr.join()
-
-    tx_meta_thr.join()
-
-    # TX_ANGLE_CH0 ; TX_ANGLE_CH1 ; RX_ANGLE_CH0 ; RX_ANGLE_CH1 ; RX_AMPL_CH0 ; RX_AMPL_CH1
-    write_data(MEAS_TYPE_LOOPBACK_CHECK, [
-               phases[0], phases[1], phase_to_compensate[0], phase_to_compensate[1], 0.0, 0.0])  # TODO ADD AMPL
-
-    return phase_to_compensate[LOOPBACK_RX_CH]
-
-
-def check_pll_loopback(usrp, tx_streamer, rx_streamer, phase_corr, at_time) -> float:
-    logger.debug(
-        " ########### STEP 3 - Check self-correction TX-RX phase ###########")
-
-    quit_event = threading.Event()
-
-    amplitudes = [0.0, 0.0]
-
-    amplitudes[LOOPBACK_TX_CH] = 0.8
-
-    phases = [0.0, 0.0]
-
-    phases[LOOPBACK_TX_CH] = phase_corr
-
-    start_time = uhd.types.TimeSpec(at_time)
-
-    logger.debug(starting_in(usrp, at_time))
-
-    phase_to_compensate = []
-
-    tx_thr = tx_thread(usrp, tx_streamer, quit_event,
-                       amplitude=amplitudes, phase=phases, start_time=start_time)
-    tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
-    rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate,
-                       duration=CAPTURE_TIME, start_time=start_time)
-
-    time.sleep(CAPTURE_TIME + delta(usrp, at_time))
-
-    quit_event.set()
-
-    # wait till both threads are done before proceeding
-
-    tx_thr.join()
-
-    rx_thr.join()
-
-    tx_meta_thr.join()
-
-    # TX_ANGLE_CH0 ; TX_ANGLE_CH1 ; RX_ANGLE_CH0 ; RX_ANGLE_CH1 ; RX_AMPL_CH0 ; RX_AMPL_CH1
-    write_data(MEAS_TYPE_PLL_CHECK, [
-               phases[0], phases[1], phase_to_compensate[0], phase_to_compensate[1], 0.0, 0.0])  # TODO ADD AMPL
-
-    return phase_to_compensate[LOOPBACK_RX_CH]
-
-def tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr, at_time):
-    logger.debug("########### STEP 4 - TX with adjusted phases ###########")
-
-    phases = [0.0, 0.0]
-    amplitudes = [0.0, 0.0]
-
-    phases[FREE_TX_CH] = phase_corr
-    amplitudes[FREE_TX_CH] = 0.5
-
-    start_time = uhd.types.TimeSpec(at_time)
-
-    logger.debug(starting_in(usrp, at_time))
-
-    logger.debug(
-        f"Applying phase correction CH0:{np.rad2deg(phases[0]):.2f} and CH1:{np.rad2deg(phases[1]):.2f}")
-
-    tx_thr = tx_thread(usrp, tx_streamer, quit_event,
-                       amplitude=amplitudes, phase=phases, start_time=start_time)
-
-    tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
-
-    time.sleep(CAPTURE_TIME*2 + delta(usrp, at_time))
-
-    quit_event.set()
-
-    tx_thr.join()
-
-    tx_meta_thr.join()
-
-    return tx_thr, tx_meta_thr
 
 
 def get_current_time(usrp):
@@ -801,58 +558,33 @@ def get_current_time(usrp):
 
 
 def main():
+    global file
+
+    parser = argparse.ArgumentParser(description="")
+    parser.add_argument("counter", type=int, help="Counter value")
+    parser.add_argument("timestamp", type=str, help="Timestamp value")
+    args = parser.parse_args()
+
+    meas_id = args.counter
+
+
     # "mode_n=integer" #
 
     # start_PLL()
 
+    file = open(
+        f'data_{HOSTNAME}_{args.timestamp}.txt', "a")
     
-    _connect = True
     try:
         usrp = uhd.usrp.MultiUSRP(
-            "fpga=usrp_b210_fpga_loopback.bin, mode_n=integer")
+            "fpga=usrp_b210_fpga.bin, mode_n=integer")
         logger.info("Using Device: %s", usrp.get_pp_string())
-        tx_streamer, rx_streamer = setup(usrp, server_ip, connect=_connect)
-
-        _connect = False
-
-        tx_thr = tx_meta_thr = None
-
-        margin = 6.0
-        cmd_time = CAPTURE_TIME + margin
-
-        start_time = begin_time + margin -5.0 # -5.0 emperically determined
-
-        tx_rx_phase = measure_loopback(
-            usrp, tx_streamer, rx_streamer, at_time=start_time)
-        print("DONE")
-
-        phase_corr = - tx_rx_phase
-
-        start_time += cmd_time
-        pll_rx_phase = measure_pll(
-            usrp, rx_streamer, at_time=start_time)
-        print("DONE")
-
-        start_time += cmd_time - 2.0  # -2.0 emperically determined
-        remainig_loopback_phase = check_loopback(usrp, tx_streamer, rx_streamer,
-                                        phase_corr=phase_corr, at_time=start_time)
-        logger.debug(
-            f"Remaining phase is {np.rad2deg(remainig_loopback_phase):.2f} degrees.")
-        
-
-        start_time += cmd_time
-        _ = check_pll_loopback(usrp, tx_streamer, rx_streamer,
-                                                    phase_corr=(pll_rx_phase - tx_rx_phase), at_time=start_time)
-
-
-    
-        print("DONE")
+        tx_streamer, rx_streamer = setup(usrp)
 
         quit_event = threading.Event()
-        start_time += cmd_time - 1.0  # -1.0 emperically determined
-        tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr=(pll_rx_phase - tx_rx_phase),
-                        at_time=start_time)
-
+        _ = measure_loopback(usrp, tx_streamer, rx_streamer, quit_event, meas_id, file)
+        print("DONE")
+        
     except KeyboardInterrupt:
 
         # Interrupt and join the threads
@@ -861,17 +593,9 @@ def main():
 
         quit_event.set()
 
-        # wait till finished before closing of
-
-        if tx_thr:
-            tx_thr.join()
-        if tx_meta_thr:
-            tx_meta_thr.join()
 
     finally:
 
-        iq_socket.close()
-        context.term()
         file.close()
         time.sleep(0.1)  # give it some time to close
 

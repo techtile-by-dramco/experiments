@@ -1,4 +1,6 @@
-# Repeated simple setup
+# Repeated simple setup 003
+
+Same as 002, only now the loopback is done manually (through cable no LO leakage through RF switch) and now the USRPs are both driven by the PPS and 10MHz of the same octoclock at adjacent ports (ie without phase diff).
 
 This folder contains the files to repeatedly run the `usrp-cal` python script to check the phase diff between 2 USRPs.
 
@@ -42,7 +44,7 @@ The following window can be replicated by adding the following to the command se
                         "size": 0.5,
                         "split": "up",
                         "tabTitle": "T0",
-                        "startingDirectory": "C:/Users/Calle/OneDrive/Documenten/GitHub/experiments/00_calibration/002_repeated_setup",
+                        "startingDirectory": "C:/Users/Calle/OneDrive/Documenten/GitHub/experiments/00_calibration/003_repeated_setup",
                         "commandline": "python sync-server.py 2 2"
                     }
                     ,
@@ -52,7 +54,7 @@ The following window can be replicated by adding the following to the command se
                         "size": 0.5,
                         "split": "vertical",
                         "tabTitle": "T0",
-                        "startingDirectory": "C:/Users/Calle/OneDrive/Documenten/GitHub/experiments/00_calibration/002_repeated_setup",
+                        "startingDirectory": "C:/Users/Calle/OneDrive/Documenten/GitHub/experiments/00_calibration/003_repeated_setup",
                         "commandline": "python meas-phase-scope.py"
                     }
                 ]
@@ -64,7 +66,7 @@ The following window can be replicated by adding the following to the command se
 
 ### Settings T02
 ```
-~/experiments/00_calibration/002_repeated_setup $ uhd_siggen --args "mode_n=integer, fpga=usrp_b210_fpga_loopback.bin" --freq 1e9 --clock-source 'external' --sync 'pps' --const -g 70 --offset 0 -m 0.8
+~/experiments/00_calibration/002_repeated_setup $ uhd_siggen --args "mode_n=integer" --freq 1e9 --clock-source 'external' --sync 'pps' --const -g 70 --offset 0 -m 0.8
 ```
 
 ### Settings T03 and T04
