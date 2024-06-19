@@ -190,6 +190,7 @@ if __name__ == '__main__':
                 if ep_yaml.get("enabled"):
                     #   Get ep data
                     ep_data = energyprofiler.get_data()
+                    print(f"EP: Voltage [mV] {ep_data[0]} - DC Power [uW] {ep_data[2]/1e3}")
                 else:
                     ep_data = [0, 0, 0]
 
