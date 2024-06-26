@@ -34,6 +34,7 @@ config = read_yaml_file(f"{exp_dir}/config.yaml")
 info = config.get('info', {})
 exp_name = info.get('exp_name')
 server_user_name = info.get('server_user_name')
+data_save_path = info.get('data_save_path')
 
 #   CONTROL
 control_yaml = config.get('control', {})
@@ -132,14 +133,23 @@ if __name__ == '__main__':
     meas_init_time = round(time.time())
     client_experiment_name = f"{exp_name}_{meas_init_time}"
 
+    #   Check if data folder excists
+    try:
+        # Create the directory
+        path = f"{exp_dir}/{data_save_path}"
+        os.makedirs(path, exist_ok=True)
+        print(f"Directory '{path}' created successfully")
+    except OSError as error:
+        print(f"Error: {error}")
+
     #   Save config file
-    save_config_file(exp_dir, client_experiment_name, config)
+    save_config_file(exp_dir, data_save_path, client_experiment_name, config)
     
     print("(1) Copy python script from server to client to folder 'home/ip/exp/{client_experiment_name}'")
 
     #   Check or copy files to the clients
     copy_files(ansible_results, server_user_name, exp_dir, ansible_yaml, client, client_experiment_name)
-    log_info(ansible_results, exp_dir, client_experiment_name)
+    log_info(ansible_results, exp_dir, data_save_path, client_experiment_name)
 
     print("(2) Start control thread")
 
@@ -191,7 +201,7 @@ if __name__ == '__main__':
                 tile_states_global, no_active_transmitters, no_not_active = start_up(ansible_results, server_user_name, ansible_yaml, client, client_experiment_name)
 
             # Save configurations and tile info to yaml file
-            log_info(ansible_results, exp_dir, client_experiment_name)
+            log_info(ansible_results, exp_dir, data_save_path, client_experiment_name)
 
             # Define start time
             data_start = time.time()
@@ -225,9 +235,12 @@ if __name__ == '__main__':
 
                 #   Check is ep is enabled
                 if ep_yaml.get("enabled"):
-                    None
                     #   Get ep data
                     ep_data = energyprofiler.get_data()
+                    
+                    while ep_data is None:
+                        ep_data = energyprofiler.get_data()
+
                     ep_data_csv = ep_data.to_csv()
                     print(f"EP: Voltage [mV] {ep_data_csv[0]} - DC Power [uW] {ep_data_csv[2]/1e3}")
                 else:
@@ -248,7 +261,7 @@ if __name__ == '__main__':
                 try:
                     data_to_append = [time.time(), *pos.to_csv(), power_dBm, *ep_data.to_csv()]
                     header = ["timestamp"] + positioning_yaml.get("csv_header") + scope_yaml.get("csv_header") + ep_yaml.get("csv_header")
-                    append_to_csv(f"{exp_dir}/data/{client_experiment_name}.csv", data_to_append, header)
+                    append_to_csv(f"{exp_dir}/{data_save_path}{client_experiment_name}.csv", data_to_append, header)
                 except Exception as e:
                     print(e)
 
