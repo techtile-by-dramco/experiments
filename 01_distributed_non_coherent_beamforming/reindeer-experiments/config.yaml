@@ -4,6 +4,9 @@ info: # SERVER
   server_user_name: jarne
   ip: 10.128.48.3
   port: 5558 # EXTERNAL CONTROL
+control:
+  transmission: auto # external
+  duration: 20
 ansible: # SERVER
   inventory: hosts.yaml
   copy_client_script: copy_client_script.yaml
@@ -12,10 +15,10 @@ ansible: # SERVER
 # usrp:
 client: # CLIENT
   enable_client_script: true
-  tiles: ceiling # Define tiles that should be accessed by ansible
+  tiles: multiON # Define tiles that should be accessed by ansible
   script: tx_waveforms_random_phase.py # ENSURE script is under folder *** <<ROOT-EXP>>/client/<<NAME>>.py ***
   # ansibletiles: segmentA
-  ip: 10.128.48.3 #192.108.0.204
+  ip: 192.108.0.204 #10.128.48.3 #192.108.0.204
   hosts:
     all:
       freq: 920000000.0

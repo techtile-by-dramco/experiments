@@ -35,6 +35,9 @@ info = config.get('info', {})
 exp_name = info.get('exp_name')
 server_user_name = info.get('server_user_name')
 
+#   CONTROL
+control_yaml = config.get('control', {})
+
 #   ANSIBLE SETTINGS
 ansible_yaml = config.get('ansible', {})
 
@@ -49,25 +52,35 @@ ep_yaml = config.get('ep', {})
 
 def func_ctrl_thread(ctrl_thread_stop_flag, init_event, start_event, stop_event, close_event):
     global tx_gain
-    
+
+    # Create a poller object
+    poller = zmq.Poller()
+    poller.register(sub_socket, zmq.POLLIN)
+
     while not ctrl_thread_stop_flag.is_set():
-        ctrl_msg = sub_socket.recv_string()
-        print(ctrl_msg)
+
+        # Wait for events on the socket(s) for up to 1000 milliseconds (1 second)
+        events = dict(poller.poll(1000))  # Timeout set to 1000 milliseconds
+
+        if sub_socket in events:
+            # Receive message
+            ctrl_msg = sub_socket.recv_string()
+            print(f"Received message: {ctrl_msg}")
         
-        if ctrl_msg == "init":
-            init_event.set()
-            stop_event.clear() # Can be removed
-        elif ctrl_msg == "start":
-            start_event.set()
-            print("Start logging")
-            stop_event.clear() # Can be removed
-        elif ctrl_msg == "stop":
-            init_event.clear()
-            start_event.clear()
-            stop_event.set()
-        elif ctrl_msg == 'close':
-            close_event.set()
-            break
+            if ctrl_msg == "init":
+                init_event.set()
+                stop_event.clear() # Can be removed
+            elif ctrl_msg == "start":
+                start_event.set()
+                print("Start logging")
+                stop_event.clear() # Can be removed
+            elif ctrl_msg == "stop":
+                init_event.clear()
+                start_event.clear()
+                stop_event.set()
+            elif ctrl_msg == 'close':
+                close_event.set()
+                break
 
     print("Control thread successfully terminated.")
 
@@ -135,6 +148,17 @@ if __name__ == '__main__':
     stop_event = threading.Event()
     close_event = threading.Event()
 
+    #   Automatic?
+    if control_yaml.get('transmission') == 'auto':
+        print('Automatic enabled')
+        init_event.set()
+        start_event.set()
+
+        #   Open socket for direct instructions to USRPs
+        context = zmq.Context()
+        pub_socket = context.socket(zmq.PUB)
+        pub_socket.bind("tcp://*:5558")
+
     #   Define a shared 'stop' flag to control the 'control' zmq thread
     ctrl_thread_stop_flag = threading.Event()
 
@@ -176,6 +200,19 @@ if __name__ == '__main__':
             initialized = True
 
             print("(4) Waiting for ZMQ 'start' command")
+
+            # Init start time for automatic control
+            start_time = time.time()
+
+            # Start all client scripts automatically
+            if control_yaml.get('transmission') == 'auto':
+                for i in range(5):
+                    time.sleep(1)
+                    print(f"Starting transmitters in {5-i}")
+                send_zmq_cmd(pub_socket, "start")
+                time.sleep(1)
+                send_zmq_cmd(pub_socket, "start")
+                time.sleep(1)
         
         if init_event.is_set() and initialized:
 
@@ -188,9 +225,11 @@ if __name__ == '__main__':
 
                 #   Check is ep is enabled
                 if ep_yaml.get("enabled"):
+                    None
                     #   Get ep data
                     ep_data = energyprofiler.get_data()
-                    print(f"EP: Voltage [mV] {ep_data[0]} - DC Power [uW] {ep_data[2]/1e3}")
+                    ep_data_csv = ep_data.to_csv()
+                    print(f"EP: Voltage [mV] {ep_data_csv[0]} - DC Power [uW] {ep_data_csv[2]/1e3}")
                 else:
                     ep_data = [0, 0, 0]
 
@@ -213,9 +252,23 @@ if __name__ == '__main__':
                 except Exception as e:
                     print(e)
 
+                #   Automatic?
+                if control_yaml.get('transmission') == 'auto':
+                    if time.time() - start_time > control_yaml.get('duration'):
+                        stop_event.set()
+                else:
+                    print(f"Time remaining: {round(time.time() - start_time - control_yaml.get('duration'))} seconds")
+            else:
+                #   Update start time
+                start_time = time.time()
+
         if stop_event.is_set():
             #   Reset init variable
             initialized = True
+
+            # Start all client scripts automatically
+            if control_yaml.get('transmission') == 'auto':
+                send_zmq_cmd(pub_socket, "stop")
             
             #   Clear stop event
             stop_event.clear()

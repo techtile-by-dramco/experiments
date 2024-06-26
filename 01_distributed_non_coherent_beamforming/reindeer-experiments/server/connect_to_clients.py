@@ -1,5 +1,7 @@
 from ansible_handler import *
 from export_data import *
+import zmq
+import time
 
 #   Copy config and script file to the client /home/pi/exp/<<MEAS_NAME>>_<<TIMESTAMP>> directorty
 def copy_files(log_data, user_name, exp_dir, ansible_config_yaml, client_config_yaml, client_experiment_name):
@@ -122,3 +124,7 @@ def analyse(playbook_name, log_data_dict, ansible_result):
     log_data_dict[f"playbook_{playbook_name}"].update(tile_state_dict)
 
     return tile_states, num_processed, num_unreachable
+
+def send_zmq_cmd(socket, cmd):
+    print(cmd.encode())
+    socket.send_multipart([b"phase", cmd.encode()])
