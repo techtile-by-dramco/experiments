@@ -16,6 +16,7 @@ def main():
 
         # Publish the input on the "phase" topic
         publisher.send_multipart([b"phase", user_input.encode()])
+        print(user_input.encode())
 
         # If user input is 'close', break out of the loop and stop the server
         if user_input == "close":
