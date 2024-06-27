@@ -2,9 +2,9 @@ playbook_copy_files:
   Copy config file:
   - A05
   - A06
+  - A08
   - A07
   - A09
-  - A08
   - A10
   - B05
   - B06
@@ -12,11 +12,11 @@ playbook_copy_files:
   - B08
   - B09
   - B10
-  - C06
   - C05
+  - C06
   - C07
-  - C08
   - C09
+  - C08
   - C10
   - D05
   - D06
@@ -33,8 +33,8 @@ playbook_copy_files:
   - F05
   - F06
   - F07
-  - F08
   - F09
+  - F08
   - F10
   - G05
   - G06
@@ -43,41 +43,41 @@ playbook_copy_files:
   - G09
   - G10
   Copy script file:
-  - A08
-  - A06
-  - A09
-  - A05
   - A07
-  - A10
+  - A05
+  - A09
+  - A06
+  - A08
   - B05
   - B06
+  - A10
   - B07
   - B08
-  - B09
   - B10
+  - B09
   - C05
-  - C07
   - C06
+  - C07
   - C08
   - C09
   - C10
   - D05
   - D06
   - D07
-  - D08
   - D09
+  - D08
   - D10
   - E05
   - E06
   - E07
-  - E09
   - E08
+  - E09
   - E10
   - F05
   - F06
-  - F08
   - F07
   - F09
+  - F08
   - F10
   - G05
   - G06
@@ -86,64 +86,64 @@ playbook_copy_files:
   - G09
   - G10
   Ensure exp directory exists:
-  - A07
-  - A09
   - A05
-  - A06
   - A08
+  - A07
+  - A06
+  - A09
+  - B08
   - B07
+  - B06
   - B05
   - A10
-  - B06
-  - B08
-  - C07
-  - B10
-  - B09
   - C05
+  - B09
+  - B10
+  - C07
   - C06
   - C09
-  - C10
   - C08
-  - D05
   - D06
-  - D10
-  - D09
+  - C10
+  - D05
   - D08
   - D07
+  - D09
+  - D10
   - E05
-  - E10
-  - E09
   - E06
-  - E08
   - E07
+  - E09
+  - E10
+  - E08
+  - F06
+  - F05
   - F09
   - F07
-  - F05
-  - F06
   - F08
   - F10
-  - G06
-  - G07
-  - G08
   - G05
+  - G06
+  - G08
+  - G07
   - G09
   - G10
   Ensure experiment name directory exists:
-  - A06
   - A05
   - A07
+  - A06
   - A09
   - A08
   - A10
   - B05
   - B06
-  - B08
   - B07
+  - B08
   - B09
-  - C05
   - B10
-  - C06
+  - C05
   - C07
+  - C06
   - C08
   - C09
   - C10
@@ -162,8 +162,8 @@ playbook_copy_files:
   - F05
   - F06
   - F07
-  - F08
   - F09
+  - F08
   - F10
   - G05
   - G06
@@ -173,21 +173,21 @@ playbook_copy_files:
   - G10
   tile_states:
     changed:
-    - A06
     - A05
     - A07
+    - A06
     - A09
     - A08
     - A10
     - B05
     - B06
-    - B08
     - B07
+    - B08
     - B09
-    - C05
     - B10
-    - C06
+    - C05
     - C07
+    - C06
     - C08
     - C09
     - C10
@@ -206,8 +206,8 @@ playbook_copy_files:
     - F05
     - F06
     - F07
-    - F08
     - F09
+    - F08
     - F10
     - G05
     - G06
@@ -219,100 +219,100 @@ playbook_copy_files:
     failures: []
     ignored: []
     ok:
-    - A07
-    - A09
     - A05
-    - A06
     - A08
+    - A07
+    - A06
+    - A09
+    - B08
     - B07
+    - B06
     - B05
     - A10
-    - B06
-    - B08
-    - C07
-    - B10
-    - B09
     - C05
+    - B09
+    - B10
+    - C07
     - C06
     - C09
-    - C10
     - C08
-    - D05
     - D06
-    - D10
-    - D09
+    - C10
+    - D05
     - D08
     - D07
+    - D09
+    - D10
     - E05
-    - E10
-    - E09
     - E06
-    - E08
     - E07
+    - E09
+    - E10
+    - E08
+    - F06
+    - F05
     - F09
     - F07
-    - F05
-    - F06
     - F08
     - F10
-    - G06
-    - G07
-    - G08
     - G05
+    - G06
+    - G08
+    - G07
     - G09
     - G10
     processed:
-    - A07
-    - A09
     - A05
-    - A06
     - A08
+    - A07
+    - A06
+    - A09
+    - B08
     - B07
+    - B06
     - B05
     - A10
-    - B06
-    - B08
-    - C07
-    - B10
-    - B09
     - C05
+    - B09
+    - B10
+    - C07
     - C06
     - C09
-    - C10
     - C08
-    - D05
     - D06
-    - D10
-    - D09
+    - C10
+    - D05
     - D08
     - D07
+    - D09
+    - D10
     - E05
-    - E10
-    - E09
     - E06
-    - E08
     - E07
+    - E09
+    - E10
+    - E08
+    - F06
+    - F05
     - F09
     - F07
-    - F05
-    - F06
     - F08
     - F10
-    - G06
-    - G07
-    - G08
     - G05
+    - G06
+    - G08
+    - G07
     - G09
     - G10
     rescued: []
     skipped: []
 playbook_start_client_script:
   Execute specified client script in the background:
-  - A09
+  - A06
   - A05
   - A07
   - A08
-  - A06
+  - A09
   - A10
   - B05
   - B06
@@ -339,10 +339,10 @@ playbook_start_client_script:
   - E09
   - E10
   - F05
+  - F06
   - F07
   - F08
   - F09
-  - F06
   - F10
   - G05
   - G06
@@ -353,13 +353,13 @@ playbook_start_client_script:
   Gathering Facts:
   - A05
   - A09
+  - A08
   - A06
   - A07
-  - A08
   - A10
-  - B05
   - B07
   - B08
+  - B05
   - B06
   - B09
   - B10
@@ -368,11 +368,11 @@ playbook_start_client_script:
   - C07
   - C08
   - C09
-  - C10
   - D05
+  - D06
+  - C10
   - D07
   - D08
-  - D06
   - D09
   - D10
   - E05
@@ -387,9 +387,9 @@ playbook_start_client_script:
   - F08
   - F09
   - F10
-  - G06
-  - G07
   - G05
+  - G07
+  - G06
   - G09
   - G10
   - G08
@@ -438,11 +438,11 @@ playbook_start_client_script:
   - G10
   tile_states:
     changed:
-    - A09
+    - A06
     - A05
     - A07
     - A08
-    - A06
+    - A09
     - A10
     - B05
     - B06
@@ -469,10 +469,10 @@ playbook_start_client_script:
     - E09
     - E10
     - F05
+    - F06
     - F07
     - F08
     - F09
-    - F06
     - F10
     - G05
     - G06
@@ -486,13 +486,13 @@ playbook_start_client_script:
     ok:
     - A05
     - A09
+    - A08
     - A06
     - A07
-    - A08
     - A10
-    - B05
     - B07
     - B08
+    - B05
     - B06
     - B09
     - B10
@@ -501,11 +501,11 @@ playbook_start_client_script:
     - C07
     - C08
     - C09
-    - C10
     - D05
+    - D06
+    - C10
     - D07
     - D08
-    - D06
     - D09
     - D10
     - E05
@@ -520,22 +520,22 @@ playbook_start_client_script:
     - F08
     - F09
     - F10
-    - G06
-    - G07
     - G05
+    - G07
+    - G06
     - G09
     - G10
     - G08
     processed:
     - A05
     - A09
+    - A08
     - A06
     - A07
-    - A08
     - A10
-    - B05
     - B07
     - B08
+    - B05
     - B06
     - B09
     - B10
@@ -544,11 +544,11 @@ playbook_start_client_script:
     - C07
     - C08
     - C09
-    - C10
     - D05
+    - D06
+    - C10
     - D07
     - D08
-    - D06
     - D09
     - D10
     - E05
@@ -563,9 +563,9 @@ playbook_start_client_script:
     - F08
     - F09
     - F10
-    - G06
-    - G07
     - G05
+    - G07
+    - G06
     - G09
     - G10
     - G08

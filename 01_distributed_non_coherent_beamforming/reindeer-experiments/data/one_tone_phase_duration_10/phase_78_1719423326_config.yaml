@@ -11,13 +11,12 @@ client:
       - 1
       duration: 10
       freq: 920000000.0
-      gain: 75
-    gain: 75
+      gain: 78
   ip: 192.108.0.204
   script: tx_waveforms_random_phase.py
   tiles: ceiling
 control:
-  duration: 300
+  duration: 3600
   transmission: auto
 ep:
   csv_header:
@@ -31,7 +30,7 @@ ep:
 info:
   data_save_path: data/one_tone_phase_duration_10/
   description: Measurement one tone signals
-  exp_name: phase_75
+  exp_name: phase_78
   ip: 10.128.48.3
   port: 5558
   server_user_name: jarne
