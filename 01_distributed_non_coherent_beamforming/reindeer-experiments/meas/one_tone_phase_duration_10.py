@@ -13,7 +13,7 @@ sys.path.append(f"{exp_dir}/server")
 from yaml_utils import *
 
 
-for i in range(6):
+for i in range(6+5):
 
     #   Read YAML file
     config = read_yaml_file(f"{exp_dir}/config.yaml")
@@ -22,7 +22,7 @@ for i in range(6):
     config['info']['exp_name'] = f"phase_{75+i}"
     config['info']['data_save_path'] = "data/one_tone_phase_duration_10/"
     config['client']['hosts']['all']['gain'] = 75 + i
-    config['control']['duration'] = 60*60
+    config['control']['duration'] = 60*10
 
     # Write the updated YAML content back to the file
     with open(f"{exp_dir}/config.yaml", 'w') as file:
