@@ -19,15 +19,15 @@ from yaml_utils import *
 
 file_path = None
 
-end_name = "_m1"
+end_name = "_m4"
 
 x1 = []
 x2 = []
 y = []
 
-no_meas = 6
+no_meas = 11
 
-for i in range(5,no_meas):
+for i in range(no_meas):
     # Define the pattern to search for
     pattern = os.path.join(f"{exp_dir}/data/one_tone_phase_duration_10{end_name}", f"phase_{75 + i}_*.csv")
 
@@ -44,7 +44,8 @@ for i in range(5,no_meas):
         # Load the CSV file
         # csv_file = f"./data/one_tone_phase_duration_10/{name}_{meas_number}.csv"  # Replace with your actual CSV file path
         # config_file = f"./data/one_tone_phase_duration_10/{name}_{meas_number}_config.yaml"
-        df = pd.read_csv(file_path)[0:1000]
+        df = pd.read_csv(file_path)
+        # [0:1000]
 
 
         # #   Read YAML file
@@ -82,7 +83,7 @@ for i in range(5,no_meas):
         # plt.plot(time, 10**(dbm/10)*1e3, marker='o', label='harvested RF power')
         # plt.plot(x, buffer_voltage_mv, marker='o', label='harvester DC voltage')dd
         plt.xlabel('Measurements over time [-]')
-        plt.ylim(-5,50)
+        # plt.ylim(-5,50)
         plt.ylabel('Power (uW)')
         plt.title(f"Measured harvested and RF power with USRP gain {75 + i} dB and duration {10} seconds")
         plt.grid(True)

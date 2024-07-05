@@ -19,13 +19,17 @@ from yaml_utils import *
 
 file_path = None
 
-end_name = "_m1"
+end_name = "_m4"
 
 x1 = []
 x2 = []
+x1_max = []
+x2_max = []
+x1_min = []
+x2_min = []
 y = []
 
-no_meas = 6
+no_meas = 11
 
 for i in range(no_meas):
     # Define the pattern to search for
@@ -61,30 +65,61 @@ for i in range(no_meas):
 
         time = df["timestamp"].values - df["timestamp"].values[0]
 
-        dc = np.median(pwr_nw/1e3)
-        rf = np.median(10**(dbm/10)*1e3)
+        dc = np.average(pwr_nw/1e3)
+        rf = np.average(10**(dbm/10)*1e3)
+        dc_max = np.max(pwr_nw/1e3)
+        rf_max = np.max(10**(dbm/10)*1e3)
+        dc_min = np.min(pwr_nw/1e3)
+        rf_min = np.min(10**(dbm/10)*1e3)
 
         print(max(pwr_nw/1e3))
 
         print(f"DC mean {np.mean(pwr_nw/1e3)}")
         print(f"RF mean {np.mean(10**(dbm/10)*1e3)}")
 
+        print(f"max dc: {dc_max}")
+
         x1.append(dc)
+        x1_max.append(dc_max)
         x2.append(rf)
+        x2_max.append(rf_max)
+
+        x1_min.append(dc_min)
+        x2_min.append(rf_min)
 
 x = np.linspace(75,75+no_meas,no_meas)
 
 
-plt.figure(figsize=(10, 6))
-plt.plot(x, x1, label = 'DC power (EP profiler)')
-plt.plot(x, x2, label = 'RF power (FFT scope)')
-plt.xlabel('USRP gain [-]')
-plt.ylabel('Power (uW)')
-plt.title(f"Average harvested DC and RF power related to the USRP gain (and phase duration {10} seconds)")
-# plt.title(f"Measured harvested and RF power with USRP gain {gain} dB and duration {duration} seconds")
-plt.grid(True)
-plt.legend()
-plt.xticks(rotation=45)  # Rotate the x-axis labels for better readability
-plt.tight_layout()  # Adjust layout to prevent clipping of labels
-plt.show()
+# plt.figure(figsize=(10, 6))
+# plt.plot(x, x1, label = 'DC power (EP profiler)')
+# plt.plot(x, x2, label = 'RF power (FFT scope)')
+# plt.plot(x, np.array(x1)/np.array(x2)*100, label = 'Average efficiency harvester')
+# plt.xlabel('USRP gain [-]')
+# plt.ylabel('Power (uW)')
+# plt.title(f"Average harvested DC and RF power related to the USRP gain (and phase duration {10} seconds)")
+# # plt.title(f"Measured harvested and RF power with USRP gain {gain} dB and duration {duration} seconds")
+# plt.grid(True)
+# plt.legend()
+# plt.xticks(rotation=45)  # Rotate the x-axis labels for better readability
+# plt.tight_layout()  # Adjust layout to prevent clipping of labels
+# plt.show()
 
+
+# Create the main plot
+fig, ax1 = plt.subplots(figsize=(10, 6))
+plt.grid(True)
+ax1.plot(x, x1, label = 'DC power (EP profiler)', color="red")
+ax1.plot(x, x2, label = 'RF power (FFT scope)', color="blue")
+ax1.plot(x, x1_max, label = 'Max. DC power (EP profiler)',ls="--", color="red")
+ax1.plot(x, x2_max, label = 'Max. RF power (FFT scope)',ls="--", color="blue")
+ax1.plot(x, x1_min, label = 'Min. DC power (EP profiler)',ls="dotted", color="red")
+ax1.plot(x, x2_min, label = 'Min. RF power (FFT scope)',ls="dotted", color="blue")
+ax1.set_xlabel('USRP gain [dB]')
+ax1.set_ylabel('Power (uW)')
+ax2 = ax1.twinx()
+ax2.plot(x, np.array(x1)/np.array(x2)*100, label = 'Average efficiency harvester', color='g')
+ax2.set_ylabel('Average efficiency harvester [-]', color='g')
+ax1.legend(loc='upper left')
+ax2.legend(loc='upper right')
+plt.title('Plot with Two Y-Axes')
+plt.show()

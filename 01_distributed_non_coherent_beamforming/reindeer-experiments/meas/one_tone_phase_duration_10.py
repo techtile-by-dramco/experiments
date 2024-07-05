@@ -20,8 +20,9 @@ for i in range(6+5):
 
     config['info']['description'] = "Measurement one tone signals"
     config['info']['exp_name'] = f"phase_{75+i}"
-    config['info']['data_save_path'] = "data/one_tone_phase_duration_10/"
+    config['info']['data_save_path'] = "data/one_tone_phase_duration_1/"
     config['client']['hosts']['all']['gain'] = 75 + i
+    config['client']['hosts']['all']['duration'] = 1
     config['control']['duration'] = 60*10
 
     # Write the updated YAML content back to the file
