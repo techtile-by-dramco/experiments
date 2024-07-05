@@ -1,0 +1,61 @@
+ansible:
+  copy_client_script: copy_client_script.yaml
+  inventory: hosts.yaml
+  start_client_script: start_client_script.yaml
+client:
+  enable_client_script: true
+  hosts:
+    all:
+      channels:
+      - 0
+      - 1
+      duration: 10
+      freq: 920000000.0
+      gain: 76
+  ip: 192.108.0.204
+  script: tx_waveforms_random_phase.py
+  tiles: ceiling
+control:
+  duration: 3600
+  transmission: auto
+ep:
+  csv_header:
+  - buffer_voltage_mv
+  - resistance
+  - pwr_nw
+  enabled: true
+  ip: 192.108.0.13
+  port: 5556
+  protocol: zmq
+info:
+  data_save_path: data/one_tone_phase_duration_10/
+  description: Measurement one tone signals
+  exp_name: phase_76
+  ip: 10.128.48.3
+  port: 5558
+  server_user_name: jarne
+positioning:
+  csv_header:
+  - x
+  - y
+  - z
+  - utc
+  - rm
+  enabled: true
+  ip: 192.108.0.13
+  port: 5555
+  protocol: zmq
+  system: QUALYSIS
+  xaxisoffset: 0
+  yaxisoffset: 0
+  zaxisoffset: 0
+scope:
+  bandwidth_hz: 6E9
+  cable_loss: 10
+  center_hz: 920000000.0
+  csv_header:
+  - dbm
+  enabled: true
+  ip: 192.108.0.251
+  rbw_hz: 100.0
+  span_hz: 10000000.0
