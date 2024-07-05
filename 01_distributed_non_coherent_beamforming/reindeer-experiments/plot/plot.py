@@ -48,7 +48,7 @@ plt.figure(figsize=(10, 6))
 # plt.ylabel('Power (dBm)')
 plt.plot(time, pwr_nw/1e3, marker='o', label='harvester DC power')
 plt.plot(time, 10**(dbm/10)*1e3, marker='o', label='harvested RF power')
-# plt.plot(x, buffer_voltage_mv, marker='o', label='harvester DC voltage')
+# plt.plot(x, buffer_voltage_mv, marker='o', label='harvester DC voltage')dd
 plt.xlabel('Time [-]')
 plt.ylabel('Power (uW)')
 plt.title(f"Measured harvested and RF power with USRP gain {gain} dB and duration {duration} seconds")

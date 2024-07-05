@@ -27,7 +27,7 @@ y = []
 
 no_meas = 6
 
-for i in range(no_meas):
+for i in range(5,no_meas):
     # Define the pattern to search for
     pattern = os.path.join(f"{exp_dir}/data/one_tone_phase_duration_10{end_name}", f"phase_{75 + i}_*.csv")
 
@@ -44,7 +44,7 @@ for i in range(no_meas):
         # Load the CSV file
         # csv_file = f"./data/one_tone_phase_duration_10/{name}_{meas_number}.csv"  # Replace with your actual CSV file path
         # config_file = f"./data/one_tone_phase_duration_10/{name}_{meas_number}_config.yaml"
-        df = pd.read_csv(file_path)
+        df = pd.read_csv(file_path)[0:1000]
 
 
         # #   Read YAML file
@@ -61,10 +61,8 @@ for i in range(no_meas):
 
         time = df["timestamp"].values - df["timestamp"].values[0]
 
-        dc = np.median(pwr_nw/1e3)
-        rf = np.median(10**(dbm/10)*1e3)
-
-        print(max(pwr_nw/1e3))
+        dc = np.mean(pwr_nw/1e3)
+        rf = np.mean(10**(dbm/10)*1e3)
 
         print(f"DC mean {np.mean(pwr_nw/1e3)}")
         print(f"RF mean {np.mean(10**(dbm/10)*1e3)}")
@@ -72,19 +70,23 @@ for i in range(no_meas):
         x1.append(dc)
         x2.append(rf)
 
-x = np.linspace(75,75+no_meas,no_meas)
 
-
-plt.figure(figsize=(10, 6))
-plt.plot(x, x1, label = 'DC power (EP profiler)')
-plt.plot(x, x2, label = 'RF power (FFT scope)')
-plt.xlabel('USRP gain [-]')
-plt.ylabel('Power (uW)')
-plt.title(f"Average harvested DC and RF power related to the USRP gain (and phase duration {10} seconds)")
-# plt.title(f"Measured harvested and RF power with USRP gain {gain} dB and duration {duration} seconds")
-plt.grid(True)
-plt.legend()
-plt.xticks(rotation=45)  # Rotate the x-axis labels for better readability
-plt.tight_layout()  # Adjust layout to prevent clipping of labels
-plt.show()
-
+        # Plot 'utc' against 'pwr_nw'
+        plt.figure(figsize=(10, 6))
+        plt.plot(time, pwr_nw/1e3, label = 'DC power (EP profiler)')
+        plt.plot(time, 10**(dbm/10)*1e3, label = 'RF power (FFT scope)')
+        # plt.plot(x, 10*np.log(pwr_nw/1e6), marker='o', label='harvester DC power')
+        # plt.plot(x, dbm, marker='o', label='RF power')
+        # plt.ylabel('Power (dBm)')
+        # plt.plot(time, pwr_nw/1e3, marker='o', label='harvester DC power')
+        # plt.plot(time, 10**(dbm/10)*1e3, marker='o', label='harvested RF power')
+        # plt.plot(x, buffer_voltage_mv, marker='o', label='harvester DC voltage')dd
+        plt.xlabel('Measurements over time [-]')
+        plt.ylim(-5,50)
+        plt.ylabel('Power (uW)')
+        plt.title(f"Measured harvested and RF power with USRP gain {75 + i} dB and duration {10} seconds")
+        plt.grid(True)
+        plt.legend()
+        plt.xticks(rotation=45)  # Rotate the x-axis labels for better readability
+        plt.tight_layout()  # Adjust layout to prevent clipping of labels
+        plt.show()
