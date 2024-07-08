@@ -19,7 +19,7 @@ from yaml_utils import *
 
 file_path = None
 
-end_name = "_m4"
+end_name = ""
 
 x1 = []
 x2 = []
@@ -29,7 +29,7 @@ no_meas = 11
 
 for i in range(no_meas):
     # Define the pattern to search for
-    pattern = os.path.join(f"{exp_dir}/data/one_tone_phase_duration_10{end_name}", f"phase_{75 + i}_*.csv")
+    pattern = os.path.join(f"{exp_dir}/data/one_tone_phase_duration_1{end_name}", f"phase_{75 + i}_*.csv")
 
     # Search for the file
     files = glob.glob(pattern)

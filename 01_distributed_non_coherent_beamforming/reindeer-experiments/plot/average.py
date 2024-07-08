@@ -19,7 +19,7 @@ from yaml_utils import *
 
 file_path = None
 
-end_name = "_m4"
+end_name = "20_m1"
 
 x1 = []
 x2 = []
@@ -29,11 +29,11 @@ x1_min = []
 x2_min = []
 y = []
 
-no_meas = 11
+no_meas = 8
 
 for i in range(no_meas):
     # Define the pattern to search for
-    pattern = os.path.join(f"{exp_dir}/data/one_tone_phase_duration_10{end_name}", f"phase_{75 + i}_*.csv")
+    pattern = os.path.join(f"{exp_dir}/data/one_tone_phase_duration_{end_name}", f"phase_{75 + i}_*.csv")
 
     # Search for the file
     files = glob.glob(pattern)
@@ -110,10 +110,10 @@ fig, ax1 = plt.subplots(figsize=(10, 6))
 plt.grid(True)
 ax1.plot(x, x1, label = 'DC power (EP profiler)', color="red")
 ax1.plot(x, x2, label = 'RF power (FFT scope)', color="blue")
-ax1.plot(x, x1_max, label = 'Max. DC power (EP profiler)',ls="--", color="red")
-ax1.plot(x, x2_max, label = 'Max. RF power (FFT scope)',ls="--", color="blue")
-ax1.plot(x, x1_min, label = 'Min. DC power (EP profiler)',ls="dotted", color="red")
-ax1.plot(x, x2_min, label = 'Min. RF power (FFT scope)',ls="dotted", color="blue")
+# ax1.plot(x, x1_max, label = 'Max. DC power (EP profiler)',ls="--", color="red")
+# ax1.plot(x, x2_max, label = 'Max. RF power (FFT scope)',ls="--", color="blue")
+# ax1.plot(x, x1_min, label = 'Min. DC power (EP profiler)',ls="dotted", color="red")
+# ax1.plot(x, x2_min, label = 'Min. RF power (FFT scope)',ls="dotted", color="blue")
 ax1.set_xlabel('USRP gain [dB]')
 ax1.set_ylabel('Power (uW)')
 ax2 = ax1.twinx()
