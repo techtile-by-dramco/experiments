@@ -9,7 +9,7 @@ client:
       channels:
       - 0
       - 1
-      duration: 5
+      duration: 20
       freq: 920000000.0
       gain: 84
   ip: 192.108.0.204
@@ -28,7 +28,7 @@ ep:
   port: 5556
   protocol: zmq
 info:
-  data_save_path: data/one_tone_phase_duration_5_m1/
+  data_save_path: data/one_tone_phase_duration_20_m1/
   description: Measurement one tone signals
   exp_name: phase_84
   ip: 10.128.48.3

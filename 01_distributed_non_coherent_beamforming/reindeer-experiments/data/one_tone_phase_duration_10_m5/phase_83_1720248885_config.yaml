@@ -9,9 +9,9 @@ client:
       channels:
       - 0
       - 1
-      duration: 5
+      duration: 10
       freq: 920000000.0
-      gain: 84
+      gain: 83
   ip: 192.108.0.204
   script: tx_waveforms_random_phase.py
   tiles: ceiling
@@ -28,9 +28,9 @@ ep:
   port: 5556
   protocol: zmq
 info:
-  data_save_path: data/one_tone_phase_duration_5_m1/
+  data_save_path: data/one_tone_phase_duration_10_m5/
   description: Measurement one tone signals
-  exp_name: phase_84
+  exp_name: phase_83
   ip: 10.128.48.3
   port: 5558
   server_user_name: jarne
