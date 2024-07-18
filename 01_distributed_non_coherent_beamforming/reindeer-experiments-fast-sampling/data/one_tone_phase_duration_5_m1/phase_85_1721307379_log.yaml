@@ -1,0 +1,53 @@
+playbook_copy_files:
+  Copy config file:
+  - A05
+  - G10
+  Copy script file:
+  - A05
+  - G10
+  Ensure exp directory exists:
+  - A05
+  - G10
+  Ensure experiment name directory exists:
+  - G10
+  - A05
+  tile_states:
+    changed:
+    - G10
+    - A05
+    dark: []
+    failures: []
+    ignored: []
+    ok:
+    - A05
+    - G10
+    processed:
+    - A05
+    - G10
+    rescued: []
+    skipped: []
+playbook_start_client_script:
+  Execute specified client script in the background:
+  - A05
+  - G10
+  Gathering Facts:
+  - G10
+  - A05
+  Print the inventory hostname:
+  - A05
+  - G10
+  tile_states:
+    changed:
+    - A05
+    - G10
+    dark: []
+    failures: []
+    ignored: []
+    ok:
+    - G10
+    - A05
+    processed:
+    - G10
+    - A05
+    rescued: []
+    skipped: []
