@@ -37,6 +37,7 @@ def parse_args():
     parser.add_argument("-r", "--rate", default=1e6, type=float)
     parser.add_argument("-d", "--duration", default=1.0, type=float)
     parser.add_argument("-c", "--channels", default=0, nargs="+", type=int)
+    parser.add_argument("-lo", "--lo_offsets", default=0, nargs="+", type=int)
     parser.add_argument("-g", "--gain", type=float, default=10.0)
     parser.add_argument("--ip", type=str)
     parser.add_argument("--noip", action='store_true')
