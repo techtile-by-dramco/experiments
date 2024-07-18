@@ -161,9 +161,9 @@ def multi_usrp_tx(args):
     setup_clock(usrp, "external", usrp.get_num_mboards())
     setup_pps(usrp, "external")
 
-    for chan in args.channels:
+    for ichan, chan in enumerate(args.channels):
         usrp.set_tx_rate(args.rate, chan)
-        usrp.set_tx_freq(uhd.types.TuneRequest(args.freq), chan)
+        usrp.set_tx_freq(uhd.types.TuneRequest(args.freq, args.lo_offsets[ichan]), chan)
         usrp.set_tx_gain(args.gain, chan)
 
 
