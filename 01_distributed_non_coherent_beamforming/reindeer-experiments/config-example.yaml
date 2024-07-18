@@ -25,6 +25,7 @@ client: # CLIENT
       gain: 75
       channels: [0, 1]
       duration: 10 #3600
+      lo_offsets: [0, 10] # in Hz
     # T04: 
     #   gain: 30
 positioning: # MEASUREMENT EQUIPMENT
