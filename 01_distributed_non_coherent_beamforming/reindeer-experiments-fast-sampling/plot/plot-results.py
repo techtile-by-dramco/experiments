@@ -19,14 +19,14 @@ from yaml_utils import *
 
 file_path = None
 
-end_name = "5_m1"
+path_name = "one_tone_phase_duration_5_m1"
 
 x1 = []
 x2 = []
 y = []
 
-begin_no_meas = 10
-no_meas = 11
+begin_no_meas = 0
+no_meas = 1
 
 saved_data_names = ["ep", "scope"]
 
@@ -36,11 +36,13 @@ for i in range(begin_no_meas, no_meas):
 
     for index, name in enumerate(saved_data_names):
         # Define the pattern to search for
-        pattern = os.path.join(f"{exp_dir}/data/one_tone_phase_duration_{end_name}", f"phase_{75 + i}_*_{name}.csv")
+        pattern = os.path.join(f"{exp_dir}/data/{path_name}", f"phase_{75 + i}_*_{name}.csv")
         print(pattern)
 
         # Search for the file
         files[index] = glob.glob(pattern)
+
+    print(files)
     
     df = [None]*2
 
@@ -54,6 +56,9 @@ for i in range(begin_no_meas, no_meas):
             df[saved_data_names.index(name)] = pd.read_csv(files[saved_data_names.index(name)][0])
         # [0:1000]
 
+
+        # Define min start time
+        start_time = np.min([df[0]["timestamp"][0], df[1]["timestamp"][0]])
 
         # #   Read YAML file
         # config = read_yaml_file(f"{config_file}")
@@ -73,10 +78,10 @@ for i in range(begin_no_meas, no_meas):
 
         print(f"Max voltage: {max(buffer_voltage_mv)}")
 
-        time = df[0]["timestamp"].values - df[0]["timestamp"].values[0]
+        time = (df[0]["timestamp"].values - start_time)/1e3
 
         pwr_dbm = df[1]['dbm'] + 10
-        time2 = df[1]["timestamp"].values - df[1]["timestamp"].values[0]
+        time2 = (df[1]["timestamp"].values - start_time)/1e3
 
         dc = np.mean(pwr_nw/1e3)
         #rf = np.mean(10**(dbm/10)*1e3)
@@ -92,20 +97,20 @@ for i in range(begin_no_meas, no_meas):
 
         # Plot 'utc' against 'pwr_nw'
         plt.figure(figsize=(10, 6))
-        plt.plot(df[0]["timestamp"], pwr_nw/1e3, label = 'DC power (EP profiler)')
-        plt.plot(df[0]["timestamp"], buffer_voltage_mv/1e3, label = 'Harv. voltage')
-        plt.plot(df[0]["timestamp"], res/1e6, label = 'EP resistance')
-        plt.plot(df[1]["timestamp"], 10**(pwr_dbm/10)*1e3, label = 'RF power (FFT scope)')
+        plt.plot(time, pwr_nw/1e3, label = 'DC power (EP profiler)')
+        plt.plot(time, buffer_voltage_mv/1e3, label = 'Voltage (EP profiler)')
+        plt.plot(time, res/1e6, label = 'Resistance (EP profiler)')
+        plt.plot(time2, 10**(pwr_dbm/10)*1e3, label = 'RF power (FFT scope)')
         # plt.plot(x, 10*np.log(pwr_nw/1e6), marker='o', label='harvester DC power')
         # plt.plot(x, dbm, marker='o', label='RF power')
         # plt.ylabel('Power (dBm)')
         # plt.plot(time, pwr_nw/1e3, marker='o', label='harvester DC power')
         # plt.plot(time, 10**(dbm/10)*1e3, marker='o', label='harvested RF power')
         # plt.plot(x, buffer_voltage_mv, marker='o', label='harvester DC voltage')dd
-        plt.xlabel('Measurements over time [-]')
+        plt.xlabel('Measurement time [s]')
         # plt.ylim(-5,50)
         plt.ylabel('Power (uW)')
-        plt.title(f"Measured harvested and RF power with USRP gain {75 + i} dB and duration {10} seconds")
+        plt.title(f"Measured harvested and RF power with USRP gain {75 + i} dB")
         plt.grid(True)
         plt.legend()
         plt.xticks(rotation=45)  # Rotate the x-axis labels for better readability
