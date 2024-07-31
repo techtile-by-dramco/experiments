@@ -1,5 +1,24 @@
-# /bin/python3 -m experiments.01_distributed_non_coherent_beamforming.main
-# see for relative import: https://stackoverflow.com/a/68315950/3590700
+import argparse
+
+parser = argparse.ArgumentParser(description='Signal configurator')
+
+# Optional arguments
+parser.add_argument('--frequency', type=float, default=920E6, help='Center frequency')
+parser.add_argument('--offset', type=float, default=1E2, help='Frequency offset')
+# parser.add_argument('--multitone', type=bool, default=False, help='Multitone enabled/disabled')
+group = parser.add_mutually_exclusive_group()
+group.add_argument('--multitone', action='store_true', help='Enable multitone')
+group.add_argument('--singletone', action='store_false', dest='multitone', help='Disable multitone')
+
+args = parser.parse_args()
+
+multitone_enabled = args.multitone
+center_freq = args.frequency
+frequency_offset = args.offset
+
+print(multitone_enabled, center_freq, frequency_offset)
+
+#   ***** Parser DONE *****
 
 # *** Includes ***
 import sys
@@ -11,19 +30,9 @@ server_dir = os.path.dirname(os.path.abspath(__file__))
 # Navigate one folder back to reach the parent directory
 exp_dir = os.path.abspath(os.path.join(server_dir, os.pardir))
 
-# *** Includes continuation ***
-import time
-import zmq
-import threading
-
 # *** Local includes ***
 sys.path.append(f"{exp_dir}/server")
 from yaml_utils import *
-
-# Example usage
-multitone_enabled = True
-center_freq = 920000000.0  # Center frequency in Hz (920 MHz)
-frequency_offset = 1E2  # Frequency offset in Hz
 
 #   Read YAML file
 config = read_yaml_file(f"{exp_dir}/config.yaml")

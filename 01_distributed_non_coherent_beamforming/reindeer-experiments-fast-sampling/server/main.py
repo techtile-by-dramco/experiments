@@ -1,6 +1,10 @@
 # /bin/python3 -m experiments.01_distributed_non_coherent_beamforming.main
 # see for relative import: https://stackoverflow.com/a/68315950/3590700
 
+# ****************************************************************************************** #
+#                                       IMPORTS / PATHS                                      #
+# ****************************************************************************************** #
+
 # *** Includes ***
 import sys
 import os
@@ -27,6 +31,10 @@ from yaml_utils import *
 from export_data import *
 from connect_to_clients import *
 
+# ****************************************************************************************** #
+#                                       YAML PARTS                                           #
+# ****************************************************************************************** #
+
 #   Read YAML file
 config = read_yaml_file(f"{exp_dir}/config.yaml")
 
@@ -50,6 +58,14 @@ scope_yaml = config.get('scope', {})
 
 #   ENERGY PROFILER SYSTEM SETTINGS --> ToDo Check if it is definied in config file
 ep_yaml = config.get('ep', {})
+
+#   CLIENT
+client = config.get('client', {})
+
+
+# ****************************************************************************************** #
+#                                   THREAD FUNCTIONS                                         #
+# ****************************************************************************************** #
 
 def func_ctrl_thread(ctrl_thread_stop_flag, init_event, start_event, stop_event, close_event):
     global tx_gain
@@ -85,11 +101,12 @@ def func_ctrl_thread(ctrl_thread_stop_flag, init_event, start_event, stop_event,
 
     print("Control thread successfully terminated.")
 
-#   CLIENT
-client = config.get('client', {})
-
 #   Log ansible results
 ansible_results = {}
+
+# ****************************************************************************************** #
+#                                           MAIN                                             #
+# ****************************************************************************************** #
 
 if __name__ == '__main__':
 
@@ -99,25 +116,6 @@ if __name__ == '__main__':
     sub_socket.connect(f"tcp://{info.get('ip')}:{info.get('port')}")
     print(f"Connecting to {info.get('ip')}:{info.get('port')}")
     sub_socket.setsockopt_string(zmq.SUBSCRIBE, "")
-
-    #   Subscribe to the localisation system
-    positioner = AcousticPositioner(positioning_yaml.get('ip'), positioning_yaml.get('port'))
-
-    #   Subscribe to the energy profiler gateway
-    energyprofiler = RFEP(ep_yaml.get('ip'), ep_yaml.get('port'))
-
-    #   Connect with scope
-    if scope_yaml.get('enabled'):
-        try:
-            scope = Scope(scope_yaml.get("ip"))
-            scope.setup(scope_yaml.get("bandwidth_hz"), scope_yaml.get("center_hz"), scope_yaml.get("span_hz"), scope_yaml.get("rbw_hz"))
-        except:
-            print("Can not connect to the scope or something went wrong!")
-            print("1) Check network connection")
-            print("2) (optionally) Reboot system")
-            positioner.stop()
-            energyprofiler.stop()
-            exit()
 
     ctrl_thread = None
 
@@ -133,6 +131,30 @@ if __name__ == '__main__':
     meas_init_time = round(time.time())
     client_experiment_name = f"{exp_name}_{meas_init_time}"
 
+
+    # Extract frequencies
+    frequencies = [host['freq'] for host in client['hosts'].values()]
+
+    # Identify unique frequencies
+    unique_frequencies = set(frequencies)
+
+    # Count the number of unique frequencies
+    number_of_unique_frequencies = len(unique_frequencies)
+
+    #   Connect with scope
+    if scope_yaml.get('enabled'):
+        try:
+            scope = Scope(scope_yaml.get("ip"), scope_yaml.get("cable_loss"), f"{exp_dir}/{data_save_path}{client_experiment_name}_scope.csv", scope_yaml.get("csv_header"))
+            scope.setup(scope_yaml.get("bandwidth_hz"), scope_yaml.get("center_hz"), scope_yaml.get("span_hz"), scope_yaml.get("rbw_hz"), number_of_unique_frequencies)
+        except:
+            print("Can not connect to the scope or something went wrong!")
+            print("1) Check network connection")
+            print("2) (optionally) Reboot system")
+            #positioner.stop()
+            #energyprofiler.stop()
+            scope.stop()
+            exit()
+
     #   Check if data folder excists
     try:
         # Create the directory
@@ -145,7 +167,7 @@ if __name__ == '__main__':
     #   Save config file
     save_config_file(exp_dir, data_save_path, client_experiment_name, config)
     
-    print("(1) Copy python script from server to client to folder 'home/ip/exp/{client_experiment_name}'")
+    print("(1) Copy python script from server to client to folder 'home/pi/exp/{client_experiment_name}'")
 
     #   Check or copy files to the clients
     if client.get("enable_client_script"):
@@ -186,7 +208,17 @@ if __name__ == '__main__':
     no_active_transmitters = None
     csv_file_time = None
 
-    print("(3) Waiting for ZMQ 'init' command")
+    print("(3) Start all measurement equipment threads")
+
+    #   Subscribe to the localisation system
+    if positioning_yaml.get('enabled'):
+        positioner = AcousticPositioner(positioning_yaml.get('ip'), positioning_yaml.get('port'))
+
+    #   Subscribe to the energy profiler gateway
+    if ep_yaml.get('enabled'):
+        energyprofiler = RFEP(ep_yaml.get('ip'), ep_yaml.get('port'), f"{exp_dir}/{data_save_path}{client_experiment_name}_ep.csv", ep_yaml.get('csv_header'))
+
+    print("(4) Waiting for ZMQ 'init' command")
 
     # Loop
     while not close_event.is_set():
@@ -228,50 +260,54 @@ if __name__ == '__main__':
         if init_event.is_set() and initialized:
 
             if start_event.is_set():
-    
-                #   Get position
-                pos = positioner.get_pos()
-                while pos is None:
-                    pos = positioner.get_pos()
-
-                #   Check is ep is enabled
-                if ep_yaml.get("enabled"):
-                    #   Get ep data
-                    ep_data = energyprofiler.get_data()
-                    
-                    while ep_data is None:
-                        ep_data = energyprofiler.get_data()
-
-                    ep_data_csv = ep_data.to_csv()
-                    print(f"EP: Voltage [mV] {ep_data_csv[0]} - DC Power [uW] {ep_data_csv[2]/1e3}")
-                else:
-                    ep_data = [0, 0, 0]
-
-                #   Check is scope is enabled
-                if scope_yaml.get("enabled"):
-                    #   Get rsv power via scope
-                    power_dBm, peaks = scope.get_power_dBm_peaks(scope_yaml.get("cable_loss"), no_active_transmitters)
-
-                    #   Print power
-                    print(f"Power [dBm] {power_dBm:.2f} - NO Peaks {len(peaks)}")
-                else:
-                    power_dBm = -100
-                    peaks = [1]
-
-                #   Save data
-                try:
-                    data_to_append = [time.time(), *pos.to_csv(), power_dBm, *ep_data.to_csv()]
-                    header = ["timestamp"] + positioning_yaml.get("csv_header") + scope_yaml.get("csv_header") + ep_yaml.get("csv_header")
-                    append_to_csv(f"{exp_dir}/{data_save_path}{client_experiment_name}.csv", data_to_append, header)
-                except Exception as e:
-                    print(e)
+#    
+#                #   Get position
+#                pos = positioner.get_pos()
+#                while pos is None:
+#                    pos = positioner.get_pos()
+#
+#                #   Check is ep is enabled
+#                if ep_yaml.get("enabled"):
+#                    #   Get ep data
+#                    ep_data = energyprofiler.get_data()
+#                    
+#                    while ep_data is None:
+#                        ep_data = energyprofiler.get_data()
+#
+#                    ep_data_csv = ep_data.to_csv()
+#                    print(f"EP: Voltage [mV] {ep_data_csv[0]} - DC Power [uW] {ep_data_csv[2]/1e3}")
+#                else:
+#                    ep_data = [0, 0, 0]
+#
+#                #   Check is scope is enabled
+#                if scope_yaml.get("enabled"):
+#                    #   Get rsv power via scope
+#                    power_dBm, peaks = scope.get_power_dBm_peaks(scope_yaml.get("cable_loss"), no_active_transmitters)
+#
+#                    #   Print power
+#                    print(f"Power [dBm] {power_dBm:.2f} - NO Peaks {len(peaks)}")
+#                else:
+#                    power_dBm = -100
+#                    peaks = [1]
+#
+#                #   Save data
+#                try:
+#                    data_to_append = [time.time(), *pos.to_csv(), power_dBm, *ep_data.to_csv()]
+#                    header = ["timestamp"] + positioning_yaml.get("csv_header") + scope_yaml.get("csv_header") + ep_yaml.get("csv_header")
+#                    append_to_csv(f"{exp_dir}/{data_save_path}{client_experiment_name}.csv", data_to_append, header)
+#                except Exception as e:
+#                    print(e)
 
                 #   Automatic?
                 if control_yaml.get('transmission') == 'auto':
                     if time.time() - start_time > control_yaml.get('duration'):
                         stop_event.set()
+                    else:
+                        print(f"Time remaining: {round(time.time() - start_time - control_yaml.get('duration'))} seconds")
+                        time.sleep(1)
                 else:
                     print(f"Time remaining: {round(time.time() - start_time - control_yaml.get('duration'))} seconds")
+                    time.sleep(1)
             else:
                 #   Update start time
                 start_time = time.time()
@@ -288,8 +324,9 @@ if __name__ == '__main__':
             stop_event.clear()
 
             #   Clean up all threads
-            if ansible_yaml.get("enable_client_script") and check_yaml_parameter(ansible_yaml, "stop_client_script"):
-                clean_up(server_user_name, tile_states_global['ok'])
+            if client.get("enable_client_script") and check_yaml_parameter(ansible_yaml, "stop_client_script"):
+                print('clean up')
+                clean_up(server_user_name, tile_states_global['ok'], ansible_yaml, client)
 
             #   Measurement ended
             print("Measurement DONE")
@@ -303,8 +340,16 @@ if __name__ == '__main__':
     #   Wait for the thread to complete
     ctrl_thread.join()
 
-    #   Check positioning and energy profiler thread are terminated
-    positioner.stop()
-    energyprofiler.stop()
+    #   Stop localisation thread
+    if positioning_yaml.get('enabled'):
+        positioner.stop()
+
+    #   Stop energy profiler thread
+    if ep_yaml.get('enabled'):
+        energyprofiler.stop()
+
+    #   Stop scope thread
+    if scope_yaml.get('enabled'):
+        scope.stop()
 
 exit()

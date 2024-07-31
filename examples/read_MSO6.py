@@ -99,6 +99,8 @@ while True:
 
     # try:
     #     while 1:
+
+    pwr_dbm = None
             
     for i in tqdm(range(NUM_MEASURMENTS)):
         # time.sleep(0.5)

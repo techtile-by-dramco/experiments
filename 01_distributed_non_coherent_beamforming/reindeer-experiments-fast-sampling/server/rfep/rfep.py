@@ -2,25 +2,26 @@ import zmq
 import threading
 import json
 import time
-
+import csv
 from datetime import datetime,timezone
 
 
 class ep_data(object):
-    def __init__(self, buffer_voltage_mv, resistance, pwr_nw):
+    def __init__(self, timestamp, buffer_voltage_mv, resistance, pwr_nw):
+        self.timestamp=timestamp
         self.buffer_voltage_mv=buffer_voltage_mv
         self.resistance=resistance
         self.pwr_nw=pwr_nw
     
     def json_decoder(obj):
         if obj is not None:
-            return ep_data(buffer_voltage_mv=obj["buffer_voltage_mv"], resistance=obj["resistance"],pwr_nw=obj["pwr_nw"])
+            return ep_data(timestamp=obj["timestamp"], buffer_voltage_mv=obj["buffer_voltage_mv"], resistance=obj["resistance"],pwr_nw=obj["pwr_nw"])
            
     def __str__(self) -> str:
-        return f"{self.buffer_voltage_mv} mV, {self.resistance} Ohm, {self.pwr_nw} nW"
+        return f"{self.timestamp} s, {self.buffer_voltage_mv} mV, {self.resistance} Ohm, {self.pwr_nw} nW"
     
     def to_csv(self):
-        return [self.buffer_voltage_mv,self.resistance,self.pwr_nw]
+        return [self.timestamp,self.buffer_voltage_mv,self.resistance,self.pwr_nw]
     
     def get_csv_header(self):
         return ["buffer_voltage_mv","resistance","pwr_nw"]
@@ -33,11 +34,14 @@ class ep_data(object):
 
 
 class RFEP():
-    def __init__(self, ip:str, port:str) -> None:
+    def __init__(self, ip:str, port:str, csv_file_path:str, csv_header) -> None:
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.SUB)
         self.socket.connect(f"tcp://{ip}:{port}")
         self.socket.setsockopt_string(zmq.SUBSCRIBE, "")
+
+        self.csv_file_path = csv_file_path
+        self.csv_header = csv_header
 
         #   Set timeout
         self.socket.setsockopt(zmq.RCVTIMEO, 1000)  # Timeout after 1 second (1000 milliseconds)
@@ -85,15 +89,35 @@ class RFEP():
 
 
     def rfep_thread(self):
-        while not self.stop_flag.is_set():
-            try:
-                # Receive the reply from the server for the first request
-                message = self.socket.recv_string()
-                self.last_ep_data = json.loads(message, object_hook=ep_data.json_decoder)
-            except zmq.error.Again as e:
-                # Handle timeout error
-                print("EP Thread: Socket receive timed out:", e)
+#        while not self.stop_flag.is_set():
+#            try:
+#                # Receive the reply from the server for the first request
+#                message = self.socket.recv_string()
+#                self.last_ep_data = json.loads(message, object_hook=ep_data.json_decoder)
+#            except zmq.error.Again as e:
+#                # Handle timeout error
+#                print("EP Thread: Socket receive timed out:", e)
 
+        with open(self.csv_file_path, mode='w', newline='') as file:
+            writer = csv.writer(file)
+
+            #   Write CSV header
+            writer.writerow(self.csv_header)
+
+            while not self.stop_flag.is_set():
+                
+                # Get data
+                try:
+                    # Receive the reply from the server for the first request
+                    message = self.socket.recv_string()
+                    self.last_ep_data = json.loads(message, object_hook=ep_data.json_decoder)
+
+                    # Write data to CSV file
+                    writer.writerow(self.last_ep_data.to_csv())
+
+                except zmq.error.Again as e:
+                    # Handle timeout error
+                    print("EP Thread: Socket receive timed out:", e)
 
 
 

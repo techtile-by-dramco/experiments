@@ -67,9 +67,9 @@ def start_up(log_data, user_name, ansible_config_yaml, client_config_yaml, clien
     # return analyse(r, log_data)
 
 
-def clean_up(user_name, tiles_to_kill, ansible_config_yaml):
+def clean_up(user_name, tiles_to_kill, ansible_config_yaml, client_config_yaml):
 
-    ansible_stop_client_script(user_name, tiles_to_kill, ansible_config_yaml)
+    ansible_stop_client_script(user_name, tiles_to_kill, ansible_config_yaml, client_config_yaml)
 
 #   Creat log dictonairy from ansible results
 def create_log_dict(playbook_name, log_data_dict, ansible_result):

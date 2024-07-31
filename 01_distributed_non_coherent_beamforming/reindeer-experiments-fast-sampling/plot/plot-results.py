@@ -19,32 +19,39 @@ from yaml_utils import *
 
 file_path = None
 
-end_name = ""
+end_name = "5_m1"
 
 x1 = []
 x2 = []
 y = []
 
+begin_no_meas = 10
 no_meas = 11
 
-for i in range(no_meas):
-    # Define the pattern to search for
-    pattern = os.path.join(f"{exp_dir}/data/one_tone_phase_duration_1{end_name}", f"phase_{75 + i}_*.csv")
+saved_data_names = ["ep", "scope"]
 
-    # Search for the file
-    files = glob.glob(pattern)
+for i in range(begin_no_meas, no_meas):
+
+    files = [None]*2
+
+    for index, name in enumerate(saved_data_names):
+        # Define the pattern to search for
+        pattern = os.path.join(f"{exp_dir}/data/one_tone_phase_duration_{end_name}", f"phase_{75 + i}_*_{name}.csv")
+        print(pattern)
+
+        # Search for the file
+        files[index] = glob.glob(pattern)
+    
+    df = [None]*2
 
     # Check if any file is found
     if files:
-        # Assuming you want the first match if there are multiple
-        file_path = files[0]
-        print(file_path)
-
 
         # Load the CSV file
         # csv_file = f"./data/one_tone_phase_duration_10/{name}_{meas_number}.csv"  # Replace with your actual CSV file path
         # config_file = f"./data/one_tone_phase_duration_10/{name}_{meas_number}_config.yaml"
-        df = pd.read_csv(file_path)
+        for name in saved_data_names:
+            df[saved_data_names.index(name)] = pd.read_csv(files[saved_data_names.index(name)][0])
         # [0:1000]
 
 
@@ -55,27 +62,40 @@ for i in range(no_meas):
         # duration = config.get('client', {}).get('hosts', {}).get('all', {}).get('duration', {})
 
         # Extract 'utc' and 'pwr_nw' columns
-        utc = df['utc']
-        pwr_nw = df['pwr_nw']
-        buffer_voltage_mv = df['buffer_voltage_mv']
-        dbm = df['dbm']
+        #utc = df['utc']
+        pwr_nw = df[0]['pwr_nw']
+        buffer_voltage_mv = df[0]['buffer_voltage_mv']
+        res = df[0]['resistance']
+        #dbm = df['dbm']
 
-        time = df["timestamp"].values - df["timestamp"].values[0]
+        # Check race condition faults
+        plt.plot(df[0]["timestamp"], pwr_nw/1e3 - buffer_voltage_mv**2/res)
+
+        print(f"Max voltage: {max(buffer_voltage_mv)}")
+
+        time = df[0]["timestamp"].values - df[0]["timestamp"].values[0]
+
+        pwr_dbm = df[1]['dbm'] + 10
+        time2 = df[1]["timestamp"].values - df[1]["timestamp"].values[0]
 
         dc = np.mean(pwr_nw/1e3)
-        rf = np.mean(10**(dbm/10)*1e3)
+        #rf = np.mean(10**(dbm/10)*1e3)
+
 
         print(f"DC mean {np.mean(pwr_nw/1e3)}")
-        print(f"RF mean {np.mean(10**(dbm/10)*1e3)}")
+        print(f"RF mean {np.mean(10**(pwr_dbm/10)*1e3)}")
+        print(f"RF mean {np.max(pwr_dbm)}")
 
         x1.append(dc)
-        x2.append(rf)
+        #x2.append(rf)
 
 
         # Plot 'utc' against 'pwr_nw'
         plt.figure(figsize=(10, 6))
-        plt.plot(time, pwr_nw/1e3, label = 'DC power (EP profiler)')
-        plt.plot(time, 10**(dbm/10)*1e3, label = 'RF power (FFT scope)')
+        plt.plot(df[0]["timestamp"], pwr_nw/1e3, label = 'DC power (EP profiler)')
+        plt.plot(df[0]["timestamp"], buffer_voltage_mv/1e3, label = 'Harv. voltage')
+        plt.plot(df[0]["timestamp"], res/1e6, label = 'EP resistance')
+        plt.plot(df[1]["timestamp"], 10**(pwr_dbm/10)*1e3, label = 'RF power (FFT scope)')
         # plt.plot(x, 10*np.log(pwr_nw/1e6), marker='o', label='harvester DC power')
         # plt.plot(x, dbm, marker='o', label='RF power')
         # plt.ylabel('Power (dBm)')

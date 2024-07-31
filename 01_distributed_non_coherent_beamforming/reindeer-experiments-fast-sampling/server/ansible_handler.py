@@ -24,10 +24,11 @@ def ansible_start_client_script(user_name, ansible_config_yaml, client_config_ya
     )
     return r
 
-def ansible_stop_client_script(user_name, tiles_to_kill, ansible_config_yaml):
+def ansible_stop_client_script(user_name, tiles_to_kill, ansible_config_yaml, client_config_yaml):
     r = ansible_runner.run(
         inventory=f'/home/{user_name}/Documents/GitHub/ansible/inventory/{ansible_config_yaml.get("inventory")}',
         playbook=f'/home/{user_name}/Documents/GitHub/ansible/experiments/{ansible_config_yaml.get("stop_client_script")}',
-        extravars={"tiles": tiles_to_kill}
+        extravars={"tiles": tiles_to_kill, 
+                   "script_name": f"{client_config_yaml.get('script')}"}
     )
     return r
