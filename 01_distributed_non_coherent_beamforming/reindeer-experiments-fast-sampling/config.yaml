@@ -96,7 +96,7 @@ client:
       - 1
       duration: 5
       freq: 920000000.0
-      gain: 79
+      gain: 81
       lo_offsets:
       - 0
       - 0
@@ -119,7 +119,7 @@ ep:
 info:
   data_save_path: data/one_tone_phase_duration_5_m1/
   description: Measurement one tone signals
-  exp_name: phase_79
+  exp_name: phase_81
   ip: 10.128.51.250
   port: 5558
   server_user_name: jarne
