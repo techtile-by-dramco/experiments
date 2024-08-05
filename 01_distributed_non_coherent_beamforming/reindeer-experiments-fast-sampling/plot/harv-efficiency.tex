@@ -1,0 +1,142 @@
+% This file was created with tikzplotlib v0.10.1.
+\begin{tikzpicture}
+
+\definecolor{darkgray176}{RGB}{176,176,176}
+\definecolor{darkorange25512714}{RGB}{255,127,14}
+\definecolor{lightgray204}{RGB}{204,204,204}
+\definecolor{steelblue31119180}{RGB}{31,119,180}
+
+\begin{axis}[
+legend cell align={left},
+legend style={
+  fill opacity=0.8,
+  draw opacity=1,
+  text opacity=1,
+  at={(0.03,0.97)},
+  anchor=north west,
+  draw=lightgray204
+},
+tick align=outside,
+tick pos=left,
+x grid style={darkgray176},
+xlabel={USRP gain [dB]},
+xmin=74.5, xmax=85.5,
+xtick style={color=black},
+y grid style={darkgray176},
+ylabel=\textcolor{steelblue31119180}{Power [uW]},
+ymin=-0.770658077892825, ymax=26.2310434525196,
+ytick style={color=black}
+]
+\addplot [semithick, steelblue31119180]
+table {%
+75 0.456691991671377
+76 0.63950951171412
+77 0.921566281708466
+78 1.26602254753809
+79 1.66476190894102
+80 2.14176685947878
+81 2.63355270233796
+82 3.10860562078332
+83 3.8525379597825
+84 6.26595860409853
+85 8.04211120327822
+};
+\addlegendentry{Multitone Mean DC power}
+\addplot [semithick, steelblue31119180]
+table {%
+75 3.1382763220479
+76 3.84886589919538
+77 4.81378016660812
+78 6.04560337368143
+79 7.3304940846566
+80 9.38295576066426
+81 11.3880508544913
+82 13.9698884109967
+83 17.0795044737649
+84 21.0162069983013
+85 25.0036933829554
+};
+\addlegendentry{Multitone Mean RF power}
+\addplot [semithick, steelblue31119180]
+table {%
+75 0.563309137141809
+76 0.617264728440383
+77 1.19676419772738
+78 1.62401733676224
+79 2.42358335144312
+80 3.41778224120492
+81 4.62544215112466
+82 6.1594953739722
+83 6.88141549103359
+84 10.2900477634388
+85 12.5641747503154
+};
+\addlegendentry{Single tone Mean DC power}
+\addplot [semithick, steelblue31119180]
+table {%
+75 3.3811171551552
+76 3.832819324565
+77 5.17649837949025
+78 6.48721963079147
+79 7.85706322014636
+80 10.5238226401887
+81 12.4856654643546
+82 15.1302972269924
+83 16.5619840572225
+84 21.0765063168423
+85 24.6765328148914
+};
+\addlegendentry{Single tone Mean RF power}
+\end{axis}
+
+\begin{axis}[
+axis y line=right,
+legend cell align={left},
+legend style={fill opacity=0.8, draw opacity=1, text opacity=1, draw=lightgray204},
+tick align=outside,
+x grid style={darkgray176},
+xmajorgrids,
+xmin=74.5, xmax=85.5,
+xtick pos=left,
+xtick style={color=black},
+y grid style={darkgray176},
+ylabel=\textcolor{darkorange25512714}{Efficiency [\%]},
+ymajorgrids,
+ymin=12.7341613677293, ymax=52.7336364179401,
+ytick pos=right,
+ytick style={color=black},
+yticklabel style={anchor=west}
+]
+\addplot [semithick, darkorange25512714]
+table {%
+75 14.5523193245571
+76 16.6155311321138
+77 19.1443366712323
+78 20.9412108152764
+79 22.7100914306107
+80 22.8261425728725
+81 23.1255790476148
+82 22.2521864837253
+83 22.5564972666521
+84 29.8148881223192
+85 32.1636930996778
+};
+\addlegendentry{Multitone Efficiency}
+\addplot [semithick, darkorange25512714]
+table {%
+75 16.6604442050442
+76 16.1047176026342
+77 23.1191842437171
+78 25.034104426708
+79 30.8459189335373
+80 32.4766233531244
+81 37.0460202087734
+82 40.7096786108317
+83 41.5494633206863
+84 48.8223598766744
+85 50.9154784611124
+};
+\addlegendentry{Single tone Efficiency}
+\end{axis}
+
+\end{tikzpicture}

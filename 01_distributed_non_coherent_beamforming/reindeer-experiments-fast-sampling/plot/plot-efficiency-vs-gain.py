@@ -19,15 +19,15 @@ from yaml_utils import *
 
 file_path = None
 
-# path_name = 'multi_tone_m1'
-path_name = "one_tone_phase_duration_5_m1"
+path_name = 'multi_tone_m1'
+# path_name = "one_tone_phase_duration_5_m1"
 
-x1 = []
-x2 = []
+avg_pwr_dc = []
+avg_pwr_rf = []
 y = []
 
-begin_no_meas = 1
-no_meas = 6
+begin_no_meas = 0
+no_meas = 5
 
 saved_data_names = ["ep", "scope"]
 
@@ -38,12 +38,9 @@ for i in range(begin_no_meas, no_meas):
     for index, name in enumerate(saved_data_names):
         # Define the pattern to search for
         pattern = os.path.join(f"{exp_dir}/data/{path_name}", f"phase_{75 + i}_*_{name}.csv")
-        print(pattern)
 
         # Search for the file
         files[index] = glob.glob(pattern)
-
-    print(files)
     
     df = [None]*2
 
@@ -107,34 +104,45 @@ for i in range(begin_no_meas, no_meas):
         res = res[usrp_active_index_ep:]
 
         dc = np.mean(pwr_pw/1e6)
-        #rf = np.mean(10**(dbm/10)*1e3)
+        rf = np.mean(10**(pwr_dbm/10)*1e3)
 
         print(f"DC mean {np.mean(pwr_pw/1e6)} uW")
+        print(f"DC std {np.std(pwr_pw/1e6)} uW")
         print(f"RF mean {np.mean(10**(pwr_dbm/10)*1e3)} uW")
-        print(f"RF mean {np.average(pwr_dbm)} dBm")
+        print(f"RF std {np.std(10**(pwr_dbm/10)*1e3)} uW")
+        print(f"RF mean {np.mean(pwr_dbm)} dBm")
 
-        x1.append(dc)
-        #x2.append(rf)
+        avg_pwr_dc.append(dc)
+        avg_pwr_rf.append(rf)
 
+avg_pwr_dc = np.asarray(avg_pwr_dc)
+avg_pwr_rf = np.asarray(avg_pwr_rf)
 
-        # Plot 'utc' against 'pwr_pw'
-        plt.figure(figsize=(10, 6))
-        plt.plot(time_ep, pwr_pw/1e6, label = 'DC power (EP profiler)')
-        plt.plot(time_ep, buffer_voltage_mv/1e3, label = 'Voltage (EP profiler)')
-        plt.plot(time_ep, res/1e6, label = 'Resistance (EP profiler)')
-        plt.plot(time_scope, 10**(pwr_dbm/10)*1e3, label = 'RF power (FFT scope)')
-        # plt.plot(x, 10*np.log(pwr_pw/1e6), marker='o', label='harvester DC power')
-        # plt.plot(x, dbm, marker='o', label='RF power')
-        # plt.ylabel('Power (dBm)')
-        # plt.plot(time, pwr_pw/1e3, marker='o', label='harvester DC power')
-        # plt.plot(time, 10**(dbm/10)*1e3, marker='o', label='harvested RF power')
-        # plt.plot(x, buffer_voltage_mv, marker='o', label='harvester DC voltage')dd
-        plt.xlabel('Measurement time [s]')
-        # plt.ylim(-5,50)
-        plt.ylabel('Power (uW)')
-        plt.title(f"Measured harvested and RF power with USRP gain {75 + i} dB")
-        plt.grid(True)
-        plt.legend()
-        plt.xticks(rotation=45)  # Rotate the x-axis labels for better readability
-        plt.tight_layout()  # Adjust layout to prevent clipping of labels
-        plt.show()
+print(avg_pwr_dc)
+print(avg_pwr_rf)
+
+# Main plot
+fig, ax1 = plt.subplots()
+
+# X-axis values
+x_values = np.linspace(1, len(avg_pwr_dc), len(avg_pwr_dc)) + 74
+
+ax1.plot(x_values, avg_pwr_dc, '#1f77b4', linestyle='-', label='Mean DC power')
+ax1.plot(x_values, avg_pwr_rf, '#1f77b4', linestyle='--', label='Mean RF power')
+
+ax1.set_xlabel('USRP gain [dB]')
+ax1.set_ylabel('Power [uW]', color='#1f77b4')
+ax1.tick_params(axis='y', labelcolor='#1f77b4')
+
+ax2 = ax1.twinx()
+
+ax2.plot(x_values, avg_pwr_dc/avg_pwr_rf*100, '#ff7f0e', label='Efficiency')
+ax2.set_ylabel('Power [uW]', color='#ff7f0e')
+ax2.tick_params(axis='y', labelcolor='#ff7f0e')
+
+# Add legends
+ax1.legend(loc='upper left')
+ax2.legend(loc='upper right')
+
+plt.grid()
+plt.show()
