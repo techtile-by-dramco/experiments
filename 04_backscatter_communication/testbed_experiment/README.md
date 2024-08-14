@@ -26,8 +26,8 @@ Tiles of the ceiling and side walls are involved in following measurements.
 | Client (RPI) script | Controlling USRP |  |
 | Ansible copy files | Copy config.yaml and SCRIPT_NAME.py to all hosts/clients |  |
 | Ansible start up | Start up all client scripts |  |
-| Measurement script | Control capture EP/scope/location data | OOK_demod_REINDEER.py |
-| BERT script| Bit error rate tests the incoming bitstream| BERT.py|
+| Measurement script | Control capture EP/scope/location data | [OOK_demod_REINDEER.py](https://github.com/techtile-by-dramco/experiments/blob/main/04_backscatter_communication/testbed_experiment/client/OOK_demod_REINDEER.py) |
+| BERT script| Bit error rate tests the incoming bitstream| [BERT.py](https://github.com/techtile-by-dramco/experiments/blob/main/04_backscatter_communication/testbed_experiment/client/BERT.py) ||
 |...|||
 |...|||
 
@@ -50,7 +50,7 @@ Transmit carrier signal with random phase: this results in a room with a quasi-u
 
 ### END side:
 
-Backscatter the 
+Backscatter the pseudo random binary sequence (found [HERE](https://github.com/techtile-by-dramco/experiments/blob/main/04_backscatter_communication/testbed_experiment/client/pseudorandombinarysequence.txt) |
 The signal is a preamble (80 bits) followed by pseudo-random binary sequence of 32848 bits. Long sequence lengths offer more randomness, which stresses the interface more, leading to a higher likelihood of inducing bit-errors. However, they have the disadvantage of taking a longer time to complete the entire sequence, which can be a significant issue at lower bit rates. As a result, it is generally recommended that
 short PRBS patterns be used at low bit rates and long PRBS patterns be used at the highest bitrates. The pseudo random bit sequence used in this tests can be foun in ???.
 The END side determines the offset frequency, the bit error sequency length and the symbol rate. 
@@ -67,7 +67,7 @@ OOK_demod_REINDEER.py main goal is to perform an adaptive OOK demodulation and r
 - STEP 2: Getting the OOK signal (floats) by performing a complex to mag^2 conversion. This signal is weak, so an Automatic Gain Control block is used to amplify the signal. 
 - Step 3: Filtering the higher noise out of the signal with a low pass filter and creating a block wave out of the data signal with a threshold detector with hysteresis. The threshold itself is set dynamically by performing a moving average and using that average as the threshold when the received signal is larger than the noise flour. 
 - Step 4: the block waves are downsampled and synced to the symbol rate with a Gardner symbol sync. The output with a lower data rate is again made binary by implementing a fixed threshold detector.
-- Step 5: The floats are packed, so only 1 bit per sample is used and writen to a binary file with a file sinK.
+- Step 5: The floats are packed, so only 1 bit per sample is used and writen to a binary file with a file sink.
 
 Post-processing is done by BERT.py program, which reads the saved binary file and returns the bitstream as a string of '0's and '1's, checks for the preamble, and compares it to the pseudo-random binary bit sequence, and calculates the BER.
 
