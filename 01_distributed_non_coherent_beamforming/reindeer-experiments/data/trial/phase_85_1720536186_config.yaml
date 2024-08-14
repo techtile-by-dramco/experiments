@@ -16,7 +16,7 @@ client:
   script: tx_waveforms_random_phase.py
   tiles: ceiling
 control:
-  duration: 60
+  duration: 10
   transmission: auto
 ep:
   csv_header:
@@ -55,7 +55,7 @@ scope:
   center_hz: 920000000.0
   csv_header:
   - dbm
-  enabled: false
+  enabled: true
   ip: 192.108.0.251
   rbw_hz: 100.0
   span_hz: 10000000.0

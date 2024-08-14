@@ -19,13 +19,13 @@ from yaml_utils import *
 
 file_path = None
 
-end_name = ""
+end_name = "0_m5"
 
 x1 = []
 x2 = []
 y = []
 
-no_meas = 11
+no_meas = 1
 
 for i in range(no_meas):
     # Define the pattern to search for

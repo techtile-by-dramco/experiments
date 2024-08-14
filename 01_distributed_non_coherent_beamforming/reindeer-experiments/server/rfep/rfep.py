@@ -90,6 +90,7 @@ class RFEP():
                 # Receive the reply from the server for the first request
                 message = self.socket.recv_string()
                 self.last_ep_data = json.loads(message, object_hook=ep_data.json_decoder)
+                print(self.last_ep_data)
             except zmq.error.Again as e:
                 # Handle timeout error
                 print("EP Thread: Socket receive timed out:", e)

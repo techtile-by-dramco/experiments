@@ -23,7 +23,7 @@ from yaml_utils import *
 
 file_path = None
 
-end_name = "10_m4"
+path_name = "one_tone_phase_duration_5_m1"
 
 x1 = []
 x2 = []
@@ -73,16 +73,16 @@ print(get_mcu_consumption_power(1.2))
 
 # exit()
 
-target_voltage = 1.55
+target_voltage = 1.75
 
 
 for i in range(no_meas):
     # Print experiment number
     print(f"*******************************************************")
-    print(f"    *** USRP gain equals {75 + i} -- Duration {end_name} ***     ")
+    print(f"    *** USRP gain equals {75 + i} -- Duration {path_name} ***     ")
 
     # Define the pattern to search for
-    pattern = os.path.join(f"{exp_dir}/data/one_tone_phase_duration_{end_name}", f"phase_{75 + i}_*.csv")
+    pattern = os.path.join(f"{exp_dir}/data/{path_name}", f"phase_{75 + i}_*.csv")
 
     # Search for the file
     files = glob.glob(pattern)

@@ -29,7 +29,7 @@ x1_min = []
 x2_min = []
 y = []
 
-no_meas = 8
+no_meas = 11
 
 for i in range(no_meas):
     # Define the pattern to search for
@@ -87,7 +87,7 @@ for i in range(no_meas):
         x1_min.append(dc_min)
         x2_min.append(rf_min)
 
-x = np.linspace(75,75+no_meas,no_meas)
+x = np.linspace(75,75+no_meas-1,no_meas)
 
 
 # plt.figure(figsize=(10, 6))

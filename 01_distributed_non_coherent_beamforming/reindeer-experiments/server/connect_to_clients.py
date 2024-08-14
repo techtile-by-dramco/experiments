@@ -125,6 +125,3 @@ def analyse(playbook_name, log_data_dict, ansible_result):
 
     return tile_states, num_processed, num_unreachable
 
-def send_zmq_cmd(socket, cmd):
-    print(cmd.encode())
-    socket.send_multipart([b"phase", cmd.encode()])

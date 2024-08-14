@@ -25,7 +25,6 @@ import threading
 # *** Local includes ***
 from yaml_utils import *
 from export_data import *
-from connect_to_clients import *
 
 #   Read YAML file
 config = read_yaml_file(f"{exp_dir}/config.yaml")
@@ -50,6 +49,19 @@ scope_yaml = config.get('scope', {})
 
 #   ENERGY PROFILER SYSTEM SETTINGS --> ToDo Check if it is definied in config file
 ep_yaml = config.get('ep', {})
+
+#   CLIENT
+client = config.get('client', {})
+
+#   Log ansible results
+ansible_results = {}
+
+if client.get("enable_client_script"):
+    from connect_to_clients import *
+
+def send_zmq_cmd(socket, cmd):
+    print(cmd.encode())
+    socket.send_multipart([b"phase", cmd.encode()])
 
 def func_ctrl_thread(ctrl_thread_stop_flag, init_event, start_event, stop_event, close_event):
     global tx_gain
@@ -84,12 +96,6 @@ def func_ctrl_thread(ctrl_thread_stop_flag, init_event, start_event, stop_event,
                 break
 
     print("Control thread successfully terminated.")
-
-#   CLIENT
-client = config.get('client', {})
-
-#   Log ansible results
-ansible_results = {}
 
 if __name__ == '__main__':
 
@@ -148,8 +154,9 @@ if __name__ == '__main__':
     print("(1) Copy python script from server to client to folder 'home/ip/exp/{client_experiment_name}'")
 
     #   Check or copy files to the clients
-    copy_files(ansible_results, server_user_name, exp_dir, ansible_yaml, client, client_experiment_name)
-    log_info(ansible_results, exp_dir, data_save_path, client_experiment_name)
+    if client.get("enable_client_script"):
+        copy_files(ansible_results, server_user_name, exp_dir, ansible_yaml, client, client_experiment_name)
+        log_info(ansible_results, exp_dir, data_save_path, client_experiment_name)
 
     print("(2) Start control thread")
 

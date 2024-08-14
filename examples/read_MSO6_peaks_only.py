@@ -7,7 +7,7 @@ import time # std module
 import pyvisa as visa # http://github.com/hgrecco/pyvisa
 import matplotlib.pyplot as plt # http://matplotlib.org/
 import numpy as np # http://www.numpy.org/
-from tqdm import tqdm
+# from tqdm import tqdm
 from scipy.signal import find_peaks
 
 rm = visa.ResourceManager()
