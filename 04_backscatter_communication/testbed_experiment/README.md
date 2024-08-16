@@ -42,7 +42,9 @@ The following image provides a setup overview, ..
 
 ## Combined to perform measurements
 
-The techtile transceivers should be seperated into two types of types: a part of the SDR's should transmit a continuous carrier signal with a random phase, the other part should receive the backscattered signal.
+The techtile transceivers should be seperated into two types of types: a part of the SDR's should transmit a continuous carrier signal with a random phase (adaptive single-tone?), the other part should receive the backscattered signal.
+
+❗❗Adaptive single-tone signals could potentially cause corrupte messages --> if the received power level is changed during backscatter operartion❗❗
 
 ### Transmitter side
 
