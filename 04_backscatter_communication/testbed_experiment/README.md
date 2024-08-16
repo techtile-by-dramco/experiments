@@ -40,7 +40,7 @@ Tiles of the ceiling and side walls are involved in following measurements.
 The following image provides a setup overview, ..
 
 
-## Combined to perform measurements
+## High level measurement setup
 
 The techtile transceivers should be transceivers should be categorized into two types of implementation. A part of the SDR's should transmit a continuous carrier signal with a random phase (adaptive single-tone?), another part should receive the backscattered signal. \
 Proposal:
@@ -77,7 +77,7 @@ OOK_demod_REINDEER.py main goal is to perform an adaptive OOK demodulation and r
 
 Post-processing is done by BERT.py program, which reads the saved binary file and returns the bitstream as a string of '0's and '1's, checks for the preamble, and compares it to the pseudo-random binary bit sequence, and calculates the BER.
 
-
+## Perform measurements
 
 ## Results
 
