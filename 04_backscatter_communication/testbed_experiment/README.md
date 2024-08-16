@@ -42,7 +42,7 @@ The following image provides a setup overview, ..
 
 ## High level measurement setup
 
-The techtile transceivers should be transceivers should be categorized into two types of implementation. A part of the SDR's should transmit a continuous carrier signal with a random phase (adaptive single-tone?), another part should receive the backscattered signal. \
+The techtile transceivers should be categorized into two types of implementation. A part of the SDR's should transmit a continuous carrier signal with a random phase (adaptive single-tone?), another part should receive the backscattered signal. \
 Proposal:
 * ☝️ceiling tiles☝️--> generating the carrier wave to enable backscattering (and/or to provide initial access energy)
 * 👈left and right walls👉 --> try to demodulate the signals
