@@ -261,7 +261,9 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, res, st
 
         # np.angle(np.sum(np.exp(np.angle(samples)*1j), axis=1)) # circular mean https://en.wikipedia.org/wiki/Circular_mean
         avg_angles = circmean(np.angle(samples[:, int(RATE//10):]), axis=1)
-        var_angles = circvar(np.angle(samples[:, int(RATE//10):]), axis=1)
+        var_angles = np.var(np.angle(samples[:, int(RATE//10):]), axis=1)
+        min_angles = np.min(np.angle(samples[:, int(RATE // 10) :]), axis=1)
+        max_angles = np.max(np.angle(samples[:, int(RATE // 10) :]), axis=1)
 
         # median_angles0 = circmedian(np.angle(samples[0, int(RATE//10):]))
         # median_angles1 = circmedian(np.angle(samples[1, int(RATE//10):]))
@@ -276,7 +278,9 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, res, st
         # logger.debug(
         #     f"Angle (median) CH0:{np.rad2deg(median_angles0):.2f} CH1:{np.rad2deg(median_angles1):.2f}")
         logger.debug(
-            f"Angle var CH0:{var_angles[0]:.2f} CH1:{var_angles[1]:.2f}")
+            f"Angle min max CH0:{np.rad2deg(min_angles[0]):.2f} {np.rad2deg(max_angles[0]):.2f} CH1:{np.rad2deg(min_angles[1]):.2f} {np.rad2deg(max_angles[1]):.2f}"
+        )
+        logger.debug(f"Angle var CH0:{var_angles[0]:.2f} CH1:{var_angles[1]:.2f}")
         # keep this just below this final stage
         logger.debug(f"Amplitude CH0:{avg_ampl[0]:.2f} CH1:{avg_ampl[1]:.2f}")
         logger.debug(f"Amplitude var CH0:{var_ampl[0]:.2f} CH1:{var_ampl[1]:.2f}")
