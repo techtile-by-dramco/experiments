@@ -657,8 +657,8 @@ def measure_pll(usrp, rx_streamer, at_time) -> float:
     pll_phase = phase_to_compensate[REF_RX_CH]
 
     # TX_ANGLE_CH0 ; TX_ANGLE_CH1 ; RX_ANGLE_CH0 ; RX_ANGLE_CH1 ; RX_AMPL_CH0 ; RX_AMPL_CH1
-    write_data(MEAS_TYPE_PLL, [
-               0.0, 0.0, phase_to_compensate[0], phase_to_compensate[1], res[0], res[1], res[2], res[3]])  # TODO ADD AMPL
+    # write_data(MEAS_TYPE_PLL, [
+    #            0.0, 0.0, phase_to_compensate[0], phase_to_compensate[1], res[0], res[1], res[2], res[3]])  # TODO ADD AMPL
 
     return pll_phase
 
@@ -855,7 +855,7 @@ def main():
 
         iq_socket.close()
         context.term()
-        data_file.close()
+        
         time.sleep(0.1)  # give it some time to close
 
         sys.exit(0)
