@@ -837,6 +837,7 @@ def main():
 
         measure_pll(usrp=usrp, rx_streamer=rx_streamer, at_time=cmd_time)
 
+        print(results)
         np.savetxt(data_file, results)
 
     except KeyboardInterrupt:
