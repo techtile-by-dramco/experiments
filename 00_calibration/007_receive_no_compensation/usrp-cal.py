@@ -178,6 +178,8 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, res, st
 
     # The CORDICs are reset at each start-of-burst command, so users should ensure that every start-of-burst also has a time spec set.
 
+    global results
+
     num_channels = rx_streamer.get_num_channels()
 
     max_samps_per_packet = rx_streamer.get_max_num_samps()
@@ -294,8 +296,7 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, res, st
 
 def wait_till_go_from_server(ip, _connect=True):
 
-    global meas_id, file_open, data_file
-
+    global meas_id, file_open, data_file, file_name
     # Connect to the publisher's address
     logger.debug("Connecting to server %s.", ip)
     sync_socket = context.socket(zmq.SUB)
