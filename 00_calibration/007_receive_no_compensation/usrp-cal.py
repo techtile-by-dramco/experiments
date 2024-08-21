@@ -314,9 +314,11 @@ def wait_till_go_from_server(ip, _connect=True):
 
     meas_id, unique_id = sync_socket.recv_string().split(" ")
 
-    if not file_open:
-        data_file = open(f"data_{HOSTNAME}_{unique_id}.txt", "ab")
-        file_open = True
+    file_name = f"data_{HOSTNAME}_{unique_id}.txt"
+
+    # if not file_open:
+    #     data_file = open(f"data_{HOSTNAME}_{unique_id}.txt", "ab")
+    #     file_open = True
 
     logger.debug(meas_id)
 
@@ -838,7 +840,8 @@ def main():
         measure_pll(usrp=usrp, rx_streamer=rx_streamer, at_time=cmd_time)
 
         print(results)
-        np.savetxt(data_file, results)
+        
+        np.savetxt(file_name, results)
 
     except KeyboardInterrupt:
 
