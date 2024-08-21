@@ -315,7 +315,7 @@ def wait_till_go_from_server(ip, _connect=True):
 
     meas_id, unique_id = sync_socket.recv_string().split(" ")
 
-    file_name = f"data_{HOSTNAME}_{unique_id}_{meas_id}.txt"
+    file_name = f"data_{HOSTNAME}_{unique_id}_{meas_id}"
 
     # if not file_open:
     #     data_file = open(f"data_{HOSTNAME}_{unique_id}.txt", "ab")
