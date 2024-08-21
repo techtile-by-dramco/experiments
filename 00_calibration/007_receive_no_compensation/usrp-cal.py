@@ -44,6 +44,8 @@ MEAS_TYPE_PHASE_DIFF = "PDIFF"
 
 meas_id = 0
 
+results = []
+
 
 with open(os.path.join(os.path.dirname(__file__), "cal-settings.yml"), 'r') as file:
     vars = yaml.safe_load(file)
@@ -123,17 +125,17 @@ HOSTNAME = socket.gethostname()[4:]
 file_open = False
 
 
-def write_data(meas_type, data):
-    # Connect to the publisher's address
-    logger.debug("Writing data to local file.")
-    
-    # TX_ANGLE_CH0 ; TX_ANGLE_CH1 ; RX_ANGLE_CH0 ; RX_ANGLE_CH1 ; RX_AMPL_CH0 ; RX_AMPL_CH1
-    # 4 to remove "rpi-" in the name
-    data = str(meas_id)+";"+HOSTNAME+";"+meas_type + \
-        ";"+";".join(str(v) for v in data)
-    logger.debug("Writing data %s.", data)
-    file.write(data+"\n")
-    file.flush()
+# def write_data(meas_type, data):
+#     # Connect to the publisher's address
+#     logger.debug("Writing data to local file.")
+
+#     # TX_ANGLE_CH0 ; TX_ANGLE_CH1 ; RX_ANGLE_CH0 ; RX_ANGLE_CH1 ; RX_AMPL_CH0 ; RX_AMPL_CH1
+#     # 4 to remove "rpi-" in the name
+#     data = str(meas_id)+";"+HOSTNAME+";"+meas_type + \
+#         ";"+";".join(str(v) for v in data)
+#     logger.debug("Writing data %s.", data)
+#     data_file.write(data + "\n")
+#     data_file.flush()
 
 
 def publish(data, channel: int):
@@ -287,18 +289,19 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, res, st
 
         res.extend([var_angles[0], var_angles[1], var_ampl[0], var_ampl[1]])
 
+        results = samples
+
 
 def wait_till_go_from_server(ip, _connect=True):
 
-
-    global meas_id, file_open, file
+    global meas_id, file_open, data_file
 
     # Connect to the publisher's address
     logger.debug("Connecting to server %s.", ip)
     sync_socket = context.socket(zmq.SUB)
 
     alive_socket = context.socket(zmq.REQ)
- 
+
     sync_socket.connect(f"tcp://{ip}:{5557}")
     alive_socket.connect(f"tcp://{ip}:{5558}")
     # Subscribe to topics
@@ -308,11 +311,11 @@ def wait_till_go_from_server(ip, _connect=True):
     alive_socket.send_string("ALIVE")
     # Receives a string format message
     logger.debug("Waiting on SYNC from server %s.", ip)
-    
+
     meas_id, unique_id = sync_socket.recv_string().split(" ")
 
     if not file_open:
-        file = open(f"data_{HOSTNAME}_{unique_id}.txt", "a")
+        data_file = open(f"data_{HOSTNAME}_{unique_id}.txt", "ab")
         file_open = True
 
     logger.debug(meas_id)
@@ -834,6 +837,8 @@ def main():
 
         measure_pll(usrp=usrp, rx_streamer=rx_streamer, at_time=cmd_time)
 
+        np.savetxt(data_file, results)
+
     except KeyboardInterrupt:
 
         # Interrupt and join the threads
@@ -846,7 +851,7 @@ def main():
 
         iq_socket.close()
         context.term()
-        file.close()
+        data_file.close()
         time.sleep(0.1)  # give it some time to close
 
         sys.exit(0)
