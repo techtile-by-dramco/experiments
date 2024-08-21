@@ -291,7 +291,7 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, res, st
 
         res.extend([var_angles[0], var_angles[1], var_ampl[0], var_ampl[1]])
 
-        results = samples
+        results = samples[1,:]
 
 
 def wait_till_go_from_server(ip, _connect=True):
@@ -315,7 +315,7 @@ def wait_till_go_from_server(ip, _connect=True):
 
     meas_id, unique_id = sync_socket.recv_string().split(" ")
 
-    file_name = f"data_{HOSTNAME}_{unique_id}.txt"
+    file_name = f"data_{HOSTNAME}_{unique_id}_{meas_id}.txt"
 
     # if not file_open:
     #     data_file = open(f"data_{HOSTNAME}_{unique_id}.txt", "ab")
@@ -842,7 +842,7 @@ def main():
 
         print(results)
         
-        np.savetxt(file_name, results)
+        np.save(file_name, results)
 
     except KeyboardInterrupt:
 
