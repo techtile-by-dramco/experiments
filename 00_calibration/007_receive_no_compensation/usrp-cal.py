@@ -482,6 +482,7 @@ def setup(usrp, server_ip, connect=True):
         usrp.set_tx_rate(rate, chan)
         usrp.set_rx_dc_offset(False, chan)
         usrp.set_rx_bandwidth(rx_bw, chan)
+        usrp.set_rx_agc(False, chan)
 
     # specific settings from loopback/REF PLL
     usrp.set_tx_gain(LOOPBACK_TX_GAIN, LOOPBACK_TX_CH)
