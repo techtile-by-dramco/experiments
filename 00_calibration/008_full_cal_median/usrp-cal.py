@@ -258,8 +258,8 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
 
         # np.angle(np.sum(np.exp(np.angle(samples)*1j), axis=1)) # circular mean https://en.wikipedia.org/wiki/Circular_mean
         avg_angles = [0,0]
-        avg_angles[0] = circmedian(np.angle(samples[:, int(RATE//10):0]))
-        avg_angles[1] = circmedian(np.angle(samples[:, int(RATE//10):1]))
+        avg_angles[0] = circmedian(np.angle(samples[0, int(RATE//10):]))
+        avg_angles[1] = circmedian(np.angle(samples[1, int(RATE//10):]))
         var_angles = circvar(np.angle(samples[:, int(RATE//10):]), axis=1)
 
         # median_angles0 = circmedian(np.angle(samples[0, int(RATE//10):]))
