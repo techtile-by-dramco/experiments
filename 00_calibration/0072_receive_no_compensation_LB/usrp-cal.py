@@ -444,7 +444,6 @@ def tune_usrp(usrp, freq, channels, at_time):
 
     for chan in channels:
         logger.debug(print_tune_result(usrp.set_rx_freq(treq, chan)))
-        treq.target_freq = freq + 1 #TODO changed=, remove when no longer needed
         logger.debug(print_tune_result(usrp.set_tx_freq(treq, chan)))
 
     wait_till_time(usrp, at_time)
@@ -472,8 +471,8 @@ def setup(usrp, server_ip, connect=True):
     # Manual selection of master clock rate may also be required to synchronize multiple B200 units in time.
     usrp.set_master_clock_rate(mcr)
     channels = [0, 1]
-    setup_clock(usrp, "external", usrp.get_num_mboards())
-    setup_pps(usrp, "external")
+    setup_clock(usrp, "internal", usrp.get_num_mboards()) #TODO external!
+    setup_pps(usrp, "internal")  # TODO external!
 
     # smallest as possible (https://files.ettus.com/manual/page_usrp_b200.html#b200_fe_bw)
     rx_bw = 200e3
