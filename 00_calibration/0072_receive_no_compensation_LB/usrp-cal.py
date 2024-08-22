@@ -291,7 +291,7 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, res, st
 
         res.extend([var_angles[0], var_angles[1], var_ampl[0], var_ampl[1]])
 
-        results = samples[1,:]
+        results = samples[0,:]
 
 
 def wait_till_go_from_server(ip, _connect=True):
