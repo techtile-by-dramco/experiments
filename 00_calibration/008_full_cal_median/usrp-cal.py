@@ -256,19 +256,35 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
 
         samples = iq_data[:, :num_rx]
 
+        valid_samples = samples[:, int(RATE//10):]
+        valid_angles = np.angle(valid_samples)
+        valid_ampl = np.abs(valid_samples)
+
         # np.angle(np.sum(np.exp(np.angle(samples)*1j), axis=1)) # circular mean https://en.wikipedia.org/wiki/Circular_mean
         avg_angles = [0,0]
-        avg_angles[0] = circmedian(np.angle(samples[0, int(RATE//10):]))
-        avg_angles[1] = circmedian(np.angle(samples[1, int(RATE//10):]))
-        var_angles = circvar(np.angle(samples[:, int(RATE//10):]), axis=1)
+        if angle_method is "median":
+            avg_angles[0] = circmedian(valid_angles[0])
+            avg_angles[1] = circmedian(valid_angles[1])
+        if angle_method is "hist2d":
+            counts, xedges, yedges = np.histogram2d(valid_angles[0], valid_ampl[0], bins=720)
+            # https://stackoverflow.com/questions/60060017/how-do-i-find-the-bin-with-the-highest-count-using-np-hist2d
+            x_ind, y_ind = np.unravel_index(np.argmax(counts), counts.shape)
+            avg_angles[0] = (xedges[x_ind] + xedges[x_ind + 1]) / 2
+
+            counts, xedges, yedges = np.histogram2d(valid_angles[1], valid_ampl[1], bins=720)
+            # https://stackoverflow.com/questions/60060017/how-do-i-find-the-bin-with-the-highest-count-using-np-hist2d
+            x_ind, y_ind = np.unravel_index(np.argmax(counts), counts.shape)
+            avg_angles[1] = (xedges[x_ind] + xedges[x_ind + 1]) / 2 
+
+        var_angles = circvar(valid_angles, axis=1)
 
         # median_angles0 = circmedian(np.angle(samples[0, int(RATE//10):]))
         # median_angles1 = circmedian(np.angle(samples[1, int(RATE//10):]))
 
         phase_to_compensate.extend(avg_angles)
 
-        avg_ampl = np.mean(np.abs(samples), axis=1)
-        var_ampl = np.var(np.abs(samples), axis=1)
+        avg_ampl = np.mean(valid_ampl, axis=1)
+        var_ampl = np.var(valid_ampl, axis=1)
 
         logger.debug(
             f"Angle (median) CH0:{np.rad2deg(avg_angles[0]):.2f} CH1:{np.rad2deg(avg_angles[1]):.2f}")
