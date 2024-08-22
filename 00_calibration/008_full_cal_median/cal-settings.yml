@@ -13,4 +13,4 @@ CAPTURE_TIME: !!float 5
 
 server_ip: "10.128.52.53"
 
-angle_method: "hist2d" #median
+ANGLE_METHOD: "hist2d" #median
