@@ -42,6 +42,8 @@ MEAS_TYPE_LOOPBACK_CHECK = "LBCK"
 MEAS_TYPE_PLL_CHECK = "PLLCK"
 MEAS_TYPE_PHASE_DIFF = "PDIFF"
 
+ANGLE_METHOD = 'median'
+
 meas_id = 0
 
 
@@ -262,10 +264,10 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, start_t
 
         # np.angle(np.sum(np.exp(np.angle(samples)*1j), axis=1)) # circular mean https://en.wikipedia.org/wiki/Circular_mean
         avg_angles = [0,0]
-        if angle_method is "median":
+        if ANGLE_METHOD == "median":
             avg_angles[0] = circmedian(valid_angles[0])
             avg_angles[1] = circmedian(valid_angles[1])
-        if angle_method is "hist2d":
+        if ANGLE_METHOD == "hist2d":
             counts, xedges, yedges = np.histogram2d(valid_angles[0], valid_ampl[0], bins=720)
             # https://stackoverflow.com/questions/60060017/how-do-i-find-the-bin-with-the-highest-count-using-np-hist2d
             x_ind, y_ind = np.unravel_index(np.argmax(counts), counts.shape)
