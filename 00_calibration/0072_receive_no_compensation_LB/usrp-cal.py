@@ -444,6 +444,7 @@ def tune_usrp(usrp, freq, channels, at_time):
 
     for chan in channels:
         logger.debug(print_tune_result(usrp.set_rx_freq(treq, chan)))
+        treq.target_freq = freq + 1 #TODO changed=, remove when no longer needed
         logger.debug(print_tune_result(usrp.set_tx_freq(treq, chan)))
 
     wait_till_time(usrp, at_time)
