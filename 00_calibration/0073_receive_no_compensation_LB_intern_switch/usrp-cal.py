@@ -446,7 +446,7 @@ def tune_usrp(usrp, freq, channels, at_time):
     rreq = uhd.types.TuneRequest(freq)
     rreq.rf_freq = rx_freq
     rreq.target_freq = rx_freq
-    rreq.dsp_freq = 0.0
+    rreq.dsp_freq = 1e3
     rreq.rf_freq_policy = uhd.types.TuneRequestPolicy(ord('M'))
     rreq.dsp_freq_policy = uhd.types.TuneRequestPolicy(ord('M'))
     rreq.args = uhd.types.DeviceAddr("mode_n=fractional")
