@@ -442,8 +442,8 @@ def tune_usrp(usrp, freq, channels, at_time):
     args = uhd.types.DeviceAddr("mode_n=integer")
     treq.args = args
 
-    rx_freq = freq - 1e3
-    rreq = uhd.types.TuneRequest(freq)
+    rx_freq = freq + 1e3
+    rreq = uhd.types.TuneRequest(rx_freq)
     rreq.rf_freq = rx_freq
     rreq.target_freq = rx_freq
     rreq.dsp_freq = 1e3
