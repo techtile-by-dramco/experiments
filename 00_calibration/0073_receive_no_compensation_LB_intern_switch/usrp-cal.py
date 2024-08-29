@@ -444,6 +444,7 @@ def tune_usrp(usrp, freq, channels, at_time):
 
     rreq = treq
     rreq.target_freq = treq.target_freq - 1e3
+    rreq.args = uhd.types.DeviceAddr("mode_n=fractional")
 
     for chan in channels:
         logger.debug(print_tune_result(usrp.set_rx_freq(treq, chan)))
