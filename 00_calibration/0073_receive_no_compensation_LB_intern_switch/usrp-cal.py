@@ -410,9 +410,9 @@ def setup_pps(usrp, pps):
 
 
 def print_tune_result(tune_res):
-    return "Tune Result:\n    Target RF  Freq: {:.2f} (MHz)\n Actual RF  Freq: {:.2f} (MHz)\n Target DSP Freq: {:.2f} " \
+    return "Tune Result:\n    Target RF  Freq: {:.6f} (MHz)\n Actual RF  Freq: {:.6f} (MHz)\n Target DSP Freq: {:.6f} " \
            "(MHz)\n " \
-           "Actual DSP Freq: {:.2f} (MHz)\n".format((tune_res.target_rf_freq / 1e6), (tune_res.actual_rf_freq / 1e6),
+           "Actual DSP Freq: {:.6f} (MHz)\n".format((tune_res.target_rf_freq / 1e6), (tune_res.actual_rf_freq / 1e6),
                                                     (tune_res.target_dsp_freq / 1e6), (tune_res.actual_dsp_freq / 1e6))
 
 
