@@ -443,21 +443,24 @@ def tune_usrp(usrp, freq, channels, at_time):
     treq.args = args
 
     rreq = treq
-    rreq.target_freq = treq.target_freq - 1e3
+    rreq.rf_freq = freq - 1e3
+    rreq.target_freq = freq - 1e3
     rreq.args = uhd.types.DeviceAddr("mode_n=fractional")
 
     for chan in channels:
-        logger.debug(print_tune_result(usrp.set_rx_freq(treq, chan)))
-        logger.debug(print_tune_result(usrp.set_tx_freq(rreq, chan)))
+        logger.debug(print_tune_result(usrp.set_rx_freq(rreq, chan)))
+        logger.debug(print_tune_result(usrp.set_tx_freq(treq, chan)))
 
     wait_till_time(usrp, at_time)
 
     while not usrp.get_rx_sensor("lo_locked").to_bool():
+        print(".")
         time.sleep(0.01)
 
     logger.info("RX LO is locked")
 
     while not usrp.get_tx_sensor("lo_locked").to_bool():
+        print(".")
         time.sleep(0.01)
 
     logger.info("TX LO is locked")
