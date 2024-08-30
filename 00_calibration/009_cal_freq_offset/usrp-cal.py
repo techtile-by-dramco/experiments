@@ -173,6 +173,7 @@ def circmedian(angs):
     pdists = np.abs(pdists).sum(1)
     return angs[np.argmin(pdists)]
 
+from scipy.signal import butter, sosfilt, sosfreqz
 
 def butter_bandpass(lowcut, highcut, fs, order=5):
     nyq = 0.5 * fs
@@ -280,7 +281,7 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, res, st
 
         avg_angles  = []
 
-        from scipy.signal import butter, sosfilt, sosfreqz
+        
         f0 = 1e3
         cutoff = 250
         fs = RATE
