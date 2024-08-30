@@ -281,7 +281,6 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, res, st
 
         avg_angles  = []
 
-        
         f0 = 1e3
         cutoff = 250
         fs = RATE
@@ -293,13 +292,14 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, res, st
                 np.real(samples[ch,:]), lowcut, highcut, fs, order=9
             )
             y_imag = butter_bandpass_filter(
-                np.real(samples[ch,:]), lowcut, highcut, fs, order=9
+                np.imag(samples[ch,:]), lowcut, highcut, fs, order=9
             )
             angle_unwrapped = np.unwrap(np.angle(y_re + 1j * y_imag))
             t = np.arange(0, len(y_re)) * (1 / fs)   
 
             from scipy import stats
             lin_regr = stats.linregress(t, angle_unwrapped)
+            print(lin_regr.slope)
             phase_rad = angle_unwrapped - lin_regr.slope * t
             avg_phase = np.mean(phase_rad)
             avg_angles.extend([avg_phase])
