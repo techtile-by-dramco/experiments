@@ -303,9 +303,9 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, res, st
             from scipy import stats
             lin_regr = stats.linregress(time, angle_unwrapped)
             phase_rad = angle_unwrapped - lin_regr.slope * time
-            phase = np.rad2deg(phase_rad)
-            avg_phase = np.mean(phase)
+            avg_phase = np.mean(phase_rad)
             avg_angles.extend([avg_phase])
+            logger.debug(f"Frequency offset CH{ch}:{lin_regr.slope/(2*np.pi):.4f}")
 
         # np.angle(np.sum(np.exp(np.angle(samples)*1j), axis=1)) # circular mean https://en.wikipedia.org/wiki/Circular_mean
         # avg_angles = circmean(np.angle(samples[:, int(RATE//10):]), axis=1)
