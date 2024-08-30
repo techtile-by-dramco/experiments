@@ -185,8 +185,6 @@ highcut = f0 + cutoff
 
 
 def butter_bandpass(lowcut, highcut, fs, order=5):
-    global f0, cutoff, fs, lowcut, highcut
-
     nyq = 0.5 * fs
     low = lowcut / nyq
     high = highcut / nyq
@@ -195,8 +193,6 @@ def butter_bandpass(lowcut, highcut, fs, order=5):
 
 
 def butter_bandpass_filter(data, lowcut, highcut, fs, order=5):
-    global f0, cutoff, fs, lowcut, highcut
-
     sos = butter_bandpass(lowcut, highcut, fs, order=order)
     y = sosfilt(sos, data)
     return y
@@ -207,7 +203,7 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, res, st
 
     # The CORDICs are reset at each start-of-burst command, so users should ensure that every start-of-burst also has a time spec set.
 
-    global results, f0, cutoff, fs, lowcut, highcut
+    global results
 
     num_channels = rx_streamer.get_num_channels()
 
