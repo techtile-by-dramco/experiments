@@ -301,8 +301,8 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, res, st
             time = np.arange(0, len(y_re)) * (1 / fs)   
 
             from scipy import stats
-            res = stats.linregress(time, angle_unwrapped)
-            phase_rad = angle_unwrapped - res.slope * time
+            lin_regr = stats.linregress(time, angle_unwrapped)
+            phase_rad = angle_unwrapped - lin_regr.slope * time
             phase = np.rad2deg(phase_rad)
             avg_phase = np.mean(phase)
             avg_angles.extend([avg_phase])
