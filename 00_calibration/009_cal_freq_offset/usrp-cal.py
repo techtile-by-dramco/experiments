@@ -710,13 +710,11 @@ def measure_pll(usrp, rx_streamer, at_time) -> float:
     # wait till both threads are done before proceding
     rx_thr.join()
 
-    pll_phase = phase_to_compensate[REF_RX_CH]
-
     # TX_ANGLE_CH0 ; TX_ANGLE_CH1 ; RX_ANGLE_CH0 ; RX_ANGLE_CH1 ; RX_AMPL_CH0 ; RX_AMPL_CH1
     # write_data(MEAS_TYPE_PLL, [
     #            0.0, 0.0, phase_to_compensate[0], phase_to_compensate[1], res[0], res[1], res[2], res[3]])  # TODO ADD AMPL
 
-    return pll_phase
+    return phase_to_compensate[REF_RX_CH]
 
 
 def check_loopback(usrp, tx_streamer, rx_streamer, phase_corr, at_time) -> float:
@@ -894,32 +892,22 @@ def main():
 
         tx_rx_phase = measure_loopback(
             usrp, tx_streamer, rx_streamer, at_time=start_time)
-        print("DONE")
-
         phase_corr = - tx_rx_phase
 
-        start_time += cmd_time -1.0
-        pll_rx_phase = measure_pll(
-            usrp, rx_streamer, at_time=start_time)
+        logger.debug(f"phase to correct: {np.rad2deg(phase_corr)}")
+
         print("DONE")
 
-        start_time += cmd_time - 3.0  # -2.0 emperically determined
-        remainig_loopback_phase = check_loopback(usrp, tx_streamer, rx_streamer,
-                                        phase_corr=phase_corr, at_time=start_time)
-        logger.debug(
-            f"Remaining phase is {np.rad2deg(remainig_loopback_phase):.2f} degrees.")
-        
+        start_time += cmd_time
+        pll_rx_phase = measure_pll(
+            usrp, rx_streamer, at_time=start_time)
 
-        start_time += cmd_time -1.0
-        _ = check_pll_loopback(usrp, tx_streamer, rx_streamer,
-                                                    phase_corr=(pll_rx_phase - tx_rx_phase), at_time=start_time)
-
-
-    
+        logger.debug(f"phase to correct: {np.rad2deg(pll_rx_phase)}")
         print("DONE")
 
         quit_event = threading.Event()
         start_time += cmd_time  # -1.0 emperically determined
+        logger.debug(f"Applying phase corr: {np.rad2deg((pll_rx_phase - tx_rx_phase))}")
         tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr=(pll_rx_phase - tx_rx_phase),
                         at_time=start_time)
 
