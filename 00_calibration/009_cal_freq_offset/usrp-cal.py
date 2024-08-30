@@ -525,8 +525,8 @@ def setup(usrp, server_ip, connect=True):
     # Manual selection of master clock rate may also be required to synchronize multiple B200 units in time.
     usrp.set_master_clock_rate(mcr)
     channels = [0, 1]
-    setup_clock(usrp, "internal", usrp.get_num_mboards()) #TODO external!
-    setup_pps(usrp, "internal")  # TODO external!
+    setup_clock(usrp, "external", usrp.get_num_mboards())
+    setup_pps(usrp, "external")
 
     # smallest as possible (https://files.ettus.com/manual/page_usrp_b200.html#b200_fe_bw)
     rx_bw = 200e3
