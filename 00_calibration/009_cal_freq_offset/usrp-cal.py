@@ -174,16 +174,6 @@ def circmedian(angs):
     return angs[np.argmin(pdists)]
 
 
-from scipy.signal import butter, sosfilt, sosfreqz
-
-# Sample rate and desired cutoff frequencies (in Hz).
-f0 = 1e3
-cutoff = 250
-fs = 250.0e3
-lowcut = f0 - cutoff
-highcut = f0 + cutoff
-
-
 def butter_bandpass(lowcut, highcut, fs, order=5):
     nyq = 0.5 * fs
     low = lowcut / nyq
@@ -290,6 +280,13 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, res, st
 
         avg_angles  = []
 
+        from scipy.signal import butter, sosfilt, sosfreqz
+        f0 = 1e3
+        cutoff = 250
+        fs = RATE
+        lowcut = f0 - cutoff
+        highcut = f0 + cutoff
+
         for ch in [0,1]:
             y_re = butter_bandpass_filter(
                 np.real(samples[ch,:]), lowcut, highcut, fs, order=9
@@ -298,11 +295,11 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, res, st
                 np.real(samples[ch,:]), lowcut, highcut, fs, order=9
             )
             angle_unwrapped = np.unwrap(np.angle(y_re + 1j * y_imag))
-            time = np.arange(0, len(y_re)) * (1 / fs)   
+            t = np.arange(0, len(y_re)) * (1 / fs)   
 
             from scipy import stats
-            lin_regr = stats.linregress(time, angle_unwrapped)
-            phase_rad = angle_unwrapped - lin_regr.slope * time
+            lin_regr = stats.linregress(t, angle_unwrapped)
+            phase_rad = angle_unwrapped - lin_regr.slope * t
             avg_phase = np.mean(phase_rad)
             avg_angles.extend([avg_phase])
             logger.debug(f"Frequency offset CH{ch}:{lin_regr.slope/(2*np.pi):.4f}")
