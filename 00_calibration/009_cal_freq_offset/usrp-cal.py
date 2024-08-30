@@ -280,6 +280,7 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, res, st
         samples = iq_data[:, int(RATE//10):num_rx]
 
         avg_angles  = []
+        var_angles = []
 
         f0 = 1e3
         cutoff = 500
@@ -302,15 +303,16 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, res, st
             print(lin_regr.slope)
             phase_rad = angle_unwrapped - lin_regr.slope * t
             avg_phase = np.mean(phase_rad)
-            avg_angles.extend([avg_phase])
+            var_angles[ch] = np.var(phase_rad)
+            avg_angles[ch] = avg_phase
             logger.debug(f"Frequency offset CH{ch}:{lin_regr.slope/(2*np.pi):.4f}")
             logger.debug(f"Intercept (phase) degrees CH{ch}:{np.rad2deg(lin_regr.intercept):.4f}")
 
         # np.angle(np.sum(np.exp(np.angle(samples)*1j), axis=1)) # circular mean https://en.wikipedia.org/wiki/Circular_mean
         # avg_angles = circmean(np.angle(samples[:, int(RATE//10):]), axis=1)
-        var_angles = np.var(np.angle(samples[:, int(RATE//10):]), axis=1)
-        min_angles = np.min(np.angle(samples[:, int(RATE // 10) :]), axis=1)
-        max_angles = np.max(np.angle(samples[:, int(RATE // 10) :]), axis=1)
+        # var_angles = np.var(np.angle(samples[:, int(RATE//10):]), axis=1)
+        # min_angles = np.min(np.angle(samples[:, int(RATE // 10) :]), axis=1)
+        # max_angles = np.max(np.angle(samples[:, int(RATE // 10) :]), axis=1)
 
         # median_angles0 = circmedian(np.angle(samples[0, int(RATE//10):]))
         # median_angles1 = circmedian(np.angle(samples[1, int(RATE//10):]))
@@ -324,13 +326,12 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, res, st
             f"Angle (mean) CH0:{np.rad2deg(avg_angles[0]):.2f} CH1:{np.rad2deg(avg_angles[1]):.2f}")
         # logger.debug(
         #     f"Angle (median) CH0:{np.rad2deg(median_angles0):.2f} CH1:{np.rad2deg(median_angles1):.2f}")
-        logger.debug(
-            f"Angle min max CH0:{np.rad2deg(min_angles[0]):.2f} {np.rad2deg(max_angles[0]):.2f} CH1:{np.rad2deg(min_angles[1]):.2f} {np.rad2deg(max_angles[1]):.2f}"
-        )
+        # logger.debug(
+        #     f"Angle min max CH0:{np.rad2deg(min_angles[0]):.2f} {np.rad2deg(max_angles[0]):.2f} CH1:{np.rad2deg(min_angles[1]):.2f} {np.rad2deg(max_angles[1]):.2f}"
+        # )
         logger.debug(f"Angle var CH0:{var_angles[0]:.2f} CH1:{var_angles[1]:.2f}")
         # keep this just below this final stage
         logger.debug(f"Amplitude CH0:{avg_ampl[0]:.2f} CH1:{avg_ampl[1]:.2f}")
-        logger.debug(f"Amplitude var CH0:{var_ampl[0]:.2f} CH1:{var_ampl[1]:.2f}")
 
         res.extend([var_angles[0], var_angles[1], var_ampl[0], var_ampl[1]])
 
@@ -628,6 +629,76 @@ def starting_in(usrp, at_time):
     return f"Starting in {delta(usrp, at_time):.2f}s"
 
 
+def measure_both(usrp, tx_streamer, rx_streamer, at_time) -> float:
+    logger.debug(" ########### STEP 1 - measure self TX-RX phase ###########")
+
+    quit_event = threading.Event()
+
+    amplitudes = [0.0, 0.0]
+
+    amplitudes[LOOPBACK_TX_CH] = 0.8
+
+    phase_to_compensate = []
+
+    start_time = uhd.types.TimeSpec(at_time)
+
+    logger.debug(starting_in(usrp, at_time))
+
+    tx_thr = tx_thread(
+        usrp,
+        tx_streamer,
+        quit_event,
+        amplitude=amplitudes,
+        phase=[0.0, 0.0],
+        start_time=start_time,
+    )
+
+    res = []
+
+    tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
+    rx_thr = rx_thread(
+        usrp,
+        rx_streamer,
+        quit_event,
+        phase_to_compensate,
+        duration=CAPTURE_TIME,
+        res=res,
+        start_time=start_time,
+    )
+
+    time.sleep(CAPTURE_TIME + delta(usrp, at_time))
+
+    quit_event.set()
+
+    # wait till both threads are done before proceding
+
+    tx_thr.join()
+
+    rx_thr.join()
+
+    # logger.debug(f"Phases to compensate: {phase_to_compensate}")
+
+    tx_meta_thr.join()
+
+    # #TODO double check
+    # import math
+    # def closest_multiple_of(value, base=math.pi/8):
+
+    #     if value < 0:
+    #         value = value + math.pi*2
+
+    #     return base * round(value/base)
+
+    # # ensure it is a multiple of 45 degrees, as we would expect @ this frequency given the dividers
+    # phase_to_compensate[LOOPBACK_RX_CH] = closest_multiple_of(phase_to_compensate[LOOPBACK_RX_CH])
+
+    # TX_ANGLE_CH0 ; TX_ANGLE_CH1 ; RX_ANGLE_CH0 ; RX_ANGLE_CH1 ; RX_AMPL_CH0 ; RX_AMPL_CH1
+    # write_data(MEAS_TYPE_LOOPBACK, [
+    #            0.0, 0.0, phase_to_compensate[0], phase_to_compensate[1],res[0],res[1],res[2],res[3]]) #TODO ADD AMPL
+
+    return phase_to_compensate[REF_RX_CH] - phase_to_compensate[LOOPBACK_RX_CH]
+
+
 def measure_loopback(usrp, tx_streamer, rx_streamer, at_time) -> float:
     logger.debug(" ########### STEP 1 - measure self TX-RX phase ###########")
 
@@ -890,25 +961,17 @@ def main():
 
         start_time = begin_time + margin -4.0 # -5.0 emperically determined
 
-        tx_rx_phase = measure_loopback(
-            usrp, tx_streamer, rx_streamer, at_time=start_time)
-        phase_corr = - tx_rx_phase
+        phase_corr = measure_both(usrp, tx_streamer, rx_streamer, at_time=start_time)
+
 
         logger.debug(f"phase to correct: {np.rad2deg(phase_corr)}")
 
         print("DONE")
 
-        start_time += cmd_time
-        pll_rx_phase = measure_pll(
-            usrp, rx_streamer, at_time=start_time)
-
-        logger.debug(f"phase to correct: {np.rad2deg(pll_rx_phase)}")
-        print("DONE")
-
         quit_event = threading.Event()
         start_time += cmd_time  # -1.0 emperically determined
-        logger.debug(f"Applying phase corr: {np.rad2deg((pll_rx_phase - tx_rx_phase))}")
-        tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr=(pll_rx_phase - tx_rx_phase),
+        logger.debug(f"Applying phase corr: {np.rad2deg(phase_corrphase_corr)}")
+        tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr=phase_corr,
                         at_time=start_time)
 
     except KeyboardInterrupt:
