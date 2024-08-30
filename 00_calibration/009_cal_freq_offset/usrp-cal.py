@@ -305,7 +305,7 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, res, st
             phase_rad = angle_unwrapped - res.slope * time
             phase = np.rad2deg(phase_rad)
             avg_phase = np.mean(phase)
-            avg_angles.extend([phase])
+            avg_angles.extend([avg_phase])
 
         # np.angle(np.sum(np.exp(np.angle(samples)*1j), axis=1)) # circular mean https://en.wikipedia.org/wiki/Circular_mean
         # avg_angles = circmean(np.angle(samples[:, int(RATE//10):]), axis=1)
