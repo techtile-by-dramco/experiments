@@ -304,7 +304,7 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, res, st
             avg_phase = np.mean(phase_rad)
             avg_angles.extend([avg_phase])
             logger.debug(f"Frequency offset CH{ch}:{lin_regr.slope/(2*np.pi):.4f}")
-            logger.debug(f"Intercept (phase) degrees CH{ch}:{np.rad2deg(lin_regr.intercept)):.4f}")
+            logger.debug(f"Intercept (phase) degrees CH{ch}:{np.rad2deg(lin_regr.intercept):.4f}")
 
         # np.angle(np.sum(np.exp(np.angle(samples)*1j), axis=1)) # circular mean https://en.wikipedia.org/wiki/Circular_mean
         # avg_angles = circmean(np.angle(samples[:, int(RATE//10):]), axis=1)
