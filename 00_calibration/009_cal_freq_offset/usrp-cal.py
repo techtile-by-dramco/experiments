@@ -279,8 +279,8 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, res, st
 
         samples = iq_data[:, int(RATE//10):num_rx]
 
-        avg_angles  = []
-        var_angles = []
+        avg_angles  = [0.0, 0.0]
+        var_angles = [0.0, 0.0]
 
         f0 = 1e3
         cutoff = 500
