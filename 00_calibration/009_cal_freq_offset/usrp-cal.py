@@ -970,7 +970,7 @@ def main():
 
         quit_event = threading.Event()
         start_time += cmd_time  # -1.0 emperically determined
-        logger.debug(f"Applying phase corr: {np.rad2deg(phase_corrphase_corr)}")
+        logger.debug(f"Applying phase corr: {np.rad2deg(phase_corr)}")
         tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr=phase_corr,
                         at_time=start_time)
 
