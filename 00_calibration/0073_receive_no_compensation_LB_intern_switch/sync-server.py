@@ -89,12 +89,13 @@ fields = ["meas_id", "tile", "meas_type", "tx_angle_ch0"
 
 poller = zmq.Poller()
 poller.register(alive_socket, zmq.POLLIN)
-     
-    # # with open(file_path, 'w') as file:
-    #     csvwriter = csv.writer(file)
 
-    #     csvwriter.writerow(fields)
+# # with open(file_path, 'w') as file:
+#     csvwriter = csv.writer(file)
+
+#     csvwriter.writerow(fields)
 # try:
+print(f"Starting experiment: {unique_id}")
 while True:
         # Wait for specified number of subscribers to send a message
         print(
@@ -141,4 +142,3 @@ while True:
 #     data_socket.close()
 #     alive_socket.close()
 #     sync_socket.close()
-    
