@@ -759,8 +759,8 @@ def check_loopback(usrp, tx_streamer, rx_streamer, phase_corr, at_time) -> float
     tx_meta_thr.join()
 
     # TX_ANGLE_CH0 ; TX_ANGLE_CH1 ; RX_ANGLE_CH0 ; RX_ANGLE_CH1 ; RX_AMPL_CH0 ; RX_AMPL_CH1
-    write_data(MEAS_TYPE_LOOPBACK_CHECK, [
-               phases[0], phases[1], phase_to_compensate[0], phase_to_compensate[1], res[0], res[1], res[2], res[3]])  # TODO ADD AMPL
+    # write_data(MEAS_TYPE_LOOPBACK_CHECK, [
+    #            phases[0], phases[1], phase_to_compensate[0], phase_to_compensate[1], res[0], res[1], res[2], res[3]])  # TODO ADD AMPL
 
     return phase_to_compensate[LOOPBACK_RX_CH]
 
@@ -805,8 +805,8 @@ def check_pll_loopback(usrp, tx_streamer, rx_streamer, phase_corr, at_time) -> f
     tx_meta_thr.join()
 
     # TX_ANGLE_CH0 ; TX_ANGLE_CH1 ; RX_ANGLE_CH0 ; RX_ANGLE_CH1 ; RX_AMPL_CH0 ; RX_AMPL_CH1
-    write_data(MEAS_TYPE_PLL_CHECK, [
-               phases[0], phases[1], phase_to_compensate[0], phase_to_compensate[1], res[0], res[1], res[2], res[3]])  # TODO ADD AMPL
+    # write_data(MEAS_TYPE_PLL_CHECK, [
+    #            phases[0], phases[1], phase_to_compensate[0], phase_to_compensate[1], res[0], res[1], res[2], res[3]])  # TODO ADD AMPL
 
     return phase_to_compensate[LOOPBACK_RX_CH]
 
