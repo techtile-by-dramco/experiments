@@ -882,7 +882,7 @@ def check_pll_loopback(usrp, tx_streamer, rx_streamer, phase_corr, at_time) -> f
 def tx_pilot(usrp, tx_streamer, quit_event, at_time):
     logger.debug("########### STEP 0 - TX pilot ###########")
 
-    phases = [np.pi/2.0, 0.0]
+    phases = [np.pi/4.0, 0.0]
     amplitudes = [0.8, 0.8]
 
     start_time = uhd.types.TimeSpec(at_time)
