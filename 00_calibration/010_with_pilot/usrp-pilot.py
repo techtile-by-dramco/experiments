@@ -47,7 +47,7 @@ meas_id = 0
 results = []
 
 
-with open(os.path.join(os.path.dirname(__file__), "cal-settings.yml"), 'r') as file:
+with open(os.path.join(os.path.dirname(__file__), "cal-settings-pilot.yml"), 'r') as file:
     vars = yaml.safe_load(file)
     globals().update(vars)  # update the global variables with the vars in yaml
 
