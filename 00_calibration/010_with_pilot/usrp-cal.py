@@ -629,6 +629,42 @@ def starting_in(usrp, at_time):
     return f"Starting in {delta(usrp, at_time):.2f}s"
 
 
+def measure_pilot(usrp, rx_streamer, at_time) -> float:
+    logger.debug(" ########### STEP 0 - measure pilot ###########")
+
+    quit_event = threading.Event()
+
+    phase_to_compensate = []
+
+    start_time = uhd.types.TimeSpec(at_time)
+
+    logger.debug(starting_in(usrp, at_time))
+
+    res = []
+
+    rx_thr = rx_thread(
+        usrp,
+        rx_streamer,
+        quit_event,
+        phase_to_compensate,
+        duration=CAPTURE_TIME,
+        res=res,
+        start_time=start_time,
+    )
+
+    time.sleep(CAPTURE_TIME + delta(usrp, at_time))
+
+    quit_event.set()
+
+    # wait till both threads are done before proceding
+
+    rx_thr.join()
+
+    # logger.debug(f"Phases to compensate: {phase_to_compensate}")
+
+    return phase_to_compensate[REF_RX_CH] - phase_to_compensate[LOOPBACK_RX_CH]
+
+
 def measure_both(usrp, tx_streamer, rx_streamer, at_time) -> float:
     logger.debug(" ########### STEP 1 - measure self TX-RX phase ###########")
 
@@ -789,8 +825,7 @@ def measure_pll(usrp, rx_streamer, at_time) -> float:
 
 
 def check_loopback(usrp, tx_streamer, rx_streamer, phase_corr, at_time) -> float:
-    logger.debug(
-        " ########### STEP 3 - Check self-correction TX-RX phase ###########")
+    logger.debug(" ########### STEP 3 - Check self-correction TX-RX phase ###########")
 
     quit_event = threading.Event()
 
@@ -809,11 +844,24 @@ def check_loopback(usrp, tx_streamer, rx_streamer, phase_corr, at_time) -> float
     phase_to_compensate = []
     res = []
 
-    tx_thr = tx_thread(usrp, tx_streamer, quit_event,
-                       amplitude=amplitudes, phase=phases, start_time=start_time)
+    tx_thr = tx_thread(
+        usrp,
+        tx_streamer,
+        quit_event,
+        amplitude=amplitudes,
+        phase=phases,
+        start_time=start_time,
+    )
     tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
-    rx_thr = rx_thread(usrp, rx_streamer, quit_event, phase_to_compensate,
-                       duration=CAPTURE_TIME, res=res, start_time=start_time)
+    rx_thr = rx_thread(
+        usrp,
+        rx_streamer,
+        quit_event,
+        phase_to_compensate,
+        duration=CAPTURE_TIME,
+        res=res,
+        start_time=start_time,
+    )
 
     time.sleep(CAPTURE_TIME + delta(usrp, at_time))
 
@@ -961,18 +1009,30 @@ def main():
 
         start_time = begin_time + margin -4.0 # -5.0 emperically determined
 
+        phase_corr_pilot = measure_pilot(usrp, rx_streamer, at_time=start_time)
+
+        logger.debug(f"phase pilot: {np.rad2deg(phase_corr_pilot)}")
+
+        start_time += cmd_time
+
         phase_corr = measure_both(usrp, tx_streamer, rx_streamer, at_time=start_time)
 
-
-        logger.debug(f"phase to correct: {np.rad2deg(phase_corr)}")
+        logger.debug(f"phase loopback: {np.rad2deg(phase_corr)}")
 
         print("DONE")
 
         quit_event = threading.Event()
         start_time += cmd_time  # -1.0 emperically determined
         logger.debug(f"Applying phase corr: {np.rad2deg(phase_corr)}")
-        tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr=phase_corr,
-                        at_time=start_time)
+        tx_phase_coh(
+            usrp,
+            tx_streamer,
+            quit_event,
+            phase_corr=phase_corr + phase_corr_pilot,
+            at_time=start_time,
+        )
+
+        print("DONE")
 
     except KeyboardInterrupt:
 
