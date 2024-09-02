@@ -1013,7 +1013,7 @@ def main():
 
         logger.debug(f"phase pilot: {np.rad2deg(phase_corr_pilot)}")
 
-        start_time += cmd_time
+        start_time += cmd_time + 1.0
 
         phase_corr = measure_both(usrp, tx_streamer, rx_streamer, at_time=start_time)
 
@@ -1022,7 +1022,7 @@ def main():
         print("DONE")
 
         quit_event = threading.Event()
-        start_time += cmd_time  # -1.0 emperically determined
+        start_time += cmd_time  + 1.0 # -1.0 emperically determined
         logger.debug(f"Applying phase corr: {np.rad2deg(phase_corr)}")
         tx_phase_coh(
             usrp,
