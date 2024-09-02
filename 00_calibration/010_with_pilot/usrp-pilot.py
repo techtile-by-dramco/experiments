@@ -944,7 +944,7 @@ def main():
 
     _connect = True
     try:
-        usrp = uhd.usrp.MultiUSRP("fpga=usrp_b210_fpga_loopback.bin, mode_n=integer")
+        usrp = uhd.usrp.MultiUSRP("fpga=usrp_b210_fpga.bin, mode_n=integer")
         logger.info("Using Device: %s", usrp.get_pp_string())
         tx_streamer, rx_streamer = setup(usrp, server_ip, connect=_connect)
 
