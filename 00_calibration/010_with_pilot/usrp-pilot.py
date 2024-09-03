@@ -992,10 +992,11 @@ def main():
 
         start_time = begin_time + margin -4.0 # -5.0 emperically determined
         quit_event = threading.Event()
-        phase_corr = tx_pilot(usrp, tx_streamer, quit_event, at_time=start_time)
+        _ = tx_pilot(usrp, tx_streamer, quit_event, at_time=start_time)
 
+        quit_event = threading.Event()
         start_time += cmd_time + 1.0
-        phase_corr = tx_pilot(usrp, tx_streamer, quit_event, at_time=start_time)
+        _ = tx_pilot(usrp, tx_streamer, quit_event, at_time=start_time)
 
         print("My job is done")
 
