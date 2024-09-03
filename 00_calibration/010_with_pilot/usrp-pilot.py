@@ -140,9 +140,7 @@ data_file = None
 
 
 def store_phase():
-    global tx_phase, data_file
-
-    data_file.write(tx_phase+"\n")
+    data_file.write(str(meas_id) + ";" + tx_phase + "\n")
     data_file.flush()
 
 
@@ -370,7 +368,7 @@ def wait_till_go_from_server(ip, _connect=True):
     file_name = f"data_{HOSTNAME}_{unique_id}_{meas_id}"
 
     if not file_open:
-        data_file = open(f"data_{HOSTNAME}_{unique_id}.txt", "ab")
+        data_file = open(f"data_{HOSTNAME}_{unique_id}.txt", "a")
         file_open = True
 
     logger.debug(meas_id)
