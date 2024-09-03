@@ -670,7 +670,8 @@ def measure_pilot(usrp, rx_streamer, at_time) -> float:
 
     # TODO update gain settings based on received power
     # TODO this only works when prev. gain was set to LOOPBACK_RX_GAIN, as we comp[ute a delta with respect to prev. value
-    target_gain = 20*np.log10(0.5)
+    target_amplitude  = 0.7
+    target_gain = 20*np.log10(target_amplitude)
     gain = np.floor(
         LOOPBACK_RX_GAIN + (target_gain - actual_gain)
     )  # TODO check in bounds
