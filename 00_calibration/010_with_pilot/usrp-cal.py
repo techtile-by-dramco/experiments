@@ -669,8 +669,10 @@ def measure_pilot(usrp, rx_streamer, at_time) -> float:
     actual_gain = actual_gain_I if actual_gain_I > actual_gain_Q else actual_gain_Q
 
     # TODO update gain settings based on received power
-    # given that the target_gain is 0dB (1), we can remove it from the eq.
-    gain = LOOPBACK_RX_GAIN - actual_gain  #TODO check in bounds
+    target_gain = 20*np.log10(0.5)
+    gain = np.floor(
+        LOOPBACK_RX_GAIN + (actual_gain - target_gain)
+    )  # TODO check in bounds
     print(f"Setting gain {gain:.2f}dB to CH{LOOPBACK_RX_CH}")
     print(f"Valid gain range {usrp.get_rx_gain_range(LOOPBACK_RX_CH)}")
     usrp.set_rx_gain(gain, LOOPBACK_RX_CH)
