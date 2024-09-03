@@ -672,8 +672,9 @@ def measure_pilot(usrp, rx_streamer, at_time) -> float:
     # given that the target_gain is 0dB (1), we can remove it from the eq.
     gain = LOOPBACK_RX_GAIN - actual_gain  #TODO check in bounds
     print(f"Setting gain {gain:.2f}dB to CH{LOOPBACK_RX_CH}")
+    print(f"Valid gain range {usrp.get_rx_gain_range(LOOPBACK_RX_CH)}")
     usrp.set_rx_gain(gain, LOOPBACK_RX_CH)
-    print(f"Gain is set to {usrp.get_rx_gain(REF_RX_CH):.2f}dB @ CH{LOOPBACK_RX_CH}")
+    print(f"Gain is set to {usrp.get_rx_gain(LOOPBACK_RX_CH):.2f}dB @ CH{LOOPBACK_RX_CH}")
 
     return phase_to_compensate[REF_RX_CH] - phase_to_compensate[LOOPBACK_RX_CH]
 
