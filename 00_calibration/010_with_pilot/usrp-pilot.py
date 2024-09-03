@@ -140,7 +140,8 @@ data_file = None
 
 
 def store_phase():
-    data_file.write(str(meas_id) + ";" + tx_phase + "\n")
+    data_file.write(str(meas_id))
+    # data_file.write(str(meas_id) + ";" + tx_phase + "\n")
     data_file.flush()
 
 
