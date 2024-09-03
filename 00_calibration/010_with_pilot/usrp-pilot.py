@@ -140,6 +140,8 @@ data_file = None
 
 
 def store_phase():
+    global tx_phase, data_file
+
     data_file.write(tx_phase+"\n")
     data_file.flush()
 
