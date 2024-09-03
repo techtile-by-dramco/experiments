@@ -333,7 +333,7 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, res, st
         # keep this just below this final stage
         logger.debug(f"Amplitude CH0:{avg_ampl[0]:.2f} CH1:{avg_ampl[1]:.2f}")
 
-        res.extend([var_angles[0], var_angles[1], var_ampl[0], var_ampl[1]])
+        res.extend([avg_angles[LOOPBACK_RX_CH]])
 
         # results = samples[LOOPBACK_RX_CH,:]
 
@@ -535,7 +535,7 @@ def setup(usrp, server_ip, connect=True):
     for chan in channels:
         usrp.set_rx_rate(rate, chan)
         usrp.set_tx_rate(rate, chan)
-        usrp.set_rx_dc_offset(False, chan)
+        usrp.set_rx_dc_offset(True, chan)
         usrp.set_rx_bandwidth(rx_bw, chan)
         usrp.set_rx_agc(False, chan)
 
@@ -662,11 +662,27 @@ def measure_pilot(usrp, rx_streamer, at_time) -> float:
 
     # logger.debug(f"Phases to compensate: {phase_to_compensate}")
 
+    # res contains the samples of the LOOPBACK_RX_CH
+    actual_gain_I = 20*np.log10(np.max(np.abs(np.real(res))))
+    actual_gain_Q = 20 * np.log10(np.max(np.abs(np.imag(res))))
+
+    actual_gain = actual_gain_I if actual_gain_I > actual_gain_Q else actual_gain_Q
+
+    # TODO update gain settings based on received power
+    # given that the target_gain is 0dB (1), we can remove it from the eq.
+    gain = LOOPBACK_RX_GAIN - actual_gain  #TODO check in bounds
+    print(f"Setting gain {gain:.2f}dB to CH{LOOPBACK_RX_CH}")
+    usrp.set_rx_gain(gain, LOOPBACK_RX_CH)
+    print(f"Gain is set to {usrp.get_rx_gain(REF_RX_CH):.2f}dB @ CH{LOOPBACK_RX_CH}")
+
     return phase_to_compensate[REF_RX_CH] - phase_to_compensate[LOOPBACK_RX_CH]
 
 
 def measure_both(usrp, tx_streamer, rx_streamer, at_time) -> float:
     logger.debug(" ########### STEP 1 - measure self TX-RX phase ###########")
+
+    # RESET Gain
+    usrp.set_rx_gain(LOOPBACK_RX_GAIN, LOOPBACK_RX_CH)
 
     quit_event = threading.Event()
 
@@ -1012,6 +1028,9 @@ def main():
         phase_corr_pilot = measure_pilot(usrp, rx_streamer, at_time=start_time)
 
         logger.debug(f"phase pilot: {np.rad2deg(phase_corr_pilot)}")
+
+        start_time += cmd_time + 1.0
+        phase_corr_pilot = measure_pilot(usrp, rx_streamer, at_time=start_time)
 
         start_time += cmd_time + 1.0
 

@@ -994,6 +994,9 @@ def main():
         quit_event = threading.Event()
         phase_corr = tx_pilot(usrp, tx_streamer, quit_event, at_time=start_time)
 
+        start_time += cmd_time + 1.0
+        phase_corr = tx_pilot(usrp, tx_streamer, quit_event, at_time=start_time)
+
         print("My job is done")
 
     except KeyboardInterrupt:
