@@ -123,6 +123,7 @@ HOSTNAME = socket.gethostname()[4:]
 
 
 file_open = False
+data_file = None
 
 
 # def write_data(meas_type, data):
@@ -136,6 +137,11 @@ file_open = False
 #     logger.debug("Writing data %s.", data)
 #     data_file.write(data + "\n")
 #     data_file.flush()
+
+
+def store_phase():
+    data_file.write(tx_phase+"\n")
+    data_file.flush()
 
 
 def publish(data, channel: int):
@@ -361,9 +367,9 @@ def wait_till_go_from_server(ip, _connect=True):
 
     file_name = f"data_{HOSTNAME}_{unique_id}_{meas_id}"
 
-    # if not file_open:
-    #     data_file = open(f"data_{HOSTNAME}_{unique_id}.txt", "ab")
-    #     file_open = True
+    if not file_open:
+        data_file = open(f"data_{HOSTNAME}_{unique_id}.txt", "ab")
+        file_open = True
 
     logger.debug(meas_id)
 
@@ -882,7 +888,9 @@ def check_pll_loopback(usrp, tx_streamer, rx_streamer, phase_corr, at_time) -> f
 def tx_pilot(usrp, tx_streamer, quit_event, at_time):
     logger.debug("########### STEP 0 - TX pilot ###########")
 
-    phases = [np.pi/4.0, 0.0]
+    store_phase()
+
+    phases = [np.deg2rad(tx_phase), 0.0]
     amplitudes = [0.8, 0.8]
 
     start_time = uhd.types.TimeSpec(at_time)
@@ -936,17 +944,44 @@ def get_current_time(usrp):
 
 #     print("\nLocked")
 
+# Global variable to store the phase
+tx_phase = None
+
+
+def parse_arguments():
+    global tx_phase
+
+    # Create the parser
+    parser = argparse.ArgumentParser(description="Transmit with phase difference.")
+
+    # Add the --phase argument
+    parser.add_argument(
+        "--phase", type=int, help="Phase value for transmission", required=True
+    )
+
+    # Parse the arguments
+    args = parser.parse_args()
+
+    # Set the global variable tx_phase to the value of --phase
+    tx_phase = args.phase
+
 
 def main():
     # "mode_n=integer" #
 
     # start_PLL()
 
+    # Parse arguments
+    parse_arguments()
+
+    # Now tx_phase can be used globally
+    print(f"The phase value is set to: {tx_phase}")
+
     _connect = True
     try:
         usrp = uhd.usrp.MultiUSRP("fpga=usrp_b210_fpga.bin, mode_n=integer")
         logger.info("Using Device: %s", usrp.get_pp_string())
-        tx_streamer, rx_streamer = setup(usrp, server_ip, connect=_connect)
+        tx_streamer, _ = setup(usrp, server_ip, connect=_connect)
 
         _connect = False
 
@@ -960,11 +995,10 @@ def main():
         phase_corr = tx_pilot(usrp, tx_streamer, quit_event, at_time=start_time)
 
         print("My job is done")
-    
+
     except KeyboardInterrupt:
 
         # Interrupt and join the threads
-
         logger.debug("Sending signal to stop!")
 
         quit_event.set()
