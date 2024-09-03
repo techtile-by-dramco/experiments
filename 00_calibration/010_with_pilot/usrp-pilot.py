@@ -890,7 +890,7 @@ def check_pll_loopback(usrp, tx_streamer, rx_streamer, phase_corr, at_time) -> f
 def tx_pilot(usrp, tx_streamer, quit_event, at_time):
     logger.debug("########### STEP 0 - TX pilot ###########")
 
-    store_phase()
+    # store_phase()
 
     phases = [np.deg2rad(tx_phase), 0.0]
     amplitudes = [0.8, 0.8]
