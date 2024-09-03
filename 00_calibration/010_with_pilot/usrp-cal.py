@@ -333,7 +333,7 @@ def rx_ref(usrp, rx_streamer, quit_event, phase_to_compensate, duration, res, st
         # keep this just below this final stage
         logger.debug(f"Amplitude CH0:{avg_ampl[0]:.2f} CH1:{avg_ampl[1]:.2f}")
 
-        res.extend([avg_angles[LOOPBACK_RX_CH]])
+        res.extend(samples[LOOPBACK_RX_CH,:])
 
         # results = samples[LOOPBACK_RX_CH,:]
 
