@@ -42,7 +42,9 @@ MEAS_TYPE_LOOPBACK_CHECK = "LBCK"
 MEAS_TYPE_PLL_CHECK = "PLLCK"
 MEAS_TYPE_PHASE_DIFF = "PDIFF"
 
+# Global variables
 meas_id = 0
+tx_phase = None
 
 results = []
 
@@ -140,8 +142,8 @@ data_file = None
 
 
 def store_phase():
-    data_file.write(str(meas_id))
-    # data_file.write(str(meas_id) + ";" + tx_phase + "\n")
+    # data_file.write(str(meas_id))
+    data_file.write(str(meas_id) + ";" + tx_phase + "\n")
     data_file.flush()
 
 
@@ -944,9 +946,6 @@ def get_current_time(usrp):
 #         time.sleep(0.1)
 
 #     print("\nLocked")
-
-# Global variable to store the phase
-tx_phase = None
 
 
 def parse_arguments():
