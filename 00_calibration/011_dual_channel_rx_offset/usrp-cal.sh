@@ -14,7 +14,7 @@ while true; do
 
   # Every 10 loops, decrement the gain by 1dB
   if [ $((counter % 10)) -eq 0 ]; then
-    gain=$((gain -1) )
+    gain=$((gain - 1))
   fi
 
    # Check if phase has reached 360 degrees
