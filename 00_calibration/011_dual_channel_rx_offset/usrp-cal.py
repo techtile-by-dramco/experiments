@@ -422,9 +422,9 @@ def main():
         measure_channel_coherence(usrp, rx_streamer, quit_event)
         # results now contain the phases of the two channels
         # store that phase difference to a file
-        phase_diff = results[0, :] - results[1, :]
+        # phase_diff = results[0, :] - results[1, :]
         print("DONE")
-        np.save(file_name, phase_diff)
+        np.save(file_name, results)
     except KeyboardInterrupt:
         # Interrupt and join the threads
         logger.debug("Sending signal to stop!")
