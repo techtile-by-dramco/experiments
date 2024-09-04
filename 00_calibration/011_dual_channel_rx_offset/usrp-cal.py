@@ -149,6 +149,7 @@ def rx_ref(
             uhd.types.StreamCMD(uhd.types.StreamMode.stop_cont)
         )
         samples = iq_data[:, int(RATE // 10) : num_rx]
+        results = samples
         avg_angles = [0.0, 0.0]
         var_angles = [0.0, 0.0]
         f0 = 1e3
@@ -156,7 +157,7 @@ def rx_ref(
         fs = RATE
         lowcut = f0 - cutoff
         highcut = f0 + cutoff
-        results = np.zeros_like(samples, dtype=float)
+        # results = np.zeros_like(samples, dtype=float)
         for ch in [0, 1]:
             y_re = butter_bandpass_filter(
                 np.real(samples[ch, :]), lowcut, highcut, fs, order=9
@@ -172,7 +173,7 @@ def rx_ref(
             print(lin_regr.slope)
             phase_rad = angle_unwrapped - lin_regr.slope * t
             # store phases
-            results[ch, :] = phase_rad
+            # results[ch, :] = phase_rad
             avg_phase = np.mean(phase_rad)
             var_angles[ch] = np.var(phase_rad)
             avg_angles[ch] = avg_phase
