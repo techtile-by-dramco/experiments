@@ -308,8 +308,8 @@ def setup(usrp, server_ip, connect=True):
     # specific settings from loopback/REF PLL
     usrp.set_tx_gain(LOOPBACK_TX_GAIN, LOOPBACK_TX_CH)
     usrp.set_tx_gain(LOOPBACK_TX_GAIN, FREE_TX_CH)
-    usrp.set_rx_gain(RX_GAIN, LOOPBACK_RX_CH)
-    usrp.set_rx_gain(RX_GAIN, REF_RX_CH)
+    usrp.set_rx_gain(gain_bash, LOOPBACK_RX_CH)
+    usrp.set_rx_gain(gain_bash, REF_RX_CH)
     # streaming arguments
     st_args = uhd.usrp.StreamArgs("fc32", "sc16")
     st_args.channels = channels
@@ -397,7 +397,7 @@ def measure_channel_coherence(usrp, rx_streamer, quit_event):
 def parse_arguments():
     import argparse
 
-    global meas_id
+    global meas_id, gain_bash 
 
     # Create the parser
     parser = argparse.ArgumentParser(description="Transmit with phase difference.")
@@ -407,11 +407,14 @@ def parse_arguments():
         "--meas", type=int, help="measurement ID", required=True
     )
 
+    parser.add_argument("--gain", type=int, help="gain_db", required=True)
+
     # Parse the arguments
     args = parser.parse_args()
 
     # Set the global variable tx_phase to the value of --phase
     meas_id = args.meas
+    gain_bash = args.gain
 
 
 def main():
