@@ -323,8 +323,8 @@ def setup(usrp, server_ip, connect=True):
     logger.info("Setting device timestamp to 0...")
     usrp.set_time_unknown_pps(uhd.types.TimeSpec(0.0))
     logger.debug("[SYNC] Resetting time.")
-    logger.info(f"RX GAIN PROFILE CH0: {usrp.get_rx_gain_profile(0)}")
-    logger.info(f"RX GAIN PROFILE CH1: {usrp.get_rx_gain_profile(1)}")
+    logger.info(f"RX GAIN PROFILE CH0: {usrp.get_rx_gain_names(0)}")
+    logger.info(f"RX GAIN PROFILE CH1: {usrp.get_rx_gain_names(1)}")
     # we wait 2 seconds to ensure a PPS rising edge occurs and latches the 0.000s value to both USRPs.
     time.sleep(2)
     tune_usrp(usrp, FREQ, channels, at_time=begin_time)
