@@ -379,7 +379,7 @@ def measure_channel_coherence(usrp, rx_streamer, quit_event):
         start_time=None,
     )
 
-    time.sleep(CAPTURE_TIME + delta(usrp, at_time))
+    time.sleep(CAPTURE_TIME)
     quit_event.set()
 
     # wait till both threads are done before proceding
