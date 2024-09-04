@@ -4,7 +4,7 @@ INIT_DELAY: !!float 0.2  # 200ms initial delay before transmit
 RATE: !!float 250e3
 
 LOOPBACK_TX_GAIN: !!float 69 #70  # empirical determined
-RX_GAIN: !!float 36 #28  # empirical determined
+RX_GAIN: !!float 39 #28  # empirical determined
 FREQ: !!float 920e6
 MIN_PLL_VAR: !!float 0.0001
 

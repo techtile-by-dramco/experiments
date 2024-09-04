@@ -190,6 +190,13 @@ def rx_ref(
         phase_to_compensate.extend(avg_angles)
         avg_ampl = np.mean(np.abs(samples), axis=1)
         var_ampl = np.var(np.abs(samples), axis=1)
+
+        max_I = np.max(np.abs(np.real(samples)), axis=1)
+        max_Q = np.max(np.abs(np.imag(samples)), axis=1)
+
+        logger.debug(
+            f"MAX AMPL IQ CH0: I {max_I[0]:.2f} Q {max_Q[0]:.2f} CH1:I {max_I[1]:.2f} Q {max_Q[1]:.2f}")
+
         logger.debug(
             f"Angle (mean) CH0:{np.rad2deg(avg_angles[0]):.2f} CH1:{np.rad2deg(avg_angles[1]):.2f}"
         )
