@@ -313,7 +313,7 @@ def setup(usrp, server_ip, connect=True):
     # streaming arguments
     st_args = uhd.usrp.StreamArgs("fc32", "sc16")
     st_args.channels = channels
-    # streamers
+    # streamers 
     tx_streamer = usrp.get_tx_stream(st_args)
     rx_streamer = usrp.get_rx_stream(st_args)
     # Step1: wait for the last pps time to transition to catch the edge
@@ -424,7 +424,9 @@ def main():
 
     parse_arguments()
 
-    file_name = f"data_{HOSTNAME}_{meas_id}"
+    unique_id = str(datetime.utcnow().strftime("%Y%m%d%H%M%S"))
+
+    file_name = f"data_{HOSTNAME}_{unique_id}_{meas_id}"
 
     try:
         usrp = uhd.usrp.MultiUSRP("fpga=usrp_b210_fpga.bin, mode_n=integer")
