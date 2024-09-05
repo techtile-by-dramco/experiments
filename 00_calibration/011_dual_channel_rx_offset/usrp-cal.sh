@@ -4,6 +4,7 @@ counter=1
 gain=39
 
 while true; do
+  echo "starting with gain $gain"
   python3 usrp-cal.py --meas $counter --gain $gain
   if [ $? -ne 0 ]; then
     echo "your script encountered an error."
