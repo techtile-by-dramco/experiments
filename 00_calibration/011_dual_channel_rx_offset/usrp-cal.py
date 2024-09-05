@@ -21,6 +21,7 @@ RX_GAIN = 22  # empirical determined 22 without splitter, 27 with splitter
 CAPTURE_TIME = 10
 # server_ip = "10.128.52.53"
 meas_id = 0
+exp_id = 0
 results = []
 
 
@@ -96,6 +97,8 @@ def rx_ref(
 ):
     # https://files.ettus.com/manual/page_sync.html#sync_phase_cordics
     # The CORDICs are reset at each start-of-burst command, so users should ensure that every start-of-burst also has a time spec set.
+    logger.debug(f"GAIN IS CH0: {usrp.get_rx_gain(0)} CH1: {usrp.get_rx_gain(1)}")
+
     global results
     num_channels = rx_streamer.get_num_channels()
     max_samps_per_packet = rx_streamer.get_max_num_samps()
@@ -399,7 +402,7 @@ def measure_channel_coherence(usrp, rx_streamer, quit_event):
 def parse_arguments():
     import argparse
 
-    global meas_id, gain_bash 
+    global meas_id, gain_bash, exp_id
 
     # Create the parser
     parser = argparse.ArgumentParser(description="Transmit with phase difference.")
@@ -411,12 +414,15 @@ def parse_arguments():
 
     parser.add_argument("--gain", type=int, help="gain_db", required=True)
 
+    parser.add_argument("--exp", type=str, help="exp ID", required=True)
+
     # Parse the arguments
     args = parser.parse_args()
 
     # Set the global variable tx_phase to the value of --phase
     meas_id = args.meas
     gain_bash = args.gain
+    exp_id = args.exp
 
 
 def main():
@@ -424,9 +430,7 @@ def main():
 
     parse_arguments()
 
-    unique_id = str(datetime.utcnow().strftime("%Y%m%d%H%M%S"))
-
-    file_name = f"data_{HOSTNAME}_{unique_id}_{meas_id}"
+    file_name = f"data_{HOSTNAME}_{exp_id}_{meas_id}"
 
     try:
         usrp = uhd.usrp.MultiUSRP("fpga=usrp_b210_fpga.bin, mode_n=integer")
