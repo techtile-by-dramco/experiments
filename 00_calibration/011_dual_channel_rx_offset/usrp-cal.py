@@ -22,6 +22,7 @@ CAPTURE_TIME = 10
 # server_ip = "10.128.52.53"
 meas_id = 0
 exp_id = 0
+gains_bash = []
 results = []
 
 
@@ -311,12 +312,12 @@ def setup(usrp, server_ip, connect=True):
     # specific settings from loopback/REF PLL
     usrp.set_tx_gain(LOOPBACK_TX_GAIN, LOOPBACK_TX_CH)
     usrp.set_tx_gain(LOOPBACK_TX_GAIN, FREE_TX_CH)
-    usrp.set_rx_gain(gain_bash, LOOPBACK_RX_CH)
-    usrp.set_rx_gain(gain_bash, REF_RX_CH)
+    usrp.set_rx_gain(gains_bash[LOOPBACK_RX_CH], LOOPBACK_RX_CH)
+    usrp.set_rx_gain(gains_bash[REF_RX_CH], REF_RX_CH)
     # streaming arguments
     st_args = uhd.usrp.StreamArgs("fc32", "sc16")
     st_args.channels = channels
-    # streamers 
+    # streamers
     tx_streamer = usrp.get_tx_stream(st_args)
     rx_streamer = usrp.get_rx_stream(st_args)
     # Step1: wait for the last pps time to transition to catch the edge
@@ -402,7 +403,7 @@ def measure_channel_coherence(usrp, rx_streamer, quit_event):
 def parse_arguments():
     import argparse
 
-    global meas_id, gain_bash, exp_id
+    global meas_id, gains_bash, exp_id
 
     # Create the parser
     parser = argparse.ArgumentParser(description="Transmit with phase difference.")
@@ -412,7 +413,7 @@ def parse_arguments():
         "--meas", type=int, help="measurement ID", required=True
     )
 
-    parser.add_argument("--gain", type=int, help="gain_db", required=True)
+    parser.add_argument("--gain", type=int, nargs="+", help="gain_db", required=True)
 
     parser.add_argument("--exp", type=str, help="exp ID", required=True)
 
@@ -421,7 +422,19 @@ def parse_arguments():
 
     # Set the global variable tx_phase to the value of --phase
     meas_id = args.meas
-    gain_bash = args.gain
+
+    # Access the gain values
+    gains = args.gain
+
+    # Handle cases where either one or two gain values are provided
+    if len(gains) == 1:
+        gains_bash = [gains[0], gains[0]]
+    elif len(gains) == 2:
+        gains_bash = gains
+        print(f"Gain 1: {gains_bash[0]}, Gain 2: {gains_bash[1]}")
+    else:
+        print("Error: Too many gain values provided.")
+
     exp_id = args.exp
 
 
