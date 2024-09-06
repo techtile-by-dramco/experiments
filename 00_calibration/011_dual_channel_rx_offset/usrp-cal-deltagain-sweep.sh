@@ -17,7 +17,7 @@ while true; do
   counter=$((counter + 1))
 
   # Every 10 loops, decrement the gain by 1dB
-  if [ $((counter % 4)) -eq 0 ]; then
+  if [ $((counter % 2)) -eq 0 ]; then
     gain=$((gain - 1))
   fi
 
