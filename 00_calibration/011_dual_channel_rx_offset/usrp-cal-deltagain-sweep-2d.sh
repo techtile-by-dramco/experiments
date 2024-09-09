@@ -4,8 +4,8 @@ global_counter=1
 counterch0=1
 counterch1=1
 
-gainch0=76
-gainch1=76
+gainch0=44
+gainch1=44
 
 NUM_MEAS=2
 
@@ -16,7 +16,7 @@ while [ $gainch0 -ge 0 ]; do  # Outer loop for gainch0
   # Decrement gainch0 every NUM_MEAS iterations
   
 
-  gainch1=76 # reset
+  gainch1=44 # reset
 
   while [ $gainch1 -ge 0 ]; do  # Inner loop for gainch1
     # Run the Python script with the current phase and gain values
