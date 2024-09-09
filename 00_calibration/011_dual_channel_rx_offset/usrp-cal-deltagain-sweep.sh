@@ -1,13 +1,13 @@
 #!/bin/bash
 git pull
 counter=1
-gain=40
+gain=78
 fixed_gain=20
 
 unique_id=$(date -u +"%Y%m%d%H%M%S")
 
 while true; do
-  echo "starting with gain $gain"
+  echo "starting with gain $gain ID: $unique_id"
 
 
   python3 usrp-cal.py --meas $counter --gain $fixed_gain $gain --exp $unique_id
