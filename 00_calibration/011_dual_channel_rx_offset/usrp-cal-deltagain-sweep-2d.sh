@@ -7,18 +7,20 @@ counterch1=1
 gainch0=44
 gainch1=44
 
+mingain=10
+
 NUM_MEAS=2
 
 unique_id=$(date -u +"%Y%m%d%H%M%S")
 
 
-while [ $gainch0 -ge 0 ]; do  # Outer loop for gainch0
+while [ $gainch0 -ge $mingain ]; do  # Outer loop for gainch0
   # Decrement gainch0 every NUM_MEAS iterations
   
 
   gainch1=44 # reset
 
-  while [ $gainch1 -ge 0 ]; do  # Inner loop for gainch1
+  while [ $gainch1 -ge $mingain ]; do  # Inner loop for gainch1
     # Run the Python script with the current phase and gain values
     echo "Running with gainch0=$gainch0 and gainch1=$gainch1"
     python3 usrp-cal.py --meas $global_counter --gain $gainch0 $gainch1 --exp $unique_id
