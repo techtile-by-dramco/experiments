@@ -14,7 +14,7 @@ while [ $gainch0 -ge 0 ]; do  # Outer loop for gainch0
   # Decrement gainch0 every NUM_MEAS iterations
   
 
-  $gainch1 = 78
+  $gainch1=78
 
   while [ $gainch1 -ge 0 ]; do  # Inner loop for gainch1
     # Run the Python script with the current phase and gain values
