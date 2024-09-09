@@ -12,13 +12,14 @@ unique_id=$(date -u +"%Y%m%d%H%M%S")
 
 while [ $gainch0 -ge 0 ]; do  # Outer loop for gainch0
   # Decrement gainch0 every NUM_MEAS iterations
-  echo "Running with gainch0=$gainch0"
+  
 
   $gainch1 = 78
 
   while [ $gainch1 -ge 0 ]; do  # Inner loop for gainch1
     # Run the Python script with the current phase and gain values
-    python3 usrp-pilot.py --meas $global_counter --phase $phase --gain $gainch0 $gainch1 --exp $unique_id
+    echo "Running with gainch0=$gainch0 and gainch1=$gainch1"
+    python3 usrp-cal.py --meas $global_counter --gain $gainch0 $gainch1 --exp $unique_id
     
     # Check if the Python script encountered an error
     if [ $? -ne 0 ]; then
