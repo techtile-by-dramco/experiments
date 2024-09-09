@@ -1,7 +1,7 @@
 #!/bin/bash
 git pull
 counter=1
-gain=77
+gain=76
 
 unique_id=$(date -u +"%Y%m%d%H%M%S")
 
