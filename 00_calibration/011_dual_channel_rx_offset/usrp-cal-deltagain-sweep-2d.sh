@@ -3,8 +3,8 @@ git pull
 global_counter=1
 counterch0=1
 counterch1=1
-gainch0=78
-gainch1=78
+gainch0=76
+gainch1=76
 NUM_MEAS=2
 
 unique_id=$(date -u +"%Y%m%d%H%M%S")
