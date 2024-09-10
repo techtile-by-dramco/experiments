@@ -13,6 +13,10 @@ NUM_MEAS=1
 
 unique_id=$(date -u +"%Y%m%d%H%M%S")
 
+HOSTNAME=$(hostname)
+HOSTNAME=${HOSTNAME:4}  # Slice the hostname starting from the 5th character
+echo $HOSTNAME
+
 
 while [ $gainch0 -ge $mingain ]; do  # Outer loop for gainch0
   # Decrement gainch0 every NUM_MEAS iterations
@@ -23,7 +27,7 @@ while [ $gainch0 -ge $mingain ]; do  # Outer loop for gainch0
   while [ $gainch1 -ge $mingain ]; do  # Inner loop for gainch1
     # Run the Python script with the current phase and gain values
     echo "Running with gainch0=$gainch0 and gainch1=$gainch1"
-    echo "$global_counter,$gainch0,$gainch1" >> "${unique_id}.csv"
+    echo "$global_counter,$gainch0,$gainch1" >> "data_${HOSTNAME}_config_${unique_id}.csv"
     python3 usrp-cal.py --meas $global_counter --gain $gainch0 $gainch1 --exp $unique_id
     
     # Check if the Python script encountered an error
