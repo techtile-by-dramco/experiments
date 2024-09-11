@@ -1,5 +1,6 @@
 #!/bin/bash
 git pull
+
 counter=1
 gain=0
 fixed_gain=37
