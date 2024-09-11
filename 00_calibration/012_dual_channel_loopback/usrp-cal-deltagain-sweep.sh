@@ -6,6 +6,11 @@ gain=0
 fixed_gain=37
 NUM_MEAS=1
 
+
+HOSTNAME=$(hostname)
+HOSTNAME=${HOSTNAME:4}  # Slice the hostname starting from the 5th character
+echo $HOSTNAME
+
 unique_id=$(date -u +"%Y%m%d%H%M%S")
 
 while true; do
