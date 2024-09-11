@@ -4,10 +4,10 @@ global_counter=1
 counterch0=1
 counterch1=1
 
-gainch0=44
-gainch1=44
+gainch0=0
+gainch1=0
 
-mingain=10
+maxgain=77
 
 NUM_MEAS=1
 
@@ -18,11 +18,11 @@ HOSTNAME=${HOSTNAME:4}  # Slice the hostname starting from the 5th character
 echo $HOSTNAME
 
 
-while [ $gainch0 -ge $mingain ]; do  # Outer loop for gainch0
+while [ $gainch0 -ge $maxgain ]; do  # Outer loop for gainch0
   # Decrement gainch0 every NUM_MEAS iterations
   
 
-  gainch1=44 # reset
+  gainch1=0 # reset
 
   while [ $gainch1 -ge $mingain ]; do  # Inner loop for gainch1
     # Run the Python script with the current phase and gain values
@@ -42,8 +42,8 @@ while [ $gainch0 -ge $mingain ]; do  # Outer loop for gainch0
 
     # Every NUM_MEAS loops, decrement gainch1 by 5
     if [ $((counterch1 % NUM_MEAS)) -eq 0 ]; then
-      gainch1=$((gainch1 - 1))
-      echo "Decrementing gainch1 to $gainch1"
+      gainch1=$((gainch1 + 1))
+      echo "Incrementing gainch1 to $gainch1"
     fi
   done
 
@@ -51,7 +51,7 @@ while [ $gainch0 -ge $mingain ]; do  # Outer loop for gainch0
 
   # Every NUM_MEAS loops, decrement gainch0 by 5
   if [ $((counter % NUM_MEAS)) -eq 0 ]; then
-    gainch0=$((gainch0 - 1))
-    echo "Decrementing gainch0 to $gainch0"
+    gainch0=$((gainch0 + 1))
+    echo "Incrementing gainch0 to $gainch0"
   fi
 done
