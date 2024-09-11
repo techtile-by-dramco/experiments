@@ -1,7 +1,7 @@
 #!/bin/bash
 git pull
 counter=1
-gain=78
+gain=0
 fixed_gain=37
 NUM_MEAS=1
 
@@ -9,7 +9,7 @@ unique_id=$(date -u +"%Y%m%d%H%M%S")
 
 while true; do
   echo "starting with gain $gain ID: $unique_id"
-
+  echo "$counter,$fixed_gain,$gain" >> "data_config_${HOSTNAME}_${unique_id}.csv"
 
   python3 usrp-cal.py --meas $counter --gain $fixed_gain $gain --exp $unique_id
   if [ $? -ne 0 ]; then
@@ -19,7 +19,7 @@ while true; do
   
   # Every 2 loops, decrement the gain by 1dB
   if [ $((counter % NUM_MEAS)) -eq 0 ]; then
-    gain=$((gain - 1))
+    gain=$((gain + 1))
   fi
 
   # Increment the loop counter
@@ -27,8 +27,8 @@ while true; do
 
 
   # Check if phase has reached 360 degrees
-  if [ $gain -eq -1 ]; then
-    echo "Gain has reached 0dB. Stopping the script."
+  if [ $gain -eq 78 ]; then
+    echo "Gain has reached 78dB. Stopping the script."
     break
   fi
    
