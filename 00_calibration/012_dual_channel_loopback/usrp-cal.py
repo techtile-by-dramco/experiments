@@ -142,7 +142,9 @@ def rx_ref(
                         # send_rx(samples)
                         samples = recv_buffer[:, :num_rx_i]
                         if num_rx + num_rx_i < buffer_length:
-                            logger.error("more samples received than buffer long, not storing the data")
+                            logger.error(
+                                "more samples received than buffer long, not storing the data"
+                            )
                         else:
                             iq_data[:, num_rx : num_rx + num_rx_i] = samples
                             # threading.Thread(target=send_rx,
@@ -499,6 +501,9 @@ def measure_channel_coherence(usrp, tx_streamer, rx_streamer, quit_event):
     )
 
     time.sleep(CAPTURE_TIME + delta(usrp, at_time))
+
+    quit_event.set()
+
     tx_thr.join()
 
     rx_thr.join()
