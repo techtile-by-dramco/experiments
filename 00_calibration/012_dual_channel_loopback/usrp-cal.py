@@ -106,7 +106,8 @@ def rx_ref(
     global results
     num_channels = rx_streamer.get_num_channels()
     max_samps_per_packet = rx_streamer.get_max_num_samps()
-    iq_data = np.empty((num_channels, int(duration * RATE * 2)), dtype=np.complex64)
+    buffer_length = int(duration * RATE * 2)
+    iq_data = np.empty((num_channels, buffer_length), dtype=np.complex64)
     # Make a rx buffer
     # TODO: The C++ code uses rx_cpu type here. Do we want to use that to set dtype?
     # recv_buffer = np.zeros((num_channels, min([1000 * max_samps_per_packet, int(duration * RATE * 2)])),
@@ -140,10 +141,13 @@ def rx_ref(
                         # samples = recv_buffer[:,:num_rx_i]
                         # send_rx(samples)
                         samples = recv_buffer[:, :num_rx_i]
-                        iq_data[:, num_rx : num_rx + num_rx_i] = samples
-                        # threading.Thread(target=send_rx,
-                        #                  args=(samples,)).start()
-                        num_rx += num_rx_i
+                        if num_rx + num_rx_i < buffer_length:
+                            logger.error("more samples received than buffer long, not storing the data")
+                        else:
+                            iq_data[:, num_rx : num_rx + num_rx_i] = samples
+                            # threading.Thread(target=send_rx,
+                            #                  args=(samples,)).start()
+                            num_rx += num_rx_i
             except RuntimeError as ex:
                 logger.error("Runtime error in receive: %s", ex)
                 return
@@ -452,7 +456,6 @@ def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time=None):
         tx_streamer.send(np.zeros((num_channels, 0), dtype=np.complex64), tx_md)
 
 
-
 def tx_meta_thread(tx_streamer, quit_event):
     tx_meta_thr = threading.Thread(target=tx_async_th, args=(tx_streamer, quit_event))
 
@@ -470,7 +473,7 @@ def measure_channel_coherence(usrp, tx_streamer, rx_streamer, quit_event):
     amplitudes = [0.0, 0.0]
     amplitudes[LOOPBACK_TX_CH] = 0.8
 
-    at_time = get_current_time(usrp) + 1.0
+    at_time = get_current_time(usrp) + 2.0
 
     start_time = uhd.types.TimeSpec(at_time)
 
