@@ -500,7 +500,7 @@ def measure_channel_coherence(usrp, tx_streamer, rx_streamer, quit_event):
         start_time=start_time,
     )
 
-    time.sleep(CAPTURE_TIME + delta(usrp, at_time))
+    time.sleep(CAPTURE_TIME)
 
     quit_event.set()
 
