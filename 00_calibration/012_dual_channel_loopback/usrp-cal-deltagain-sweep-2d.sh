@@ -18,13 +18,13 @@ HOSTNAME=${HOSTNAME:4}  # Slice the hostname starting from the 5th character
 echo $HOSTNAME
 
 
-while [ $gainch0 -ge $maxgain ]; do  # Outer loop for gainch0
+while [ $gainch0 -le $maxgain ]; do  # Outer loop for gainch0
   # Decrement gainch0 every NUM_MEAS iterations
   
 
   gainch1=0 # reset
 
-  while [ $gainch1 -ge $mingain ]; do  # Inner loop for gainch1
+  while [ $gainch1 -le $maxgain ]; do  # Inner loop for gainch1
     # Run the Python script with the current phase and gain values
     echo "Running with gainch0=$gainch0 and gainch1=$gainch1"
     echo "$global_counter,$gainch0,$gainch1" >> "data_config_${HOSTNAME}_${unique_id}.csv"
