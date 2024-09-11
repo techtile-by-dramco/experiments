@@ -141,7 +141,7 @@ def rx_ref(
                         # samples = recv_buffer[:,:num_rx_i]
                         # send_rx(samples)
                         samples = recv_buffer[:, :num_rx_i]
-                        if num_rx + num_rx_i < buffer_length:
+                        if num_rx + num_rx_i > buffer_length:
                             logger.error(
                                 "more samples received than buffer long, not storing the data"
                             )
