@@ -457,8 +457,8 @@ def main():
         # phase_diff = results[0, :] - results[1, :]
         print("DONE")
         # downsample to reduce storage space
-        decimated_results = signal.decimate(results, q=100, ftype="fir", axis=-1, zero_phase=True)
-        np.save(file_name, decimated_results)
+        # decimated_results = signal.decimate(results, q=100, ftype="fir", axis=-1, zero_phase=True)
+        np.save(file_name, results)
     except KeyboardInterrupt:
         # Interrupt and join the threads
         logger.debug("Sending signal to stop!")
