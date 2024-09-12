@@ -4,10 +4,10 @@ global_counter=1
 counterch0=1
 counterch1=1
 
-gainch0=44
-gainch1=44
+gainch0=76
+gainch1=76
 
-mingain=10
+mingain=0
 
 NUM_MEAS=1
 
