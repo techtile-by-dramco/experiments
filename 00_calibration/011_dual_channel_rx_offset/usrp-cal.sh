@@ -12,7 +12,7 @@ echo $HOSTNAME
 
 
 while true; do
-  echo "starting with gain $gain"
+  echo "starting with gain $gain for ID $unique_id"
   echo "$counter,$gain,$gain" >> "data_config_${HOSTNAME}_${unique_id}.csv"
   python3 usrp-cal.py --meas $counter --gain $gain --exp $unique_id
   if [ $? -ne 0 ]; then
