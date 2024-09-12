@@ -2,6 +2,9 @@ DIFFERENCE: also writes down the variances of angles and amplitudes
 Can be used in post-processing to check if we can, baes on that, filter out bad calibration
 
 
+` uhd_siggen --args "mode_n=integer" --freq 800e6 --clock-source 'external' --sync 'pps' --const -g 68 --offset 0 -m 0.8 -c 0,1 `
+
+
 # Repeated simple setup 003
 
 Same as 002, only now the loopback is done manually (through cable no LO leakage through RF switch) and now the USRPs are both driven by the PPS and 10MHz of the same octoclock at adjacent ports (ie without phase diff).

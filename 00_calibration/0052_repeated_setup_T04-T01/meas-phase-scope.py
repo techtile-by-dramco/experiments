@@ -31,9 +31,9 @@ meas[0] = meas_name
 
 
 # Define channels (phase measurment)
-channel_1 = "CH1"
-channel_2 = "CH2"
-channel_3 = "CH3"
+channel_1 = "CH3"
+channel_2 = "CH4"
+channel_3 = "CH2"
 
 # Update sources from last added measurement
 scope.write(f"MEASUrement:{meas_name}:SOUrce1 {channel_1}")
@@ -49,11 +49,6 @@ print(f"Reading {meas_name}")
 meas[1] = meas_name
 
 
-# Define channels (phase measurment)
-channel_1 = "CH1"
-channel_2 = "CH2"
-channel_3 = "CH3"
-
 # Update sources from last added measurement
 scope.write(f"MEASUrement:{meas_name}:SOUrce1 {channel_1}")
 scope.write(f"MEASUrement:{meas_name}:SOUrce2 {channel_3}")
@@ -67,17 +62,9 @@ meas_name = get_last_meas_name().strip()
 print(f"Reading {meas_name}")
 meas[2] = meas_name
 
-
-# Define channels (phase measurment)
-channel_1 = "CH1"
-channel_2 = "CH2"
-channel_3 = "CH3"
-
 # Update sources from last added measurement
 scope.write(f"MEASUrement:{meas_name}:SOUrce1 {channel_2}")
 scope.write(f"MEASUrement:{meas_name}:SOUrce2 {channel_3}")
-
-
 
 meas_ongoing = False
 

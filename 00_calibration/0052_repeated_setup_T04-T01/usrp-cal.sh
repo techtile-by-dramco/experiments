@@ -6,5 +6,5 @@ while true; do
     echo "your script encountered an error."
     # Optionally, you can add a break or continue statement here to handle errors
   fi
-  sleep 1  # wait for 60 seconds before running the script again
+  sleep 1  # wait for 1 second before running the script again
 done

@@ -1,114 +1,79 @@
+"""This script plots the processed deltaGain sweep experiments. First run process_gain_sweep_meas.py prior to running this file.
+"""
+
+
 import matplotlib.pyplot as plt
 import numpy as np
 import yaml
-import os
-import re
 
 import matplotlib.colors as mcolors
 import pandas as pd
 
-
-with open("cal-settings.yml", "r") as file:
-    vars = yaml.safe_load(file)
-    RATE = vars["RATE"]
+import seaborn as sns
+import tools
 
 
-import glob
-
-NUM_MEAS_PER_EXP = 4
-
-
-MIN_Y = -10
-MAX_Y = 10
-
-
-# MEAS 1: T04_20240905130028
-# MEAS 2: T04_20240905140237
-# MEAS 3: T03_20240905144640
+to_process = [False, False, False, False, False, False, False, False, True, True]
 
 measurements = [
-    "T04_20240905130028",
-    "T04_20240905140237",
-    "T03_20240905144640",
-    "T03_20240906082810",
+    "T03_20240906105616",
+    "T04_20240906105645",
+    "T03_20240906123800",
+    "T04_20240906123807",
+    "T03_20240906135557",
+    "T04_20240906134926",
+    "T03_20240909074835",
+    "T04_20240909074846",
+    "T03_20240909091122",
+    "T04_20240909083250",
 ]
-scope_angles = [-151.8, -151.8, -151.8, -51.8]  # measured angle diff on the scope
+rx_ch0_gains = [31, 31, 20, 20, 20, 20, 20, 20, 37, 37]
+NUM_MEAS_PER_EXPS = [4, 4, 2, 2, 2, 2, 2, 2, 2, 2]
+gains_sweeps = [39, 39, 40, 40, 40, 40, 78, 78, 78, 78]
+
 linestyles = ["dashed", "dashed", "dotted", "dotted"]
 colors = list(mcolors.TABLEAU_COLORS)
-gain_sweeps = np.asarray(range(39))[::-1] #reverse as started from 39
 
-
-gain_sweeps = np.repeat(gain_sweeps, NUM_MEAS_PER_EXP)
 
 # header: exp_id, meas_id, node_id, rx_gain, rx_gain_diff, angle_diff
-columns=["exp_id", "node_id", "rx_gain", "rx_gain_diff", "angle_diff"]
+columns = ["exp_id", "node_id", "rx_gain", "rx_gain_diff", "angle_diff"]
 
 
-for meas, ls, SCOPE_ANGLE in zip(
-    measurements, linestyles, scope_angles):
+for meas, gs, mst, NUM_MEAS_PER_EXP in zip(
+    measurements, gains_sweeps, to_process, NUM_MEAS_PER_EXPS, strict=True
+):
+    if mst:
+        gain_sweeps = np.asarray(range(gs + 1))[::-1]
+        gain_sweeps = np.repeat(gain_sweeps, NUM_MEAS_PER_EXP)
+        df = pd.read_csv(f"{meas}.csv")
 
-    df_list = []
+        df["rx_gain_diff"] = tools.to_min_pi_plus_pi(df["rx_gain_diff"])
+        g = sns.scatterplot(data=df, x="rx_gain_diff", y="angle_diff")
+        g.axes.axhline(-df["real_diff"].iloc[0], ls="--", color="red")
 
-    # Define the file pattern
-    pattern = "data_"+meas+r"_(\d+)\.npy"
-    # Compile the regex pattern for efficiency
-    compiled_pattern = re.compile(pattern)
+        # save the plot as PNG file
+        # plt.savefig(f"{meas}.png")
+        plt.title(meas + f" {df['rx_ch0_gain'].iloc[0]}" + "dB")
+        # g.axes.set_xticks((gain_sweeps[::-1] - df["rx_ch0_gain"].iloc[0]), minor=True)
+        # plt.grid(which="minor", alpha=0.2)
+        plt.grid(axis="x")
+        plt.show(block=False)
 
-    # Use glob to find all files matching the pattern
-    file_list = []
+        plt.figure()
+        g = sns.scatterplot(data=df, x="rx_gain_diff", y="max_IQ_ampl_ch0")
+        g = sns.scatterplot(data=df, x="rx_gain_diff", y="max_IQ_ampl_ch1")
+        plt.title(meas + f"{df['rx_ch0_gain'].iloc[0]}" + "dB")
+        # g.axes.set_xticks(gain_sweeps[::-1] - df["rx_ch0_gain"].iloc[0], minor=True)
+        # plt.grid(which="minor", alpha=0.2)
+        plt.grid(axis="x")
+        plt.show(block=False)
 
-    # Initialize an empty list to store the arrays
+        plt.figure()
+        g = sns.scatterplot(data=df, x="rx_gain_diff", y="angle_diff_std")
+        plt.title(meas + f" {df['rx_ch0_gain'].iloc[0]}" + "dB")
+        # g.axes.set_xticks(gain_sweeps[::-1] - df["rx_ch0_gain"].iloc[0], minor=True)
+        # plt.grid(which="minor", alpha=0.2)
+        plt.grid(axis="x")
+        plt.show(block=False)
 
-    num_files_found = 0
-    # Iterate over each file and load it using np.load, then append to the list
-    for filename in glob.glob("*.npy"):
-        base_name = os.path.basename(filename)  # Get just the filename part
-        # Check if the filename matches the regex
-        if compiled_pattern.match(base_name):
-            num_files_found+=1
-            print(f"{base_name} found")
-
-    print(f"{num_files_found} files found")
-    array_list = [0] * num_files_found
-    all_iq_samples_list = [0] * num_files_found
-
-    # Iterate over each file and load it using np.load, then append to the list
-    for filename in glob.glob("*.npy"):
-        base_name = os.path.basename(filename)  # Get just the filename part
-        # Check if the filename matches the regex
-        if compiled_pattern.match(base_name):
-            match = re.search(pattern, filename)
-            assert match
-            suffix_number = int(match.group(1))
-            print(f'Reading file {suffix_number}')
-            file_list.append(base_name)
-            iq_samples = np.load(filename)
-            angles = np.angle(iq_samples, deg=True)
-            angle_diff = angles[0, :] - angles[1, :]
-            idx = angle_diff > 180
-            angle_diff[idx] =  angle_diff[idx] - 360
-
-            # "meas_id", "node_id", "rx_gain", "rx_gain_diff", "angle_diff"
-
-            node_id = meas.split("_")[0]
-            meas_id = meas.split("_")[-1]
-
-            gain = gain_sweeps[suffix_number]
-
-            print(meas_id, node_id, gain, gain - 31, np.mean(angle_diff))
-
-            d = {
-                "exp_id": meas_id,
-                "node_id": node_id,
-                "rx_gain": gain,
-                "rx_gain_diff": gain - 31,
-                "angle_diff": np.mean(angle_diff),
-            }
-
-            df_list.append(pd.DataFrame(d, index=[0]))
-
-            df = pd.concat(df_list, ignore_index=True)
-
-            df.to_csv(f"{meas}.csv", index=False)
-
-
+        plt.show()

@@ -830,7 +830,7 @@ def main():
 
         quit_event = threading.Event()
         tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr=0,
-                        at_time=5.0)
+                        at_time=cmd_time)
 
     except KeyboardInterrupt:
 

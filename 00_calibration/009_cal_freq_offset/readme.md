@@ -6,12 +6,30 @@ loopback FPGA is used.
 
 synced to 10mhz + pps (with splitter)
 
+# Configuration
 
+ref signal: cable to RF signal generator 920 MHz
 
-# measurements
+Loopback: via switch (loopback FPGA image)
+
+TX/RX B: antenna
+RX B: 50ohm terminator
+
+RX A: ref signal
+RX/TX A: to scope
+
+10Mz: octoclock (no splitter port 1 and 2)
+PPS: splitter to octoclock
+
+# Measurements
 
 ## with 50ohm terminators
-20240830114328
+Timestamp: 20240830114328
 
 ## With antennas
-20240902115303
+Timestamp: 20240902115303
+
+## de-synced PPS
+To check the effect of the PPS accuracy, we used 2 different cable lengths (60cm and 8m).
+
+Timestamp:  20240902131719

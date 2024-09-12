@@ -16,48 +16,36 @@ import plotly.graph_objects as go
 import plotly.express as px
 
 
-to_process = [False, False, True, True]
-measurements = [
-    "T03_20240909114249",
-    "T04_20240909190225",
-    "T04_20240910062816",
-    "T03_20240910085457",
-]
+to_process = [False, False, True, True, True]
 
-max_gains = [78, 44, None, None]
-min_gains = [0, 10, None, None]
-NUM_MEAS_PER_EXPS = [2, 2, 1, 1]
-scope_angles = [
-    -(277.1 - 360),
-    -83.75,
-    83.75,
-    83.75,
-]  # measured angle diff on the scope
+measurements = [
+    "T03_20240911105349",
+    "T04_20240911105338",
+    "T04_20240911192544",
+    "T03_20240911194516",
+    "T04_20240911194521",
+]
 
 
 linestyles = ["dashed", "dashed", "dotted", "dotted"]
 colors = list(mcolors.TABLEAU_COLORS)
 
 plt.figure()
-for meas, SCOPE_ANGLE, NUM_MEAS_PER_EXP, max_gain, min_gain, tp in zip(
+for meas, process in zip(
     measurements,
-    scope_angles,
-    NUM_MEAS_PER_EXPS,
-    max_gains,
-    min_gains,
     to_process,
     strict=True,  # ensure equqal length arss in zip (in Python 3.10)
 ):
-    if not tp:
+    if not process:
         continue
     df = pd.read_csv(f"{meas}.csv")
 
-    df["phase_error"] = tools.to_min_pi_plus_pi(df["angle_diff"] - df["real_diff"], deg=True)
+    df["phase_error"] = tools.to_min_pi_plus_pi(df["angle_diff"], deg=True)
 
     fig = go.Figure(
         data=[
             go.Scatter3d(
-                z=df["angle_diff"] - df["real_diff"],
+                z=df["angle_diff"],
                 x=df["rx_gain_ch0"],
                 y=df["rx_gain_ch1"],
                 mode="markers",

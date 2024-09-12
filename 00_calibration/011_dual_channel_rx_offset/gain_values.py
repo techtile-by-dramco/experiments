@@ -1,4 +1,7 @@
 from matplotlib import pyplot as plt
+from matplotlib.patches import Rectangle
+from matplotlib.ticker import AutoMinorLocator
+import numpy as np
 
 
 gain_table_sub_1300mhz = [[0x00, 0x00, 0x20],
@@ -163,10 +166,60 @@ for g in gain_indices:
         f"{g}: {ilna_gain_idx} {ilna_gain} {mixer_gain_idx} {mixer_gain} {tia_gain_idx} {tia_gain} {lpf_gain_idx} {lpf_gain} {digital_gain_idx} {digital_gain} {total_gain}dB ({hex(table[g][0])} {hex(table[g][1])} {hex(table[g][2])})"
     )
 
-plt.scatter(gain_indices, ilna_gain_vals, label="iLNA", alpha=0.4)
-plt.scatter(gain_indices, mixer_gain_vals, label="mixer", alpha=0.4)
-plt.scatter(gain_indices, tia_gain_vals, label="TIA", alpha=0.4)
-plt.scatter(gain_indices, lpf_gain_vals, label="LPF", alpha=0.4)
-plt.scatter(gain_indices, digital_gain_vals, label="digital", alpha=0.4)
+
+fig = plt.figure()
+ax = fig.gca()
+plt.plot(gain_indices, ilna_gain_vals, label="iLNA", alpha=0.8, marker=",")
+plt.plot(gain_indices, mixer_gain_vals, label="mixer", alpha=0.8, marker=".")
+plt.plot(gain_indices, tia_gain_vals, label="TIA", alpha=0.8, marker=".")
+plt.plot(gain_indices, lpf_gain_vals, label="LPF", alpha=0.4, ls="--", marker=".")
+plt.plot(
+    gain_indices, digital_gain_vals, label="digital", alpha=0.4, ls="--", marker="."
+)
+plt.ylabel("Configured Gain")
+plt.xlabel("Gain index")
+plt.grid(axis="x")
+ax.xaxis.get_ticklocs(minor=True)
+ax.minorticks_on()
+ax.xaxis.set_minor_locator(AutoMinorLocator(10))
+plt.grid(which="minor", linestyle=":", linewidth=0.5)
+
+ax.fill_between(range(28), -10, 25, alpha=0.1)
+ax.fill_between(range(30,66), -10, 25, alpha=0.1)
+ax.fill_between(range(20,30), -10, 25, alpha=0.1)
+
+
+# ax.add_patch(Rectangle((7, -10), 1, 35, edgecolor = 'blue',
+#              fill=False,
+#              lw=0.5))
+
+# ax.add_patch(Rectangle((19, -10), 1, 35, edgecolor = 'blue',
+#              fill=False,
+#              lw=0.5))
+
+# ax.add_patch(Rectangle((33, -10), 1, 35, edgecolor="blue", fill=False, lw=0.5))
+
+# ax.add_patch(Rectangle((35, -10), 1, 35, edgecolor="blue", fill=False, lw=0.5))
+
+# ax.add_patch(Rectangle((54, -10), 1, 35, edgecolor="blue", fill=False, lw=0.5))
+
+# ax.add_patch(Rectangle((27, -10), 1, 35, edgecolor="blue", fill=False, lw=0.5))
+
+sec = ax.secondary_xaxis(location=1)
+sec.set_xticks(
+    [7.5, 19.5, 33.5, 35.5, 54.5, 27.5],
+    labels=[
+        "7$\\rightarrow$8",
+        "19$\\rightarrow$20",
+        "33$\\rightarrow$34",
+        "35$\\rightarrow$36",
+        "54$\\rightarrow$55",
+        "27$\\rightarrow$28",
+    ],
+)
+sec.xaxis.label.set_color("red")
+sec.tick_params(axis="x", colors="red")
+
 plt.legend()
+plt.tight_layout()
 plt.show()

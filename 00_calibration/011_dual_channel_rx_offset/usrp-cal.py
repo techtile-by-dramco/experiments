@@ -10,6 +10,8 @@ import numpy as np
 import uhd
 import yaml
 
+from scipy import signal
+
 CMD_DELAY = 0.05  # set a 50mS delay in commands
 # default values which will be overwritten by the conf YML
 RX_TX_SAME_CHANNEL = True  # if loopback is done from one channel to the other channel
@@ -75,7 +77,7 @@ else:
     logger.debug("\nPLL REF-->CH1 RX\nCH1 TX-->CH0 RX\nCH0 TX -->")
 HOSTNAME = socket.gethostname()[4:]
 file_open = False
-server_ip = None # populated by settings.yml
+server_ip = None  # populated by settings.yml
 from scipy.signal import butter, sosfilt
 
 
@@ -199,7 +201,8 @@ def rx_ref(
         max_Q = np.max(np.abs(np.imag(samples)), axis=1)
 
         logger.debug(
-            f"MAX AMPL IQ CH0: I {max_I[0]:.2f} Q {max_Q[0]:.2f} CH1:I {max_I[1]:.2f} Q {max_Q[1]:.2f}")
+            f"MAX AMPL IQ CH0: I {max_I[0]:.2f} Q {max_Q[0]:.2f} CH1:I {max_I[1]:.2f} Q {max_Q[1]:.2f}"
+        )
 
         logger.debug(
             f"Angle (mean) CH0:{np.rad2deg(avg_angles[0]):.2f} CH1:{np.rad2deg(avg_angles[1]):.2f}"
@@ -409,9 +412,7 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description="Transmit with phase difference.")
 
     # Add the --phase argument
-    parser.add_argument(
-        "--meas", type=int, help="measurement ID", required=True
-    )
+    parser.add_argument("--meas", type=int, help="measurement ID", required=True)
 
     parser.add_argument("--gain", type=int, nargs="+", help="gain_db", required=True)
 
@@ -455,7 +456,9 @@ def main():
         # store that phase difference to a file
         # phase_diff = results[0, :] - results[1, :]
         print("DONE")
-        np.save(file_name, results)
+        # downsample to reduce storage space
+        decimated_results = signal.decimate(results, q=100, ftype="fir", axis=-1, zero_phase=True)
+        np.save(file_name, decimated_results)
     except KeyboardInterrupt:
         # Interrupt and join the threads
         logger.debug("Sending signal to stop!")

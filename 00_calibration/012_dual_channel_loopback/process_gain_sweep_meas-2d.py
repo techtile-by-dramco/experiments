@@ -8,35 +8,23 @@ import csv
 
 import tools
 
-to_process = [False, False, False, True]
+to_process = [False, False, True, True,True]
+
 measurements = [
-    "T03_20240909114249",
-    "T04_20240909190225",
-    "T04_20240910062816",
-    "T03_20240910085457",
+    "T03_20240911105349",
+    "T04_20240911105338",
+    "T04_20240911192544",
+    "T03_20240911194516",
+    "T04_20240911194521",
 ]
 
-max_gains = [78, 44, None, None]
-min_gains = [0, 10, None, None]
-NUM_MEAS_PER_EXPS = [2, 2,1, 1]
-scope_angles = [
-    -(277.1 - 360),
-    -83.75,
-    83.75,
-    83.75,
-]  # measured angle diff on the scope
-
-for meas, SCOPE_ANGLE, NUM_MEAS_PER_EXP, max_gain, min_gain, tp in zip(
+for meas, process in zip(
     measurements,
-    scope_angles,
-    NUM_MEAS_PER_EXPS,
-    max_gains,
-    min_gains,
     to_process,
-    strict=True,  # ensure equal length arss in zip (in Python 3.10)
+    strict=True,  # ensure equqal length arss in zip (in Python 3.10)
 ):
 
-    if not tp:
+    if not process:
         continue
 
     # check if mapping exists:
@@ -51,17 +39,7 @@ for meas, SCOPE_ANGLE, NUM_MEAS_PER_EXP, max_gain, min_gain, tp in zip(
                 idx = int(row[0]) - 1
                 gains_ch0[idx] = int(row[1])
                 gains_ch1[idx] = int(row[2])
-    else:
-        # I know it is ugly, but it does the job:
-        gains_ch0 = []
-        gains_ch1 = []
-        for gain1 in np.asarray(range(min_gain, max_gain + 1))[::-1]:
-            for gain0 in np.asarray(range(min_gain, max_gain + 1))[::-1]:
-                gains_ch0.append(gain0)
-                gains_ch1.append(gain1)
-
-        gains_ch0 = np.repeat(gains_ch0, NUM_MEAS_PER_EXP)
-        gains_ch1 = np.repeat(gains_ch1, NUM_MEAS_PER_EXP)
+        
 
     df_list = []
 
@@ -143,7 +121,6 @@ for meas, SCOPE_ANGLE, NUM_MEAS_PER_EXP, max_gain, min_gain, tp in zip(
                 "rx_gain_ch1": gain_ch1,
                 "rx_gain_diff": gain_ch1 - gain_ch0,
                 "angle_diff": mean_anlge_diff,
-                "real_diff": SCOPE_ANGLE,
                 "angle_diff_std": np.std(np.abs(angle_diff)),
                 "max_IQ_ampl_ch0": max_IQ_vals_ch0,
                 "max_IQ_ampl_ch1": max_IQ_vals_ch1,

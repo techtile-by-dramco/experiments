@@ -6,44 +6,20 @@ import numpy as np
 import pandas as pd
 import tools
 
+import csv
 
-to_process = [False, False, False, False, False, False, False, False, True, True]
+
+to_process = [True, True]
 
 measurements = [
-    "T03_20240906105616",
+    "T03_20240911130529",
     "T04_20240906105645",
-    "T03_20240906123800",
-    "T04_20240906123807",
-    "T03_20240906135557",
-    "T04_20240906134926",
-    "T03_20240909074835",
-    "T04_20240909074846",
-    "T03_20240909091122",
-    "T04_20240909083250",
 ]
-rx_ch0_gains = [31, 31, 20, 20, 20, 20, 20, 20, 37, 37]
-NUM_MEAS_PER_EXPS = [4, 4, 2, 2, 2, 2, 2, 2, 2, 2]
-gains_sweeps = [39, 39, 40, 40, 40, 40, 78, 78, 78, 78]
-scope_angles = [
-    125.1,
-    122.3,
-    125.1,
-    122.3,
-    -(278.1 - 360),
-    -(275.5 - 360),
-    -(278.1 - 360),
-    -(275.5 - 360),
-    -(278.1 - 360),
-    -(277.1 - 360),
-]  # measured angle diff on the scope
+NUM_MEAS_PER_EXPS = [1,1]
 
-
-for meas, SCOPE_ANGLE, rx_ch0_gain, NUM_MEAS_PER_EXP, gs, process in zip(
+for meas, NUM_MEAS_PER_EXP, process in zip(
     measurements,
-    scope_angles,
-    rx_ch0_gains,
     NUM_MEAS_PER_EXPS,
-    gains_sweeps,
     to_process,
     strict=True,  # ensure equqal length arss in zip (in Python 3.10)
 ):
@@ -51,8 +27,18 @@ for meas, SCOPE_ANGLE, rx_ch0_gain, NUM_MEAS_PER_EXP, gs, process in zip(
     if not process:
         continue
 
-    gain_sweeps = np.asarray(range(gs + 1))[::-1]  # reverse as started from 39
-    gain_sweeps = np.repeat(gain_sweeps, NUM_MEAS_PER_EXP)
+    # check if mapping exists:
+    mapping_file = f"data/data_config_{meas}.csv"
+    if os.path.exists(mapping_file):
+        with open(mapping_file, mode="r", encoding="utf-8") as file:
+            csv_reader = list(csv.reader(file))  # Convert to a list
+            max_suffix_number = int(csv_reader[-1][0])  # Get the last row, first value
+            gains_ch0 = np.zeros(max_suffix_number)
+            gains_ch1 = np.zeros(max_suffix_number)
+            for row in csv_reader:
+                idx = int(row[0]) - 1
+                gains_ch0[idx] = int(row[1])
+                gains_ch1[idx] = int(row[2])
 
     df_list = []
 
