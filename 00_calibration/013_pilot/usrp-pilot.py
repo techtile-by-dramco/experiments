@@ -549,8 +549,8 @@ def setup(usrp, server_ip, connect=True):
         usrp.set_rx_agc(False, chan)
 
     # specific settings from loopback/REF PLL
-    usrp.set_tx_gain(LOOPBACK_TX_GAIN, LOOPBACK_TX_CH)
-    usrp.set_tx_gain(LOOPBACK_TX_GAIN, FREE_TX_CH)
+    usrp.set_tx_gain(LOOPBACK_TX_GAIN, 0)
+    usrp.set_tx_gain(0, 1)
 
     usrp.set_rx_gain(LOOPBACK_RX_GAIN, LOOPBACK_RX_CH)
     usrp.set_rx_gain(REF_RX_GAIN, REF_RX_CH)
