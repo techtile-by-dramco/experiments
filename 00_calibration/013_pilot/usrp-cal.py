@@ -460,10 +460,16 @@ def tx_meta_thread(tx_streamer, quit_event):
 import queue
 
 
+def starting_in(usrp, at_time):
+    return f"Starting in {delta(usrp, at_time):.2f}s"
+
+
 def measure_pilot(usrp, rx_streamer, quit_event, result_queue, at_time=None):
     logger.debug("########### Measure PILOT ###########")
 
     at_time = uhd.types.TimeSpec(at_time)
+
+    logger.debug(starting_in(usrp, at_time))
 
     rx_thr = rx_thread(
         usrp,
@@ -491,6 +497,8 @@ def measure_loopback(
     amplitudes[LOOPBACK_TX_CH] = 0.8
 
     at_time = uhd.types.TimeSpec(at_time)
+
+    logger.debug(starting_in(usrp, at_time))
 
     tx_thr = tx_thread(
         usrp,
