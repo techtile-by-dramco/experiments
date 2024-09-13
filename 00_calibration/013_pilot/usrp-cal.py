@@ -644,7 +644,7 @@ def main():
 
         phi_LB = result_queue.get()
 
-        start_next_cmd += cmd_time + 1.0
+        start_next_cmd += cmd_time + 2.0
 
         tx_phase_coh(
             usrp,
