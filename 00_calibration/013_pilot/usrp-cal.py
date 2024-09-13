@@ -467,7 +467,7 @@ def starting_in(usrp, at_time):
 def measure_pilot(usrp, rx_streamer, quit_event, result_queue, at_time=None):
     logger.debug("########### Measure PILOT ###########")
 
-    at_time = uhd.types.TimeSpec(at_time)
+    start_time = uhd.types.TimeSpec(at_time)
 
     logger.debug(starting_in(usrp, at_time))
 
@@ -477,7 +477,7 @@ def measure_pilot(usrp, rx_streamer, quit_event, result_queue, at_time=None):
         quit_event,
         duration=CAPTURE_TIME,
         res=result_queue,
-        start_time=at_time,
+        start_time=start_time,
     )
 
     time.sleep(CAPTURE_TIME + delta(usrp, at_time))
@@ -496,7 +496,7 @@ def measure_loopback(
     amplitudes = [0.0, 0.0]
     amplitudes[LOOPBACK_TX_CH] = 0.8
 
-    at_time = uhd.types.TimeSpec(at_time)
+    start_time = uhd.types.TimeSpec(at_time)
 
     logger.debug(starting_in(usrp, at_time))
 
@@ -506,7 +506,7 @@ def measure_loopback(
         quit_event,
         amplitude=amplitudes,
         phase=[0.0, 0.0],
-        start_time=at_time,
+        start_time=start_time,
     )
 
     tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
