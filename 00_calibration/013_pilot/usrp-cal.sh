@@ -7,7 +7,7 @@ unique_id=$(date -u +"%Y%m%d%H%M%S")
 
 while true; do
   echo "starting with gain $gain"
-  python3 usrp-cal.py --meas $counter --gain $gain --exp $unique_id
+  python3 usrp-cal.py
   if [ $? -ne 0 ]; then
     echo "your script encountered an error."
     # Optionally, you can add a break or continue statement here to handle errors
