@@ -343,7 +343,7 @@ def setup(usrp, server_ip, connect=True):
 
 
 def rx_thread(usrp, rx_streamer, quit_event, duration, res, start_time=None):
-    rx_thread = threading.Thread(
+    _rx_thread = threading.Thread(
         target=rx_ref,
         args=(
             usrp,
@@ -354,9 +354,9 @@ def rx_thread(usrp, rx_streamer, quit_event, duration, res, start_time=None):
             start_time,
         ),
     )
-    rx_thread.setName("RX_thread")
-    rx_thread.start()
-    return rx_thread
+    _rx_thread.setName("RX_thread")
+    _rx_thread.start()
+    return _rx_thread
 
 
 def tx_async_th(tx_streamer, quit_event):
@@ -517,7 +517,7 @@ def measure_loopback(
         quit_event,
         duration=CAPTURE_TIME,
         res=result_queue,
-        start_time=at_time,
+        start_time=start_time,
     )
 
     time.sleep(CAPTURE_TIME + delta(usrp, at_time))
@@ -621,30 +621,37 @@ def main():
 
         cmd_time = CAPTURE_TIME + margin
 
-        start_time = cmd_time
+        start_next_cmd = cmd_time
 
         result_queue = queue.Queue()
 
-        measure_pilot(usrp, rx_streamer, quit_event, result_queue, at_time=start_time)
+        measure_pilot(
+            usrp, rx_streamer, quit_event, result_queue, at_time=start_next_cmd
+        )
 
         phi_P = result_queue.get()
 
-        start_time += cmd_time + 1.0
+        start_next_cmd += cmd_time + 1.0
 
         measure_loopback(
-            usrp, tx_streamer, rx_streamer, quit_event, result_queue, at_time=start_time
+            usrp,
+            tx_streamer,
+            rx_streamer,
+            quit_event,
+            result_queue,
+            at_time=start_next_cmd,
         )
 
         phi_LB = result_queue.get()
 
-        start_time += cmd_time + 1.0
+        start_next_cmd += cmd_time + 1.0
 
         tx_phase_coh(
             usrp,
             tx_streamer,
             quit_event,
             phase_corr=phi_LB + phi_P,
-            at_time=start_time,
+            at_time=start_next_cmd,
         )
 
         print("DONE")
