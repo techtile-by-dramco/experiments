@@ -894,7 +894,7 @@ def tx_pilot(usrp, tx_streamer, quit_event, at_time):
     store_phase()
 
     phases = [np.deg2rad(tx_phase), 0.0]
-    amplitudes = [0.8, 0.8]
+    amplitudes = [0.8, 0.0]
 
     start_time = uhd.types.TimeSpec(at_time)
 
