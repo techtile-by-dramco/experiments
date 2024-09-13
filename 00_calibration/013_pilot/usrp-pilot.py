@@ -894,7 +894,7 @@ def tx_pilot(usrp, tx_streamer, quit_event, at_time):
     store_phase()
 
     phases = [np.deg2rad(tx_phase), 0.0]
-    amplitudes = [0.8, 0.0]
+    amplitudes = [0.9, 0.0]
 
     start_time = uhd.types.TimeSpec(at_time)
 
@@ -982,6 +982,7 @@ def main():
         usrp = uhd.usrp.MultiUSRP("fpga=usrp_b210_fpga.bin, mode_n=integer")
         logger.info("Using Device: %s", usrp.get_pp_string())
         tx_streamer, _ = setup(usrp, server_ip, connect=_connect)
+        quit_event = threading.Event()
 
         _connect = False
 
@@ -991,11 +992,8 @@ def main():
 
         cmd_time = CAPTURE_TIME + margin
 
-        start_time = cmd_time
-
-        quit_event = threading.Event()
-        start_time += cmd_time + 1.0
-        _ = tx_pilot(usrp, tx_streamer, quit_event, at_time=start_time)
+        start_next_cmd = cmd_time
+        _ = tx_pilot(usrp, tx_streamer, quit_event, at_time=start_next_cmd)
 
         print("My job is done")
 
