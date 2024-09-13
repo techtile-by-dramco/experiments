@@ -597,7 +597,7 @@ def parse_arguments():
 def main():
     global meas_id
 
-    parse_arguments()
+    # parse_arguments()
 
     file_name = f"data_{HOSTNAME}_{exp_id}_{meas_id}"
 
