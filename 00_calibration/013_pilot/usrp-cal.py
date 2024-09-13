@@ -28,6 +28,18 @@ meas_id = 0
 exp_id = 0
 results = []
 
+import zmq
+
+context = zmq.Context()
+
+iq_socket = context.socket(zmq.PUB)
+
+iq_socket.bind(f"tcp://*:{50001}")
+
+HOSTNAME = socket.gethostname()[4:]
+file_open = False
+server_ip = None  # populated by settings.yml
+
 
 with open(os.path.join(os.path.dirname(__file__), "cal-settings.yml"), "r") as file:
     vars = yaml.safe_load(file)
@@ -76,18 +88,6 @@ else:
     LOOPBACK_RX_CH = FREE_TX_CH = 0
     REF_RX_CH = LOOPBACK_TX_CH = 1
     logger.debug("\nPLL REF-->CH1 RX\nCH1 TX-->CH0 RX\nCH0 TX -->")
-
-import zmq
-
-context = zmq.Context()
-
-iq_socket = context.socket(zmq.PUB)
-
-iq_socket.bind(f"tcp://*:{50001}")
-
-HOSTNAME = socket.gethostname()[4:]
-file_open = False
-server_ip = None  # populated by settings.yml
 
 
 def rx_ref(usrp, rx_streamer, quit_event, duration, result_queue, start_time=None):
