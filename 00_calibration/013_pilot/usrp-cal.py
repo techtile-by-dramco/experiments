@@ -26,7 +26,6 @@ FREQ = 0
 # server_ip = "10.128.52.53"
 meas_id = 0
 exp_id = 0
-gains_bash = []
 results = []
 
 
@@ -313,8 +312,9 @@ def setup(usrp, server_ip, connect=True):
     # specific settings from loopback/REF PLL
     usrp.set_tx_gain(LOOPBACK_TX_GAIN, LOOPBACK_TX_CH)
     usrp.set_tx_gain(LOOPBACK_TX_GAIN, FREE_TX_CH)
-    usrp.set_rx_gain(gains_bash[LOOPBACK_RX_CH], LOOPBACK_RX_CH)
-    usrp.set_rx_gain(gains_bash[REF_RX_CH], REF_RX_CH)
+
+    usrp.set_rx_gain(LOOPBACK_RX_GAIN, LOOPBACK_RX_CH)
+    usrp.set_rx_gain(REF_RX_GAIN, REF_RX_CH)
     # streaming arguments
     st_args = uhd.usrp.StreamArgs("fc32", "sc16")
     st_args.channels = channels
