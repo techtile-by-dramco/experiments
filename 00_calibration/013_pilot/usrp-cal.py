@@ -161,7 +161,12 @@ def rx_ref(usrp, rx_streamer, quit_event, duration, result_queue, start_time=Non
 
         phase_diff = phase_ch0 - phase_ch1
 
-        result_queue.put(np.mean(phase_diff, deg=False))
+        _circ_mean = tools.circmean(phase_diff, deg=False)
+        _mean = np.mean(phase_diff)
+
+        logger.debug("Diff cirmean and mean: %.6f", _circ_mean - _mean)
+
+        result_queue.put(_circ_mean)
 
         avg_ampl = np.mean(np.abs(iq_samples), axis=1)
         # var_ampl = np.var(np.abs(iq_samples), axis=1)
