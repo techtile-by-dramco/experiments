@@ -616,9 +616,11 @@ def parse_arguments():
 def main():
     global meas_id, file_name_state
 
+    unique_id = datetime.utcnow().strftime("%Y%m%d%H%M%S")
+
     # parse_arguments()
 
-    file_name = f"data_{HOSTNAME}_{exp_id}_{meas_id}"
+    file_name = f"data_{HOSTNAME}_{unique_id}"
 
     try:
         usrp = uhd.usrp.MultiUSRP("fpga=usrp_b210_fpga.bin, mode_n=integer")
