@@ -10,6 +10,6 @@ FREQ: !!float 920e6
 MIN_PLL_VAR: !!float 0.0001
 
 
-CAPTURE_TIME: !!float 2
+CAPTURE_TIME: !!float 4
 
 server_ip: "10.128.52.53"
