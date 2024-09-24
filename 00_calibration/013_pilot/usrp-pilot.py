@@ -897,7 +897,7 @@ def tx_pilot(usrp, tx_streamer, quit_event, at_time):
 
     tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
 
-    time.sleep(CAPTURE_TIME*2 + delta(usrp, at_time))
+    time.sleep(CAPTURE_TIME + delta(usrp, at_time) + 1.0) # TX 1 sec longer than RX
 
     quit_event.set()
 
@@ -978,7 +978,7 @@ def main():
 
         tx_thr = tx_meta_thr = None
 
-        margin = 2.0
+        margin = 1.0 # start 1.0 sec earlier than receiver
 
         cmd_time = CAPTURE_TIME + margin
 
