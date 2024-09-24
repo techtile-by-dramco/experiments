@@ -151,6 +151,8 @@ def rx_ref(usrp, rx_streamer, quit_event, duration, result_queue, start_time=Non
         )
         iq_samples = iq_data[:, int(RATE // 10) : num_rx]
 
+        np.save(file_name_state, iq_samples)
+
         phase_ch0, freq_slope_ch0 = tools.get_phases_and_apply_bandpass(
             iq_samples[0, :]
         )
@@ -612,7 +614,7 @@ def parse_arguments():
 
 
 def main():
-    global meas_id
+    global meas_id, file_name_state
 
     # parse_arguments()
 
@@ -634,6 +636,8 @@ def main():
 
         result_queue = queue.Queue()
 
+        file_name_state = file_name + "_pilot"
+
         measure_pilot(
             usrp, rx_streamer, quit_event, result_queue, at_time=start_next_cmd
         )
@@ -641,6 +645,8 @@ def main():
         phi_P = result_queue.get()
 
         start_next_cmd += cmd_time + 1.0
+
+        file_name_state = file_name + "_loopback"
 
         measure_loopback(
             usrp,
