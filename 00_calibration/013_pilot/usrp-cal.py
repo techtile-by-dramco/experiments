@@ -151,7 +151,7 @@ def rx_ref(usrp, rx_streamer, quit_event, duration, result_queue, start_time=Non
         )
         iq_samples = iq_data[:, int(RATE // 10) : num_rx]
 
-        np.save(file_name_state, iq_samples)
+        # np.save(file_name_state, iq_samples)
 
         phase_ch0, freq_slope_ch0 = tools.get_phases_and_apply_bandpass(
             iq_samples[0, :]
@@ -616,11 +616,11 @@ def parse_arguments():
 def main():
     global meas_id, file_name_state
 
-    unique_id = datetime.utcnow().strftime("%Y%m%d%H%M%S")
+    # unique_id = datetime.utcnow().strftime("%Y%m%d%H%M%S")
 
-    # parse_arguments()
+    # # parse_arguments()
 
-    file_name = f"data_{HOSTNAME}_{unique_id}"
+    # file_name = f"data_{HOSTNAME}_{unique_id}"
 
     try:
         usrp = uhd.usrp.MultiUSRP("fpga=usrp_b210_fpga.bin, mode_n=integer")
