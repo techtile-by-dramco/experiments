@@ -159,14 +159,16 @@ def rx_ref(usrp, rx_streamer, quit_event, duration, result_queue, start_time=Non
         logger.debug("Frequency offset CH0: %.4f", freq_slope_ch0 / (2 * np.pi))
         logger.debug("Frequency offset CH1: %.4f", freq_slope_ch1 / (2 * np.pi))
 
-        phase_diff = phase_ch0 - phase_ch1
+        phase_diff = tools.to_min_pi_plus_pi(phase_ch0 - phase_ch1, deg=False)
+
+        # phase_diff = phase_ch0 - phase_ch1
 
         _circ_mean = tools.circmean(phase_diff, deg=False)
         _mean = np.mean(phase_diff)
 
         logger.debug("Diff cirmean and mean: %.6f", _circ_mean - _mean)
 
-        result_queue.put(_circ_mean)
+        result_queue.put(_mean)
 
         avg_ampl = np.mean(np.abs(iq_samples), axis=1)
         # var_ampl = np.var(np.abs(iq_samples), axis=1)
