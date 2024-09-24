@@ -534,7 +534,7 @@ def setup(usrp, server_ip, connect=True):
 
     # Manual selection of master clock rate may also be required to synchronize multiple B200 units in time.
     usrp.set_master_clock_rate(mcr)
-    channels = [0, 1]
+    channels = [0]
     setup_clock(usrp, "external", usrp.get_num_mboards())
     setup_pps(usrp, "external")
 
@@ -542,18 +542,8 @@ def setup(usrp, server_ip, connect=True):
     rx_bw = 200e3
 
     for chan in channels:
-        usrp.set_rx_rate(rate, chan)
         usrp.set_tx_rate(rate, chan)
-        usrp.set_rx_dc_offset(False, chan)
-        usrp.set_rx_bandwidth(rx_bw, chan)
-        usrp.set_rx_agc(False, chan)
-
-    # specific settings from loopback/REF PLL
-    usrp.set_tx_gain(LOOPBACK_TX_GAIN, 0)
-    usrp.set_tx_gain(0, 1)
-
-    usrp.set_rx_gain(LOOPBACK_RX_GAIN, LOOPBACK_RX_CH)
-    usrp.set_rx_gain(REF_RX_GAIN, REF_RX_CH)
+        usrp.set_tx_gain(LOOPBACK_TX_GAIN, chan)
 
     # streaming arguments
 
