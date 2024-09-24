@@ -3,17 +3,6 @@ from scipy import stats
 import numpy as np
 
 
-def circmean(arr, deg=True):
-
-    arr = np.asarray(arr)
-    if deg:
-        arr = np.deg2rad(arr)
-
-    _circmean = np.angle(np.sum(np.exp(1j * arr)))
-
-    return np.rad2deg(_circmean) if deg else _circmean
-
-
 def to_min_pi_plus_pi(angles, deg=True):
 
     angles = np.asarray(angles)
@@ -30,6 +19,13 @@ def to_min_pi_plus_pi(angles, deg=True):
     angles[idx] = angles[idx] - rotate
 
     return angles
+
+
+f0 = 1e3
+cutoff = 500
+fs = 250e3
+lowcut = f0 - cutoff
+highcut = f0 + cutoff
 
 
 def butter_bandpass(lowcut, highcut, fs, order=5):
@@ -56,9 +52,17 @@ def apply_bandpass(x: np.ndarray, fs=250e3):
     return y_re + 1j * y_imag
 
 
-def get_phases_and_remove_CFO(x, fs=250e3, f0=1e3, cutoff=500):
-    lowcut = f0 - cutoff
-    highcut = f0 + cutoff
+def get_phases_and_apply_bandpass(x: np.ndarray, fs=250e3):
+    sos = butter_bandpass(lowcut, highcut, fs, order=9)
+
+    y_re = butter_bandpass_filter(np.real(x), lowcut, highcut, fs, order=9, sos=sos)
+    y_imag = butter_bandpass_filter(np.imag(x), lowcut, highcut, fs, order=9, sos=sos)
+
+    return np.angle(y_re + 1j * y_imag)
+
+
+def get_phases_and_remove_CFO(x, fs=250e3):
+
     sos = butter_bandpass(lowcut, highcut, fs, order=9)
     y_re = butter_bandpass_filter(np.real(x), lowcut, highcut, fs, order=9, sos=sos)
     y_imag = butter_bandpass_filter(np.imag(x), lowcut, highcut, fs, order=9, sos=sos)
@@ -69,4 +73,4 @@ def get_phases_and_remove_CFO(x, fs=250e3, f0=1e3, cutoff=500):
     t = np.arange(0, len(y_re)) * (1 / fs)
 
     lin_regr = stats.linregress(t, angle_unwrapped)
-    return angle_unwrapped - lin_regr.slope * t, lin_regr.slope
+    return angle_unwrapped - lin_regr.slope * t
