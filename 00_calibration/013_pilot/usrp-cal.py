@@ -151,8 +151,10 @@ def rx_ref(usrp, rx_streamer, quit_event, duration, result_queue, start_time=Non
         )
         iq_samples = iq_data[:, int(RATE // 10) : num_rx]
 
-        phase_ch0, freq_slope_ch0 = tools.get_phases_and_remove_CFO(iq_samples[0, :])
-        phase_ch1, freq_slope_ch1 = tools.get_phases_and_remove_CFO(iq_samples[1, :])
+        phase_ch0, freq_slope_ch0 = tools.get_phases_and_apply_bandpass(
+            iq_samples[0, :]
+        )
+        phase_ch1, freq_slope_ch1 = tools.get_phases_and_apply_bandpass(iq_samples[1, :])
 
         logger.debug("Frequency offset CH0: %.4f", freq_slope_ch0 / (2 * np.pi))
         logger.debug("Frequency offset CH1: %.4f", freq_slope_ch1 / (2 * np.pi))
