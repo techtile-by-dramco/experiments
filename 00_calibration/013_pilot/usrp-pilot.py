@@ -401,7 +401,7 @@ def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time=None):
 
     transmit_buffer[0, :] *= sample[0]
 
-    transmit_buffer[1, :] *= sample[1]
+    # transmit_buffer[1, :] *= sample[1]
 
     # print(transmit_buffer.shape)
 
