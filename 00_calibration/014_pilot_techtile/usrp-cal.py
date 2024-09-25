@@ -487,7 +487,10 @@ def measure_pilot(usrp, rx_streamer, quit_event, result_queue, at_time=None):
         "TX/RX", 1
     )
 
-    usrp.set_user_register(0, 0x00000003)
+    try:
+        usrp.set_user_register(0, 0x00000003)
+    except Exception as e:
+        logger.error(e)
 
     # user_settings = usrp.get_user_settings_iface(1)
 
