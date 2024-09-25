@@ -502,7 +502,7 @@ def measure_pilot(usrp, rx_streamer, quit_event, result_queue, at_time=None):
     rx_thr.join()
 
     # reset antenna
-    usrp.set_rx_antenna("RX", 1)
+    usrp.set_rx_antenna("RX2", 1)
     quit_event.clear()
 
 
