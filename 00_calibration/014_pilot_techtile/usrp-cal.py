@@ -671,9 +671,6 @@ def main():
 
         start_next_cmd += cmd_time + 2.0
 
-        # change capture time to transmit longer
-        CAPTURE_TIME = 60
-
         tx_phase_coh(
             usrp,
             tx_streamer,
