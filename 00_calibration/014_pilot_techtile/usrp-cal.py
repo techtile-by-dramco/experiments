@@ -487,13 +487,14 @@ def measure_pilot(usrp, rx_streamer, quit_event, result_queue, at_time=None):
         "TX/RX", 1
     )
 
-    user_settings = usrp.get_user_settings_iface(1)
-    
+    usrp.set_user_register(0, 0x00000003)
+
+    # user_settings = usrp.get_user_settings_iface(1)
+
     # if user_settings:
     #     user_settings.poke32(0,0x00000003)
     # else:
     #     logger.error(" Cannot write to user settings.")
-
 
     rx_thr = rx_thread(
         usrp,
