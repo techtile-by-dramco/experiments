@@ -649,7 +649,9 @@ def main():
     # file_name = f"data_{HOSTNAME}_{unique_id}"
 
     try:
-        usrp = uhd.usrp.MultiUSRP("fpga=usrp_b210_fpga_loopback_ctrl.bin, mode_n=integer, enable_user_regs")
+        usrp = uhd.usrp.MultiUSRP(
+            "enable_user_regs, fpga=usrp_b210_fpga_loopback_ctrl.bin, mode_n=integer"
+        )
         logger.info("Using Device: %s", usrp.get_pp_string())
         tx_streamer, rx_streamer = setup(usrp, server_ip, connect=True)
         quit_event = threading.Event()
