@@ -497,13 +497,12 @@ def measure_pilot(usrp, rx_streamer, quit_event, result_queue, at_time=None):
 
     time.sleep(CAPTURE_TIME + delta(usrp, at_time))
 
-    # reset antenna
-    usrp.set_rx_antenna(
-        "RX", 1
-    )
-
     quit_event.set()
+
     rx_thr.join()
+
+    # reset antenna
+    usrp.set_rx_antenna("RX", 1)
     quit_event.clear()
 
 
