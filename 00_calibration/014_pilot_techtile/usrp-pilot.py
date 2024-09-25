@@ -543,7 +543,7 @@ def setup(usrp, server_ip, connect=True):
 
     for chan in channels:
         usrp.set_tx_rate(rate, chan)
-        usrp.set_tx_gain(LOOPBACK_TX_GAIN, chan)
+        usrp.set_tx_gain(PILOT_TX_GAIN, chan)
 
     # streaming arguments
 
