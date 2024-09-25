@@ -649,7 +649,6 @@ def main():
     # file_name = f"data_{HOSTNAME}_{unique_id}"
 
     try:
-        uhd.log.set_log_level(1) # debug level
         usrp = uhd.usrp.MultiUSRP(
             "enable_user_regs, fpga=usrp_b210_fpga_loopback_ctrl.bin, mode_n=integer"
         )
