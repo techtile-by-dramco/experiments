@@ -701,9 +701,10 @@ def main():
         )
 
         print("DONE")
-    except KeyboardInterrupt:
+    except Exception as e:
         # Interrupt and join the threads
         logger.debug("Sending signal to stop!")
+        logger.error(e)
         quit_event.set()
     finally:
         time.sleep(0.1)  # give it some time to close
