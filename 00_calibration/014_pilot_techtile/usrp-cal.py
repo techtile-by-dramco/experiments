@@ -487,15 +487,6 @@ def measure_pilot(usrp, rx_streamer, quit_event, result_queue, at_time=None):
         "TX/RX", 1
     )
 
-    try:
-        user_settings = usrp.get_user_settings_iface(1)
-        if user_settings:
-            user_settings.poke32(0,0x00000003)
-        else:
-            logger.error(" Cannot write to user settings.")
-    except Exception as e:
-        logger.error(e)
-
     # user_settings = usrp.get_user_settings_iface(1)
 
     # if user_settings:
@@ -520,9 +511,6 @@ def measure_pilot(usrp, rx_streamer, quit_event, result_queue, at_time=None):
 
     # reset antenna
     usrp.set_rx_antenna("RX2", 1)
-    # reset RF switches ctrl
-    # if user_settings:
-    #     user_settings.poke32(0,0x00000000)
 
     quit_event.clear()
 
@@ -539,6 +527,15 @@ def measure_loopback(
     start_time = uhd.types.TimeSpec(at_time)
 
     logger.debug(starting_in(usrp, at_time))
+
+    try:
+        user_settings = usrp.get_user_settings_iface(1)
+        if user_settings:
+            user_settings.poke32(0,0x00000003)
+        else:
+            logger.error(" Cannot write to user settings.")
+    except Exception as e:
+        logger.error(e)
 
     tx_thr = tx_thread(
         usrp,
@@ -569,6 +566,10 @@ def measure_loopback(
     rx_thr.join()
 
     tx_meta_thr.join()
+
+    # reset RF switches ctrl
+    if user_settings:
+        user_settings.poke32(0, 0x00000000)
 
     quit_event.clear()
 
