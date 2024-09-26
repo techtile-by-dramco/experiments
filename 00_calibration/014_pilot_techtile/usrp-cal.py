@@ -180,7 +180,7 @@ def rx_ref(usrp, rx_streamer, quit_event, duration, result_queue, start_time=Non
         max_Q = np.max(np.abs(np.imag(iq_samples)), axis=1)
 
         logger.debug(
-            "MAX AMPL IQ CH0: I %.2f Q %.2f CH1:I %.2f Q %.2f",
+            "MAX AMPL IQ CH0: I %.6f Q %.6f CH1:I %.6f Q %.6f",
             max_I[0],
             max_Q[0],
             max_I[1],
@@ -188,7 +188,7 @@ def rx_ref(usrp, rx_streamer, quit_event, duration, result_queue, start_time=Non
         )
 
         logger.debug(
-            "AVG AMPL IQ CH0: %.2f CH1: %.2f",
+            "AVG AMPL IQ CH0: %.6f CH1: %.6f",
             avg_ampl[0],
             avg_ampl[1],
         )
