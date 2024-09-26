@@ -528,10 +528,14 @@ def measure_loopback(
 
     logger.debug(starting_in(usrp, at_time))
 
+    user_settings = None
     try:
         user_settings = usrp.get_user_settings_iface(1)
         if user_settings:
-            user_settings.poke32(0,0x00000003)
+            logger.debug(user_settings.peek32(0))
+            user_settings.poke32(0, 0x00000003)
+            logger.debug(user_settings.peek32(0))
+
         else:
             logger.error(" Cannot write to user settings.")
     except Exception as e:
