@@ -715,7 +715,7 @@ def main():
         logger.error(e)
         quit_event.set()
     finally:
-        time.sleep(0.1)  # give it some time to close
+        time.sleep(1)  # give it some time to close
         sys.exit(0)
 
 
