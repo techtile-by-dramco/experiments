@@ -28,7 +28,7 @@ meas_id = 0
 exp_id = 0
 results = []
 
-SWITCH_LOOPBACK_MODE = 0x00000006 # which is 110
+SWITCH_LOOPBACK_MODE = 0x00000000 # which is 110
 SWITCH_RESET_MODE = 0x00000000
 
 import zmq
