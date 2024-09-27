@@ -28,6 +28,8 @@ meas_id = 0
 exp_id = 0
 results = []
 
+SWITCH_LOOPBACK_MODE = 0x00000000 # which is 110
+SWITCH_RESET_MODE = 0x00000000
 
 import zmq
 
@@ -533,7 +535,7 @@ def measure_loopback(
         user_settings = usrp.get_user_settings_iface(1)
         if user_settings:
             logger.debug(user_settings.peek32(0))
-            # user_settings.poke32(0, 0x00000003)
+            user_settings.poke32(0, SWITCH_LOOPBACK_MODE)
             logger.debug(user_settings.peek32(0))
         else:
             logger.error(" Cannot write to user settings.")
@@ -572,7 +574,7 @@ def measure_loopback(
 
     # reset RF switches ctrl
     if user_settings:
-        user_settings.poke32(0, 0x00000000)
+        user_settings.poke32(0, SWITCH_RESET_MODE)
 
     quit_event.clear()
 
