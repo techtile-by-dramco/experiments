@@ -601,7 +601,7 @@ def tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr, at_time):
 
     tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
 
-    time.sleep(CAPTURE_TIME * 2 + delta(usrp, at_time))
+    time.sleep(CAPTURE_TIME * 60 + delta(usrp, at_time))
 
     quit_event.set()
 
