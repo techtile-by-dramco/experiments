@@ -28,8 +28,8 @@ meas_id = 0
 exp_id = 0
 results = []
 
-SWITCH_LOOPBACK_MODE = 0x00000000 # which is 110
-SWITCH_RESET_MODE = 0x00000000
+# SWITCH_LOOPBACK_MODE = 0x00000000 # which is 110
+# SWITCH_RESET_MODE = 0x00000000
 
 import zmq
 
@@ -223,7 +223,7 @@ def setup_pps(usrp, pps):
 
 
 def print_tune_result(tune_res):
-    return (
+    logger.debug(
         "Tune Result:\n    Target RF  Freq: %.6f (MHz)\n Actual RF  Freq: %.6f (MHz)\n Target DSP Freq: %.6f "
         "(MHz)\n "
         "Actual DSP Freq: %.6f (MHz)\n",
@@ -258,8 +258,8 @@ def tune_usrp(usrp, freq, channels, at_time):
     rreq.dsp_freq_policy = uhd.types.TuneRequestPolicy(ord("M"))
     rreq.args = uhd.types.DeviceAddr("mode_n=fractional")
     for chan in channels:
-        logger.debug(print_tune_result(usrp.set_rx_freq(rreq, chan)))
-        logger.debug(print_tune_result(usrp.set_tx_freq(treq, chan)))
+        print_tune_result(usrp.set_rx_freq(rreq, chan))
+        print_tune_result(usrp.set_tx_freq(treq, chan))
     while not usrp.get_rx_sensor("lo_locked").to_bool():
         print(".")
         time.sleep(0.01)
@@ -535,7 +535,7 @@ def measure_loopback(
         user_settings = usrp.get_user_settings_iface(1)
         if user_settings:
             logger.debug(user_settings.peek32(0))
-            user_settings.poke32(0, SWITCH_LOOPBACK_MODE)
+            user_settings.poke32(0, 0x00000000)
             logger.debug(user_settings.peek32(0))
         else:
             logger.error(" Cannot write to user settings.")
@@ -574,7 +574,7 @@ def measure_loopback(
 
     # reset RF switches ctrl
     if user_settings:
-        user_settings.poke32(0, SWITCH_RESET_MODE)
+        user_settings.poke32(0, 0x00000000)
 
     quit_event.clear()
 
