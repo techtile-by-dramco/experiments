@@ -713,20 +713,20 @@ def main():
             usrp,
             tx_streamer,
             quit_event,
-            phase_corr=0,
-            at_time=start_next_cmd,
-            long_time=False
-        )
-
-        start_next_cmd += cmd_time + 14.0
-
-        tx_phase_coh(
-            usrp,
-            tx_streamer,
-            quit_event,
             phase_corr=phi_LB + phi_P,
             at_time=start_next_cmd,
+            long_time=True
         )
+
+        # start_next_cmd += cmd_time + 14.0
+
+        # tx_phase_coh(
+        #     usrp,
+        #     tx_streamer,
+        #     quit_event,
+        #     phase_corr=phi_LB + phi_P,
+        #     at_time=start_next_cmd,
+        # )
 
         print("DONE")
     except Exception as e:
