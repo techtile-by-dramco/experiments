@@ -716,7 +716,7 @@ def main():
             long_time=False
         )
 
-        start_next_cmd += cmd_time + 2.0
+        start_next_cmd += cmd_time + CAPTURE_TIME * 5 + 5.0
 
         tx_phase_coh(
             usrp,
