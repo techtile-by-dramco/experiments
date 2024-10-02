@@ -579,7 +579,7 @@ def measure_loopback(
     quit_event.clear()
 
 
-def tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr, at_time):
+def tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr, at_time, long_time=True):
     logger.debug("########### TX with adjusted phases ###########")
 
     phases = [0.0, 0.0]
@@ -603,7 +603,11 @@ def tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr, at_time):
 
     tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
 
-    time.sleep(CAPTURE_TIME * 60 + delta(usrp, at_time))
+    if long_time:
+
+        time.sleep(CAPTURE_TIME * 60 + delta(usrp, at_time))
+    else:
+        time.sleep(CAPTURE_TIME * 5 + delta(usrp, at_time))
 
     quit_event.set()
 
@@ -699,6 +703,18 @@ def main():
         )
 
         phi_LB = result_queue.get()
+
+        start_next_cmd += cmd_time + 2.0
+
+        # benchmark without phased beamforming
+        tx_phase_coh(
+            usrp,
+            tx_streamer,
+            quit_event,
+            phase_corr=0,
+            at_time=start_next_cmd,
+            long_time=False
+        )
 
         start_next_cmd += cmd_time + 2.0
 
