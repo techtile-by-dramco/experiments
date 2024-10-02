@@ -615,6 +615,8 @@ def tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr, at_time, long_time=T
 
     tx_meta_thr.join()
 
+    logger.debug("done TX")
+
     return tx_thr, tx_meta_thr
 
 
