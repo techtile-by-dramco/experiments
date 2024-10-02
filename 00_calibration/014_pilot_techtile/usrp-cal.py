@@ -713,9 +713,9 @@ def main():
             usrp,
             tx_streamer,
             quit_event,
-            phase_corr=phi_LB + phi_P,
+            phase_corr=0,  # phi_LB + phi_P
             at_time=start_next_cmd,
-            long_time=True
+            long_time=True,
         )
 
         # start_next_cmd += cmd_time + 14.0
