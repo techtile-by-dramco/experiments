@@ -607,7 +607,7 @@ def tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr, at_time, long_time=T
 
         time.sleep(CAPTURE_TIME * 60 + delta(usrp, at_time))
     else:
-        time.sleep(CAPTURE_TIME * 5 + delta(usrp, at_time))
+        time.sleep(10.0 + delta(usrp, at_time))
 
     quit_event.set()
 
@@ -716,7 +716,7 @@ def main():
             long_time=False
         )
 
-        start_next_cmd += cmd_time + CAPTURE_TIME * 5 + 5.0
+        start_next_cmd += cmd_time + 14.0
 
         tx_phase_coh(
             usrp,
