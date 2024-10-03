@@ -6,27 +6,50 @@ import matplotlib.pyplot as pplt
 
 f, (ax0, ax1, ax2) = pplt.subplots(3,1, sharex=True)
 
-positions_nobf = np.load("positions-nobf.npy", allow_pickle=True)
+positions_nobf = np.load("positions-nobf-dwars.npy", allow_pickle=True)
 
 positions_nobf_list = PositionerValues(positions_nobf)
 
 positions_nobf_rounded = positions_nobf_list.reduce_to_grid_size(
     size=0.15
-).get_x_positions()
+).get_y_positions()
 
 
-values_nobf = np.load("values-nobf.npy", allow_pickle=True)
-
-ax0.scatter(positions_nobf_list.get_x_positions(), values_nobf, label="NO BF")
+values_nobf = np.load("values-nobf-dwars.npy", allow_pickle=True)
 
 
-positions_bf = np.load("positions-bf.npy", allow_pickle=True)
+ax0.scatter(positions_nobf_list.get_y_positions(), values_nobf, label="NO BF")
+
+
+positions_bf = np.load("positions-bf-dwars.npy", allow_pickle=True)
+
+
+bf_point = positions_bf[0].y
+
+ax0.axvline(bf_point, ls="--")
+
 positions_bf_list = PositionerValues(positions_bf)
-positions_bf_rounded = positions_bf_list.reduce_to_grid_size(size=0.15).get_x_positions()
 
-values_bf = np.load("values-bf.npy", allow_pickle=True)
 
-ax0.scatter(positions_bf_list.get_x_positions(), values_bf, label="BF")
+positions_bf_rounded = positions_bf_list.reduce_to_grid_size(size=0.15).get_y_positions()
+
+values_bf = np.load("values-bf-dwars.npy", allow_pickle=True)
+
+ax0.scatter(positions_bf_list.get_y_positions(), values_bf, label="BF")
+
+
+positions_nobf = np.load("positions-nobf-G19-dwars.npy", allow_pickle=True)
+
+positions_nobf_list = PositionerValues(positions_nobf)
+
+positions_nobf_rounded = positions_nobf_list.reduce_to_grid_size(
+    size=0.15
+).get_y_positions()
+
+
+values_nobf = np.load("values-nobf-G19-dwars.npy", allow_pickle=True)
+
+ax0.scatter(positions_nobf_list.get_y_positions(), values_nobf+10*np.log10(5), label="NO BF - G19 (incl. array gain)")
 
 
 # average per position
@@ -78,6 +101,7 @@ pplt.tight_layout()
 pplt.show()
 
 
-# plt = TechtilePlotter()
-# plt.measurements(positions_bf, values_bf)
-# plt.show()
+plt = TechtilePlotter()
+plt.measurements(positions_bf, values_bf)
+# plt.antennas()
+plt.show()
