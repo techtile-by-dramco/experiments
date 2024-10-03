@@ -138,6 +138,8 @@ positioning:
   xaxisoffset: 0
   yaxisoffset: 0
   zaxisoffset: 0
+  wanted_body: "Robot_Fan"
+  capture_time_per_pos: 0.4 # in seconds only for direct method
 scope:
   termination: 50
   spectrum_view: true
