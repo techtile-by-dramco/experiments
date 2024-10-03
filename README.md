@@ -6,7 +6,7 @@
 |-|-|-|-|
 | 00 | USRP calibration | | 🤏 |
 | 01 | Distributed non-coherent beamforming | | ✅ |
-| 02 | Reciprocity based beamforming | | ❌ |
+| 02 | Reciprocity based beamforming | | 🤏 |
 | 03 | Geometry based beamforming | | ❌ |
-| 04 | Backscatter communication | Uplink communication | ❌ |
+| 04 | Backscatter communication | Uplink communication | 🤏 |
 | 05 | END demodulation | Downlink communication | ❌ |
