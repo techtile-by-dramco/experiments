@@ -4,70 +4,114 @@ from Positioner import PositionerValues
 import matplotlib.pyplot as pplt
 
 
-f, (ax0, ax1, ax2) = pplt.subplots(3,1, sharex=True)
+f, (ax0, ax1, ax2) = pplt.subplots(3, 1, sharex=True)
 
-positions_nobf = np.load("positions-nobf.npy", allow_pickle=True)
+to_plot = ["nobf", "bf"]
 
-positions_nobf_list = PositionerValues(positions_nobf)
+for tp in to_plot:
 
-positions_nobf_rounded = positions_nobf_list.reduce_to_grid_size(
-    size=0.15
-).get_x_positions()
-
-
-values_nobf = np.load("values-nobf.npy", allow_pickle=True)
-
-ax0.scatter(positions_nobf_list.get_x_positions(), values_nobf, label="NO BF")
+    positions = np.load(f"positions-{tp}.npy", allow_pickle=True)
+    values = np.load(f"values-{tp}.npy", allow_pickle=True)
+    positions_list = PositionerValues(positions)
+    positions_rounded = positions_list.reduce_to_grid_size(size=0.1).get_y_positions()
 
 
-positions_bf = np.load("positions-bf.npy", allow_pickle=True)
-positions_bf_list = PositionerValues(positions_bf)
-positions_bf_rounded = positions_bf_list.reduce_to_grid_size(size=0.15).get_x_positions()
+    ax0.scatter(positions_list.get_y_positions(), values, label=tp)
 
-values_bf = np.load("values-bf.npy", allow_pickle=True)
+    if tp == "bf":
+        bf_point = positions[0].y
+        print(positions[0])
 
-ax0.scatter(positions_bf_list.get_x_positions(), values_bf, label="BF")
+        ax0.axvline(bf_point, ls="--")
+        ax1.axvline(bf_point, ls="--")
+        ax2.axvline(bf_point, ls="--")
+
+    # averaging!
+    inds = positions_rounded.argsort()
+
+    sorted_values = values[inds]
+    sorted_positions = positions_rounded[inds]
+
+    unique_values = []
+    unique_positions = []
+    current_pos = None
+    idx = -1
+
+    # below only works if sorted
+    for p, v in zip(sorted_positions, sorted_values):
+        if current_pos is None or p != current_pos:
+            idx += 1
+            current_pos = p
+            unique_values.append([])
+            unique_positions.append(p)
+
+        unique_values[idx].append(v)
+
+    # average those
+    unique_avg_values = [np.mean(uv) for uv in unique_values]
+
+    ax1.scatter(unique_positions, unique_avg_values, label=tp)
+
+    if tp == "bf":
+        unique_positions_bf = np.asarray(unique_positions)
+        unique_avg_values_bf = np.asarray(unique_avg_values)
+    if tp == "nobf":
+        unique_positions_nobf = np.asarray(unique_positions)
+        unique_avg_values_nobf = np.asarray(unique_avg_values)
 
 
-# average per position
-(unique_positions_bf, unique_ids) = np.unique(positions_bf_rounded, return_inverse=True)
+xy, x_ind, y_ind = np.intersect1d(
+    unique_positions_bf, unique_positions_nobf, assume_unique=True, return_indices=True
+)
 
-average_vals = np.zeros_like(unique_positions_bf)
-total_vals = np.zeros_like(unique_positions_bf)
+pos_gains = xy
+gain = unique_avg_values_bf[x_ind] - unique_avg_values_nobf[y_ind]
 
-for val, u_pos_id in zip(values_bf, unique_ids):
-    average_vals[u_pos_id] += val
-    total_vals[u_pos_id] += 1
+ax2.scatter(pos_gains, gain, label="gain wrt no BF")
 
-average_vals_bf = average_vals / total_vals
+# # average per position
+# (unique_positions_bf, unique_ids) = np.unique(
+#     positions_rounded, return_inverse=True
+# )
 
+# average_vals = np.zeros_like(unique_positions_bf)
+# total_vals = np.zeros_like(unique_positions_bf)
 
-# average per position
-(unique_positions_nobf, unique_ids) = np.unique(positions_nobf_rounded, return_inverse=True)
+# for val, u_pos_id in zip(values_bf, unique_ids):
+#     average_vals[u_pos_id] += val
+#     total_vals[u_pos_id] += 1
 
-average_vals = np.zeros_like(unique_positions_nobf)
-total_vals = np.zeros_like(unique_positions_nobf)
-
-for val, u_pos_id in zip(values_bf, unique_ids):
-    average_vals[u_pos_id] += val
-    total_vals[u_pos_id] += 1
-
-average_vals_nobf = average_vals / total_vals
+# average_vals_bf = average_vals / total_vals
 
 
-ax1.scatter(unique_positions_nobf, average_vals_nobf, label="NO BF")
-ax1.scatter(unique_positions_bf, average_vals_bf, label="BF")
+# # average per position
+# (unique_positions_nobf, unique_ids) = np.unique(
+#     positions_nobf_rounded, return_inverse=True
+# )
 
-# gain is where unique positions are the same
-same_pos = []
-gain = []
-for pos_bf, val_bf in zip(unique_positions_bf, average_vals_bf):
-    for pos_nobf, val_nobf in zip(unique_positions_nobf,average_vals_nobf):
-        if pos_bf-pos_nobf == 0:
-            same_pos.append(pos_bf)
-            gain.append(val_bf-val_nobf)
+# average_vals = np.zeros_like(unique_positions_nobf)
+# total_vals = np.zeros_like(unique_positions_nobf)
 
-ax2.plot(same_pos, gain, label="Gain")
+# for val, u_pos_id in zip(values_bf, unique_ids):
+#     average_vals[u_pos_id] += val
+#     total_vals[u_pos_id] += 1
+
+# average_vals_nobf = average_vals / total_vals
+
+
+# ax1.scatter(unique_positions_nobf, average_vals_nobf, label="NO BF")
+# ax1.scatter(unique_positions_bf, average_vals_bf, label="BF")
+
+# # gain is where unique positions are the same
+# same_pos = []
+# gain = []
+# for pos_bf, val_bf in zip(unique_positions_bf, average_vals_bf):
+#     for pos_nobf, val_nobf in zip(unique_positions_nobf, average_vals_nobf):
+#         if pos_bf - pos_nobf == 0:
+#             same_pos.append(pos_bf)
+#             gain.append(val_bf - val_nobf)
+
+# ax2.plot(same_pos, gain, label="Gain")
 ax0.set_title("Raw sample points")
 ax0.legend()
 ax1.set_title("Quantized sample points")
@@ -80,4 +124,5 @@ pplt.show()
 
 # plt = TechtilePlotter()
 # plt.measurements(positions_bf, values_bf)
+# # plt.antennas()
 # plt.show()
