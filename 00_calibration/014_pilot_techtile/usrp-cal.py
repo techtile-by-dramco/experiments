@@ -715,6 +715,7 @@ def main():
                 phases_dict = yaml.safe_load(phases_yaml)
                 if HOSTNAME in phases_dict.keys():
                     phi_cable = phases_dict[HOSTNAME]
+                    logger.debug(f"Applying phase: {phi_cable}")
                 else:
                     logger.error("Phase not found in phases.yml")
             except yaml.YAMLError as exc:
@@ -725,7 +726,7 @@ def main():
             usrp,
             tx_streamer,
             quit_event,
-            phase_corr=phi_LB + phi_P - phi_cable,
+            phase_corr=phi_LB + phi_P + phi_cable,
             at_time=start_next_cmd,
             long_time=True,
         )
