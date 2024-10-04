@@ -708,12 +708,24 @@ def main():
 
         start_next_cmd += cmd_time + 2.0
 
+        phi_cable = 0
+
+        with open(os.path.join(os.path.dirname(__file__), "..", "config-phase-offsets.yml"), "r") as phases_yaml:
+            try:
+                phases_dict = yaml.safe_load(phases_yaml)
+                if HOSTNAME in phases_dict.keys():
+                    phi_cable = phases_dict[HOSTNAME]
+                else:
+                    logger.error("Phase not found in phases.yml")
+            except yaml.YAMLError as exc:
+                print(exc)
+
         # benchmark without phased beamforming
         tx_phase_coh(
             usrp,
             tx_streamer,
             quit_event,
-            phase_corr=phi_LB + phi_P,
+            phase_corr=phi_LB + phi_P - phi_cable,
             at_time=start_next_cmd,
             long_time=True,
         )
