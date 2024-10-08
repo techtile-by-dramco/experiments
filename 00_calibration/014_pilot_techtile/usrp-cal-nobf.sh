@@ -1,12 +1,16 @@
 #!/bin/bash
 git pull
 
-while true; do
-  python3 usrp-cal-nobf.py
-  if [ $? -ne 0 ]; then
-    echo "your script encountered an error."
-    # Optionally, you can add a break or continue statement here to handle errors
-  fi
+python3 usrp-cal-nobf.py
 
-  sleep 1 # give it some time
-done
+# while true; do
+  
+  
+#   python3 usrp-cal-nobf.py
+#   if [ $? -ne 0 ]; then
+#     echo "your script encountered an error."
+#     # Optionally, you can add a break or continue statement here to handle errors
+#   fi
+
+#   sleep 1 # give it some time
+# done
