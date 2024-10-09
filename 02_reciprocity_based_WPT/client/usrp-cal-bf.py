@@ -710,7 +710,7 @@ def main():
 
         phi_cable = 0
 
-        with open(os.path.join(os.path.dirname(__file__), "..", "config-phase-offsets.yml"), "r") as phases_yaml:
+        with open(os.path.join(os.path.dirname(__file__), "config-phase-offsets.yml"), "r") as phases_yaml:
             try:
                 phases_dict = yaml.safe_load(phases_yaml)
                 if HOSTNAME in phases_dict.keys():
