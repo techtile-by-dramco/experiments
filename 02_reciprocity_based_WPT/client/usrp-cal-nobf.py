@@ -271,8 +271,6 @@ def tune_usrp(usrp, freq, channels, at_time):
 
 
 def wait_till_go_from_server(ip, _connect=True):
-    if not _connect:
-        return
 
     global meas_id, file_open, data_file, file_name
     # Connect to the publisher's address
@@ -290,6 +288,9 @@ def wait_till_go_from_server(ip, _connect=True):
     alive_socket.send_string("ALIVE")
     # Receives a string format message
     logger.debug("Waiting on SYNC from server %s.", ip)
+
+    if not _connect:
+        return
 
     meas_id, unique_id = sync_socket.recv_string().split(" ")
 
@@ -426,7 +427,7 @@ def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time=None):
     # transmit_buffer = np.ones((num_channels, 1000*max_samps_per_packet), dtype=np.complex64) * sample[:, np.newaxis]
 
     # amplitude[:,np.newaxis]
-    NUM_SAMPLES_PER_BUFFER =1000 * max_samps_per_packet
+    NUM_SAMPLES_PER_BUFFER = int(1000 * max_samps_per_packet)
     transmit_buffer = np.ones(
         (num_channels, NUM_SAMPLES_PER_BUFFER), dtype=np.complex64
     )
@@ -450,7 +451,7 @@ def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time=None):
 
     tx_md.has_time_spec = True
 
-    NUM_SAMPLES_PER_SEC = RATE
+    NUM_SAMPLES_PER_SEC = int(RATE)
     NUM_SECS = np.ceil(NUM_SAMPLES_PER_BUFFER / NUM_SAMPLES_PER_SEC)
 
     try:
