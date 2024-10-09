@@ -442,17 +442,9 @@ def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time=None):
     tx_md = uhd.types.TXMetadata()
     tx_md.has_time_spec = False
 
-    NUM_SAMPLES_PER_SEC = int(RATE)
-    NUM_SECS = int(np.ceil(NUM_SAMPLES_PER_BUFFER / NUM_SAMPLES_PER_SEC))
-
     try:
 
         while not quit_event.is_set():
-            random_phases = np.repeat(np.exp(1j * np.random.rand(NUM_SECS) * 2 * np.pi), repeats=NUM_SAMPLES_PER_SEC)
-            random_phases = random_phases[:NUM_SAMPLES_PER_BUFFER]
-
-            transmit_buffer[0, :] *= random_phases
-            transmit_buffer[1, :] *= random_phases
             tx_streamer.send(transmit_buffer, tx_md)
 
     except KeyboardInterrupt:
