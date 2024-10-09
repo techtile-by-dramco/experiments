@@ -440,15 +440,7 @@ def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time=None):
     # transmit_buffer = np.ones((num_channels, max_samps_per_packet), dtype=np.complex64)*sample
 
     tx_md = uhd.types.TXMetadata()
-
-    if start_time is not None:
-        tx_md.time_spec = start_time
-    else:
-        tx_md.time_spec = uhd.types.TimeSpec(
-            usrp.get_time_now().get_real_secs() + INIT_DELAY
-        )
-
-    tx_md.has_time_spec = True
+    tx_md.has_time_spec = False
 
     NUM_SAMPLES_PER_SEC = int(RATE)
     NUM_SECS = int(np.ceil(NUM_SAMPLES_PER_BUFFER / NUM_SAMPLES_PER_SEC))
