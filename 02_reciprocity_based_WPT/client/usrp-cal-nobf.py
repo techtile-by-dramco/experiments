@@ -601,24 +601,22 @@ def tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr, at_time, long_time=T
 
     # usrp.set_tx_gain(FREE_TX_GAIN, FREE_TX_CH)
 
-    start_time = uhd.types.TimeSpec(at_time)
-
     tx_thr = tx_thread(
         usrp,
         tx_streamer,
         quit_event,
         amplitude=amplitudes,
         phase=phases,
-        start_time=start_time,
+        start_time=None,
     )
 
     tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
 
     if long_time:
 
-        time.sleep(10.0 * 60 + delta(usrp, at_time))
+        time.sleep(10.0 * 60)
     else:
-        time.sleep(10.0 + delta(usrp, at_time))
+        time.sleep(10.0)
 
     quit_event.set()
 
@@ -696,7 +694,7 @@ def main():
             tx_streamer,
             quit_event,
             phase_corr=0,
-            at_time=cmd_time,
+            at_time=None,
             long_time=True,
         )
         print("DONE")
