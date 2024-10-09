@@ -3,7 +3,6 @@
 # ****************************************************************************************** #
 
 # *** Includes ***
-from TechtileScope import Scope
 from Positioner import PositionerClient
 from TechtilePlotter.TechtilePlotter import TechtilePlotter
 
