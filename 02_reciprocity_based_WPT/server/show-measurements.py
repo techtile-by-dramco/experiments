@@ -20,12 +20,19 @@ plt = TechtilePlotter(realtime=True)
 
 positioner.start()
 
+prev_pos = None
+
 try:
     while True:
-        pos = positioner.get_data()
-        if pos is not None:
-            plt.measurements_rt(pos.x, pos.y, pos.z, 0)
         sleep(0.4)
+        pos = positioner.get_data()
+        # check if pos is changed is to save the number of saved positions
+        if pos is None:
+            continue 
+        if prev_pos is not None and prev_pos.is_closer_than(pos, 0.1):
+                continue
+        plt.measurements_rt(pos.x, pos.y, pos.z, 0)
+        prev_pos = pos
 except KeyboardInterrupt:
     positioner.stop()
 
