@@ -452,7 +452,7 @@ def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time=None):
     tx_md.has_time_spec = True
 
     NUM_SAMPLES_PER_SEC = int(RATE)
-    NUM_SECS = np.ceil(NUM_SAMPLES_PER_BUFFER / NUM_SAMPLES_PER_SEC)
+    NUM_SECS = int(np.ceil(NUM_SAMPLES_PER_BUFFER / NUM_SAMPLES_PER_SEC))
 
     try:
 
