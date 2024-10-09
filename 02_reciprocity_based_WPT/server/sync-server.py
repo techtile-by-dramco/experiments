@@ -97,43 +97,43 @@ poller.register(alive_socket, zmq.POLLIN)
 # try:
 print(f"Starting experiment: {unique_id}")
 while True:
-        # Wait for specified number of subscribers to send a message
-        print(
+    # Wait for specified number of subscribers to send a message
+    print(
             f"Waiting for {num_subscribers} subscribers to send a message...")
-        messages_received = 0
-        while messages_received < num_subscribers:
-            socks = dict(poller.poll(1000))  # Poll with a timeout of 100 ms
-            if alive_socket in socks and socks[alive_socket] == zmq.POLLIN:
-                message = alive_socket.recv_string()
-                print("Received message:", message)
-                messages_received += 1
-                # Process the request (for example, you could perform some computation here)
-                response = "Response from server"
+    messages_received = 0
+    while messages_received < num_subscribers:
+        socks = dict(poller.poll(1000))  # Poll with a timeout of 100 ms
+        if alive_socket in socks and socks[alive_socket] == zmq.POLLIN:
+            message = alive_socket.recv_string()
+            print(f"Received message #{messages_received}:", message)
+            messages_received += 1
+            # Process the request (for example, you could perform some computation here)
+            response = "Response from server"
 
-                # Send the response back to the client
-                alive_socket.send_string(response)
-          
-        print(f"sending 'SYNC' message in {delay}s...")
-        time.sleep(delay)
+            # Send the response back to the client
+            alive_socket.send_string(response)
 
-        meas_id = meas_id+1
-        sync_socket.send_string(f"{meas_id} {unique_id}")  # str(meas_id)
-        print(f"SYNC {meas_id}")
-            
-                # collect the data from the subscribers and the scope
-                # each rpi transmits 4 measurements per meas
-                # for _ in range(num_subscribers*4):
-                #     print("waiting for data...",end="")
-                #     data_str = data_socket.recv_string()
-                #     print("done.")
-                #     data = parse_data(data_str)
+    print(f"sending 'SYNC' message in {delay}s...")
+    time.sleep(delay)
 
-                #     row = [meas_id] + data
+    meas_id = meas_id+1
+    sync_socket.send_string(f"{meas_id} {unique_id}")  # str(meas_id)
+    print(f"SYNC {meas_id}")
 
-                #     print(row)
+    # collect the data from the subscribers and the scope
+    # each rpi transmits 4 measurements per meas
+    # for _ in range(num_subscribers*4):
+    #     print("waiting for data...",end="")
+    #     data_str = data_socket.recv_string()
+    #     print("done.")
+    #     data = parse_data(data_str)
 
-                #     csvwriter.writerow(row)
-                # file.flush()
+    #     row = [meas_id] + data
+
+    #     print(row)
+
+    #     csvwriter.writerow(row)
+    # file.flush()
 # except KeyboardInterrupt:
 #     print("Exiting...")
 #     sys.exit()

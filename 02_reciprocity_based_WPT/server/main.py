@@ -5,6 +5,7 @@
 # *** Includes ***
 from TechtileScope import Scope
 from Positioner import PositionerClient
+from TechtilePlotter.TechtilePlotter import TechtilePlotter
 
 import os 
 from yaml_utils import read_yaml_file
@@ -17,28 +18,31 @@ server_dir = os.path.dirname(os.path.abspath(__file__))
 config = read_yaml_file("config.yml")
 scope = Scope(config=config["scope"])
 positioner = PositionerClient(config=config["positioning"], backend="zmq")
+plt = TechtilePlotter(realtime=True)
 
 positioner.start()
 
 positions = []
 values = []
 
-try:
-    while True:
+script_started = time()
 
-        pos = positioner.get_data()
+try:
+    while True or time() - script_started > 1*60*60:
         power_dBm = scope.get_power_dBm()
+        pos = positioner.get_data()
 
         if pos is not None:
             print(power_dBm)
             positions.append(pos)
             print(pos)
             values.append(power_dBm)
+            plt.measurements_rt(pos.x, pos.y, pos.z, power_dBm)
         sleep(0.2)
 except KeyboardInterrupt:
-    print("Ctrl+C pressed. Exiting loop and saving...")
-
     positioner.stop()
-    np.save(arr=positions, file="positions-nobf-G19-dwars")
-
-    np.save(arr=values, file="values-nobf-G19-dwars")
+finally:
+    print("Ctrl+C pressed. Exiting loop and saving...")
+    meas_name = "bf-ceiling-grid-4"
+    np.save(arr=positions, file=f"positions-{meas_name}")
+    np.save(arr=values, file=f"values-{meas_name}")

@@ -6,7 +6,12 @@ import matplotlib.pyplot as pplt
 
 f, (ax0, ax1, ax2) = pplt.subplots(3, 1, sharex=True)
 
-to_plot = ["nobf", "bf", "nobf-G19"]
+to_plot = ["nobf", "bf-2", "bf-3", "nobf-G19", "nobf-3", "bf-4"]
+
+to_plot = ["bf-buis", "nobf-buis"]
+
+to_plot = ["nobf-3", "bf-4"]
+
 
 for tp in to_plot:
 
@@ -23,7 +28,7 @@ for tp in to_plot:
 
     ax0.scatter(positions_list.get_y_positions(), values, label=tp)
 
-    if tp == "bf":
+    if tp.startswith("bf"):
         bf_point = positions[0].y
         print(positions[0])
 
@@ -57,15 +62,15 @@ for tp in to_plot:
 
     ax1.scatter(unique_positions, unique_avg_values, label=tp)
 
-    if tp == "bf":
+    if tp.startswith("bf"):
         unique_positions_bf = np.asarray(unique_positions)
         unique_avg_values_bf = np.asarray(unique_avg_values)
-    if tp == "nobf":
+    if tp.startswith("nobf"):
         unique_positions_nobf = np.asarray(unique_positions)
         unique_avg_values_nobf = np.asarray(unique_avg_values)
-    if tp == "nobf-G19":
-        unique_positions_nobfG19 = np.asarray(unique_positions)
-        unique_avg_values_nobfG19 = np.asarray(unique_avg_values)
+    # if tp == "nobf-G19":
+    #     unique_positions_nobfG19 = np.asarray(unique_positions)
+    #     unique_avg_values_nobfG19 = np.asarray(unique_avg_values)
 
 
 xy, x_ind, y_ind = np.intersect1d(unique_positions_bf, unique_positions_nobf, assume_unique=True, return_indices=True)
@@ -76,17 +81,17 @@ gain = unique_avg_values_bf[x_ind] - unique_avg_values_nobf[y_ind]
 ax2.scatter(pos_gains, gain, label="gain wrt no BF")
 
 
-xy, x_ind, y_ind = np.intersect1d(
-    unique_positions_bf,
-    unique_positions_nobfG19,
-    assume_unique=True,
-    return_indices=True,
-)
+# xy, x_ind, y_ind = np.intersect1d(
+#     unique_positions_bf,
+#     unique_positions_nobfG19,
+#     assume_unique=True,
+#     return_indices=True,
+# )
 
-pos_gains = xy
-gain = unique_avg_values_bf[x_ind] - unique_avg_values_nobfG19[y_ind]
+# pos_gains = xy
+# gain = unique_avg_values_bf[x_ind] - unique_avg_values_nobfG19[y_ind]
 
-ax2.scatter(pos_gains, gain, label="gain wrt G19")
+# ax2.scatter(pos_gains, gain, label="gain wrt G19")
 
 # # average per position
 # (unique_positions_bf, unique_ids) = np.unique(
@@ -141,7 +146,7 @@ pplt.tight_layout()
 pplt.show()
 
 
-# plt = TechtilePlotter()
-# plt.measurements(positions_bf, values_bf)
-# # plt.antennas()
-# plt.show()
+plt = TechtilePlotter()
+plt.measurements(positions, values)
+# plt.antennas()
+plt.show()

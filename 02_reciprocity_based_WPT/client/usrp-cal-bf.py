@@ -605,7 +605,7 @@ def tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr, at_time, long_time=T
 
     if long_time:
 
-        time.sleep(2.0 * 60.0 * 60.0 + delta(usrp, at_time))
+        time.sleep(TX_TIME + delta(usrp, at_time))
     else:
         time.sleep(10.0 + delta(usrp, at_time))
 
