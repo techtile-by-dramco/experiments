@@ -271,6 +271,8 @@ def tune_usrp(usrp, freq, channels, at_time):
 
 
 def wait_till_go_from_server(ip, _connect=True):
+    if not _connect:
+        return
 
     global meas_id, file_open, data_file, file_name
     # Connect to the publisher's address
@@ -426,7 +428,7 @@ def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time=None):
     # amplitude[:,np.newaxis]
     NUM_SAMPLES_PER_BUFFER =1000 * max_samps_per_packet
     transmit_buffer = np.ones(
-        (num_channels, NUM_SQMPLES_PER_BUFFER), dtype=np.complex64
+        (num_channels, NUM_SAMPLES_PER_BUFFER), dtype=np.complex64
     )
 
     transmit_buffer[0, :] *= sample[0]
@@ -679,7 +681,7 @@ def main():
             "enable_user_regs, fpga=usrp_b210_fpga_loopback_ctrl.bin, mode_n=integer"
         )
         logger.info("Using Device: %s", usrp.get_pp_string())
-        tx_streamer, rx_streamer = setup(usrp, server_ip, connect=True)
+        tx_streamer, rx_streamer = setup(usrp, server_ip, connect=False)
         quit_event = threading.Event()
 
         # STEP 1: Compare loopback with Reference
