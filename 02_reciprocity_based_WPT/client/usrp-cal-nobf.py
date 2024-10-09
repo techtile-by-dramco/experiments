@@ -271,6 +271,8 @@ def tune_usrp(usrp, freq, channels, at_time):
 
 
 def wait_till_go_from_server(ip, _connect=True):
+    if not _connect:
+        return
 
     global meas_id, file_open, data_file, file_name
     # Connect to the publisher's address
@@ -288,9 +290,6 @@ def wait_till_go_from_server(ip, _connect=True):
     alive_socket.send_string("ALIVE")
     # Receives a string format message
     logger.debug("Waiting on SYNC from server %s.", ip)
-
-    if not _connect:
-        return
 
     meas_id, unique_id = sync_socket.recv_string().split(" ")
 
