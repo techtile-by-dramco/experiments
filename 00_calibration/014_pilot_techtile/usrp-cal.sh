@@ -11,4 +11,3 @@ python3 usrp-cal.py
 #   fi
 
 #   sleep 1 # give it some time
-# done
