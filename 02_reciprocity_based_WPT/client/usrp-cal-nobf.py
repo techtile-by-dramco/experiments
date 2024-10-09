@@ -424,8 +424,9 @@ def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time=None):
     # transmit_buffer = np.ones((num_channels, 1000*max_samps_per_packet), dtype=np.complex64) * sample[:, np.newaxis]
 
     # amplitude[:,np.newaxis]
+    NUM_SAMPLES_PER_BUFFER =1000 * max_samps_per_packet
     transmit_buffer = np.ones(
-        (num_channels, 1000 * max_samps_per_packet), dtype=np.complex64
+        (num_channels, NUM_SQMPLES_PER_BUFFER), dtype=np.complex64
     )
 
     transmit_buffer[0, :] *= sample[0]
@@ -447,10 +448,17 @@ def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time=None):
 
     tx_md.has_time_spec = True
 
+    NUM_SAMPLES_PER_SEC = RATE
+    NUM_SECS = np.ceil(NUM_SAMPLES_PER_BUFFER / NUM_SAMPLES_PER_SEC)
+
     try:
 
         while not quit_event.is_set():
-            transmit_buffer *= np.exp(1j * np.random.rand(1) * 2 * np.pi) # randomnly change phase
+            random_phases = np.repeat(np.exp(1j * np.random.rand(NUM_SECS) * 2 * np.pi), repeats=NUM_SAMPLES_PER_SEC)
+            random_phases = random_phases[:NUM_SAMPLES_PER_BUFFER]
+
+            transmit_buffer[0, :] *= random_phases
+            transmit_buffer[1, :] *= random_phases
             tx_streamer.send(transmit_buffer, tx_md)
 
     except KeyboardInterrupt:
