@@ -28,7 +28,7 @@ values = []
 script_started = time()
 
 try:
-    while True or time() - script_started > 1*60*60:
+    while True or time() - script_started > 8*60*60:
         power_dBm = scope.get_power_dBm()
         pos = positioner.get_data()
 
@@ -43,6 +43,6 @@ except KeyboardInterrupt:
     positioner.stop()
 finally:
     print("Ctrl+C pressed. Exiting loop and saving...")
-    meas_name = "bf-ceiling-grid-5"
-    np.save(arr=positions, file=f"positions-{meas_name}")
-    np.save(arr=values, file=f"values-{meas_name}")
+    meas_name = "bf-ceiling-grid-9"
+    np.save(arr=positions, file=f"../data/positions-{meas_name}")
+    np.save(arr=values, file=f"../data/values-{meas_name}")

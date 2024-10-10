@@ -4,17 +4,15 @@ from Positioner import PositionerValues
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 
-
-# to_plot = [
-#     "nobf-D07-ceiling",
-#     "nobf-ceiling",
-#     "bf-ceiling",
-#     "bf-ceiling-2",
-#     "bf-ceiling-3"]
-
-to_plot = ["bf-ceiling-bf-grid-8"]  # "bf-ceiling-grid",
+to_plot = [
+    "bf-ceiling-bf-grid-8",
+    "gausbf-ceiling-grid-pidiv8",
+    "gausbf-ceiling-grid-pidiv4",
+]  # "bf-ceiling-grid",
 
 log_heatmap = np.zeros(len(to_plot)).tolist()
+
+fig, axes = plt.subplots(1, len(to_plot), sharex=True, sharey=True)
 
 for i, tp in enumerate(to_plot):
 
@@ -30,7 +28,9 @@ for i, tp in enumerate(to_plot):
 
     positions_list = PositionerValues(positions)
 
-    grid_pos_ids, xi, yi = positions_list.group_in_grids(0.04, min_x=0, max_x=8, min_y=0, max_y=4)
+    grid_pos_ids, xi, yi = positions_list.group_in_grids(
+        0.03, min_x=2.50, max_x=4.00, min_y=1.00, max_y=2.5
+    )
 
     heatmap = np.zeros(shape=(len(yi), len(xi))) - 200
 
@@ -41,23 +41,26 @@ for i, tp in enumerate(to_plot):
                 x_bf = i_x
                 y_bf = i_y
 
-    fig, ax = plt.subplots()
-    plt.title(tp)
+    # fig, ax = plt.subplots()
+    # plt.title(tp)
     log_heatmap[i] = 10 * np.log10(heatmap)
-    p = ax.imshow(10 * np.log10(heatmap), vmin=-60,cmap="viridis")
-    ax.set_xticks(np.arange(len(xi)), labels=[f"{x:.2f}" for x in xi])
-    ax.set_yticks(np.arange(len(yi)), labels=[f"{y:.2f}" for y in yi])
-    ax.add_patch(Rectangle((y_bf-0.5, x_bf-0.5), 1, 1, fill=False, edgecolor="red", lw=3))
-    fig.colorbar(p)
-    fig.tight_layout()
-    plt.show()
 
+    _log_heatmap = 10 * np.log10(heatmap)
 
-fig, ax = plt.subplots()
-p = ax.imshow(log_heatmap[-1] - (log_heatmap[0]+10*np.log10(37)))
-ax.set_xticks(np.arange(len(xi)), labels=[f"{x:.2f}" for x in xi])
-ax.set_yticks(np.arange(len(yi)), labels=[f"{y:.2f}" for y in yi])
-ax.add_patch(Rectangle((y_bf-0.5, x_bf-0.5), 1, 1, fill=False, edgecolor="red", lw=3))
+    max_val = np.nanmax(_log_heatmap)
+
+    print(max_val)
+
+    no_power_spot_idx = _log_heatmap < max_val - 3
+
+    _log_heatmap[no_power_spot_idx] = np.nan
+
+    p = axes[i].imshow(_log_heatmap, vmin=-85, vmax=-40, cmap="viridis")
+    axes[i].set_xticks(np.arange(len(xi)), labels=[f"{x:.2f}" for x in xi])
+    axes[i].set_yticks(np.arange(len(yi)), labels=[f"{y:.2f}" for y in yi])
+    axes[i].add_patch(
+        Rectangle((y_bf - 0.5, x_bf - 0.5), 1, 1, fill=False, edgecolor="red", lw=3)
+    )
 fig.colorbar(p)
 fig.tight_layout()
 plt.show()

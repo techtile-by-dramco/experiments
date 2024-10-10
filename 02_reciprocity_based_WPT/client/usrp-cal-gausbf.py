@@ -417,7 +417,7 @@ def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time=None):
 
     phase = np.asarray(phase)
 
-    sample = amplitude * np.exp(phase * 1j) * np.exp(np.random.normal(loc=0, scale=np.pi/4) * 1j)
+    sample = amplitude * np.exp(phase * 1j) * np.exp(np.random.normal(loc=0, scale=np.pi/2) * 1j)
 
     # print(sample)
 

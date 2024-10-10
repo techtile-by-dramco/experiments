@@ -4,7 +4,7 @@ import time
 
 
 class ACRO():
-    def __init__(self, COMport='COM5'):
+    def __init__(self, COMport):
         # Establish serial connection
         self.ser = serial.Serial(COMport, baudrate=115200, timeout=1)  # Replace with the appropriate serial port
 
@@ -70,19 +70,24 @@ class ACRO():
         self.ser.close()
 
 if __name__ == '__main__':
-    ACRO = ACRO(COMport='COM5')
+    ACRO = ACRO(COMport='COM6')
     ACRO.home_ACRO()
 
-    x = np.arange(0, 100+1, 10) + 100
-    y = np.arange(0, 100+1, 10) + 100
+    ACRO.move_ACRO(600, 600, wait_idle=True)
+
+    input('Press to start moving')
+
+    x = np.arange(25, 1200, 300/100) + 25
+    y = np.arange(25, 1200, 300/100) + 25
 
     xx, yy = np.meshgrid(x, y)
+    xx[1::2] = xx[1::2,::-1] # flip the coordinates of x every other y to create a zig zag
     xx, yy = xx.ravel(), yy.ravel()
 
     for x, y in zip(xx, yy):
         ACRO.move_ACRO(x, y, wait_idle=True)
+        time.sleep(0.2)
         #TODO: Perform measurement
-
 
     # Return to origin
     ACRO.move_ACRO_to_origin()
