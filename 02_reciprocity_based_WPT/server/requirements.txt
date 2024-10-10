@@ -4,4 +4,5 @@ PyYAML
 pyzmq
 techtile_positioner @ git+https://github.com/techtile-by-dramco/positioner 
 techtile_plotter @ git+https://github.com/techtile-by-dramco/plotter
+techtile_scope @ git+https://github.com/techtile-by-dramco/scope
 pyserial
