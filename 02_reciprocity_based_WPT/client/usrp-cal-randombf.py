@@ -448,7 +448,7 @@ def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time=None):
     try:
 
         while not quit_event.is_set():
-            random_phases = np.repeat(np.exp(1j * np.random.rand(NUM_SECS) * 2 * np.pi), repeats=NUM_SAMPLES_PER_SEC)
+            random_phases = np.repeat(np.exp(1j * np.random.rand(int(NUM_SECS*100)) * 2 * np.pi), repeats=int(NUM_SAMPLES_PER_SEC/100.0))
             random_phases = random_phases[:NUM_SAMPLES_PER_BUFFER]
 
             transmit_buffer[0, :] *= random_phases
