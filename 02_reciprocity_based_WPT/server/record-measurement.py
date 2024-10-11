@@ -54,20 +54,20 @@ def wait_till_go_from_server(ip="10.128.52.53"):
 
     return meas_id, unique_id
 
-TIME_TO_MEAS_PER_EXP = 60*60*1.0 # 1 hour
+TIME_TO_MEAS_PER_EXP = 60*60*26.0 # 26 minutes
 
 try:
     while True:
         meas_id, unique_id = wait_till_go_from_server()
-        time.sleep(50) # wake-up 10 seconds before rover starts to move
+        sleep(50) # wake-up 10 seconds before rover starts to move
 
         # start to measure for XX long
-        start = time.time()
+        start = time()
 
         positions = []
         values = []
 
-        while time.time()-start < TIME_TO_MEAS_PER_EXP:
+        while time()-start < TIME_TO_MEAS_PER_EXP:
 
             power_dBm = scope.get_power_dBm()
             pos = positioner.get_data()
