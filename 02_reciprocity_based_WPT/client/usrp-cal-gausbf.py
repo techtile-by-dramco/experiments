@@ -747,9 +747,6 @@ def main():
         logger.debug("Sending signal to stop!")
         logger.error(e)
         quit_event.set()
-    finally:
-        time.sleep(1)  # give it some time to close
-        sys.exit(0)
 
 
 if __name__ == "__main__":
