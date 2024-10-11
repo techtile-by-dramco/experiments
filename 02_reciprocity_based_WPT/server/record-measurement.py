@@ -19,7 +19,7 @@ server_dir = os.path.dirname(os.path.abspath(__file__))
 config = read_yaml_file("config.yml")
 scope = Scope(config=config["scope"])
 positioner = PositionerClient(config=config["positioning"], backend="zmq")
-plt = TechtilePlotter(realtime=True)
+
 
 positioner.start()
 
@@ -54,10 +54,11 @@ def wait_till_go_from_server(ip="10.128.52.53"):
 
     return meas_id, unique_id
 
-TIME_TO_MEAS_PER_EXP = 60*60*26.0 # 26 minutes
+TIME_TO_MEAS_PER_EXP = 60*24.0 # 26 minutes
 
 try:
     while True:
+        plt = TechtilePlotter(realtime=True)
         meas_id, unique_id = wait_till_go_from_server()
         sleep(50) # wake-up 10 seconds before rover starts to move
 
