@@ -362,7 +362,7 @@ def wait_till_go_from_server(ip, _connect=True):
     sync_socket.subscribe("")
 
     logger.debug("Sending ALIVE")
-    alive_socket.send_string("ALIVE")
+    alive_socket.send_string("PILOT")
     # Receives a string format message
     logger.debug("Waiting on SYNC from server %s.", ip)
 
