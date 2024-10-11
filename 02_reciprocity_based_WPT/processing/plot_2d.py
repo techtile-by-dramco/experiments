@@ -12,7 +12,7 @@ from matplotlib.patches import Rectangle
 #     "bf-ceiling-2",
 #     "bf-ceiling-3"]
 
-to_plot = ["bf-ceiling-bf-grid-8"]  # "bf-ceiling-grid",
+to_plot = ["bf-ceiling-sinlge-point-1"]  # "bf-ceiling-grid",
 
 log_heatmap = np.zeros(len(to_plot)).tolist()
 
@@ -30,8 +30,9 @@ for i, tp in enumerate(to_plot):
 
     positions_list = PositionerValues(positions)
 
-    grid_pos_ids, xi, yi = positions_list.group_in_grids(0.04, min_x=0, max_x=8, min_y=0, max_y=4)
-
+    grid_pos_ids, xi, yi = positions_list.group_in_grids(
+        0.1, min_x=2.50, max_x=4.00, min_y=1.00, max_y=2.5
+    )
     heatmap = np.zeros(shape=(len(yi), len(xi))) - 200
 
     for i_x, grid_along_y in enumerate(grid_pos_ids):

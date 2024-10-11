@@ -43,6 +43,6 @@ except KeyboardInterrupt:
     positioner.stop()
 finally:
     print("Ctrl+C pressed. Exiting loop and saving...")
-    meas_name = "bf-ceiling-grid-9"
+    meas_name = "bf-ceiling-grid-10s-1"
     np.save(arr=positions, file=f"../data/positions-{meas_name}")
     np.save(arr=values, file=f"../data/values-{meas_name}")
