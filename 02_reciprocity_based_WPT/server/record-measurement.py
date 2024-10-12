@@ -54,7 +54,7 @@ def wait_till_go_from_server(ip="10.128.52.53"):
 
     return meas_id, unique_id
 
-TIME_TO_MEAS_PER_EXP = 60*24.0 # 26 minutes
+TIME_TO_MEAS_PER_EXP = 60*24.0 # 24 minutes
 
 try:
     while True:
