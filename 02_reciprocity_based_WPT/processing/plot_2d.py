@@ -12,9 +12,11 @@ from matplotlib.patches import Rectangle
 #     "bf-ceiling-2",
 #     "bf-ceiling-3"]
 
-to_plot = ["bf-ceiling-sinlge-point-1"]  # "bf-ceiling-grid",
+to_plot = ["gausbf-ceiling-grid-3-20241011145344"]  # "bf-ceiling-grid",
 
 log_heatmap = np.zeros(len(to_plot)).tolist()
+
+wavelen = 3e8 / 920e6
 
 for i, tp in enumerate(to_plot):
 
@@ -23,15 +25,15 @@ for i, tp in enumerate(to_plot):
 
     print(f"Processing {len(positions)} samples")
 
-    valid_values_idx = values>-90
+    # valid_values_idx = values>-90
 
-    positions = positions[valid_values_idx]
-    values = values[valid_values_idx]
+    # positions = positions[valid_values_idx]
+    # values = values[valid_values_idx]
 
     positions_list = PositionerValues(positions)
 
     grid_pos_ids, xi, yi = positions_list.group_in_grids(
-        0.1, min_x=2.50, max_x=4.00, min_y=1.00, max_y=2.5
+        0.05, min_x=2.6, max_x=3.9, min_y=1.20, max_y=2.45
     )
     heatmap = np.zeros(shape=(len(yi), len(xi))) - 200
 
@@ -46,19 +48,19 @@ for i, tp in enumerate(to_plot):
     plt.title(tp)
     log_heatmap[i] = 10 * np.log10(heatmap)
     p = ax.imshow(10 * np.log10(heatmap), vmin=-60,cmap="viridis")
-    ax.set_xticks(np.arange(len(xi)), labels=[f"{x:.2f}" for x in xi])
-    ax.set_yticks(np.arange(len(yi)), labels=[f"{y:.2f}" for y in yi])
+    ax.set_xticks(np.arange(len(xi)), labels=[f"{(x-xi[0])/wavelen:.2f}" for x in xi])
+    ax.set_yticks(np.arange(len(yi)), labels=[f"{(y-yi[0])/wavelen:.2f}" for y in yi])
     ax.add_patch(Rectangle((y_bf-0.5, x_bf-0.5), 1, 1, fill=False, edgecolor="red", lw=3))
     fig.colorbar(p)
     fig.tight_layout()
     plt.show()
 
 
-fig, ax = plt.subplots()
-p = ax.imshow(log_heatmap[-1] - (log_heatmap[0]+10*np.log10(37)))
-ax.set_xticks(np.arange(len(xi)), labels=[f"{x:.2f}" for x in xi])
-ax.set_yticks(np.arange(len(yi)), labels=[f"{y:.2f}" for y in yi])
-ax.add_patch(Rectangle((y_bf-0.5, x_bf-0.5), 1, 1, fill=False, edgecolor="red", lw=3))
-fig.colorbar(p)
-fig.tight_layout()
-plt.show()
+# fig, ax = plt.subplots()
+# p = ax.imshow(log_heatmap[-1] - (log_heatmap[0]+10*np.log10(37)))
+# ax.set_xticks(np.arange(len(xi)), labels=[f"{(x-xi[0])/wavelen:.2f}" for x in xi])
+# ax.set_yticks(np.arange(len(yi)), labels=[f"{(y-yi[0])/wavelen:.2f}" for y in yi])
+# ax.add_patch(Rectangle((y_bf-0.5, x_bf-0.5), 1, 1, fill=False, edgecolor="red", lw=3))
+# fig.colorbar(p)
+# fig.tight_layout()
+# plt.show()

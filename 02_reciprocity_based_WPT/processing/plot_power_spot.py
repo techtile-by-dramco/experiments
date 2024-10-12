@@ -3,6 +3,7 @@ import numpy as np
 from Positioner import PositionerValues
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
+from scipy.ndimage import zoom
 
 
 # to_plot = [
@@ -30,15 +31,10 @@ for i, tp in enumerate(to_plot):
 
     print(f"Processing {len(positions)} samples")
 
-    valid_values_idx = values > -90
-
-    positions = positions[valid_values_idx]
-    values = values[valid_values_idx]
-
     positions_list = PositionerValues(positions)
 
     grid_pos_ids, xi, yi = positions_list.group_in_grids(
-        0.03, min_x=2.50, max_x=4.00, min_y=1.00, max_y=2.5
+        0.05, min_x=2.6, max_x=3.8, min_y=1.20, max_y=2.35
     )
 
     if heatmap is None:
@@ -53,18 +49,35 @@ for i, tp in enumerate(to_plot):
                 x_bf = i_x
                 y_bf = i_y
 
-log_heatmap = np.zeros(shape=(len(heatmap), len(heatmap[0])))
-for ix in range(len(log_heatmap)):
-    for iy in range(len(log_heatmap[0])):
-        log_heatmap[ix, iy] = 10 * np.log10(np.mean(heatmap[ix][iy]))
+avg_heatmap = np.zeros(shape=(len(heatmap), len(heatmap[0])))
+for ix in range(len(avg_heatmap)):
+    for iy in range(len(avg_heatmap[0])):
+        avg_heatmap[ix, iy] = np.mean(heatmap[ix][iy])
 # heatmap = heatmap / len(to_plot)
-fig, ax = plt.subplots()
-p = ax.imshow(log_heatmap, cmap="viridis")
-ax.set_xticks(np.arange(len(xi)), labels=[f"{x:.2f}" for x in xi])
-ax.set_yticks(np.arange(len(yi)), labels=[f"{y:.2f}" for y in yi])
-ax.add_patch(
+
+log_heatmap = 10 * np.log10(avg_heatmap)
+fig, axes = plt.subplots(2)
+p = axes[0].imshow(log_heatmap, cmap="viridis")
+axes[0].set_xticks(np.arange(len(xi)), labels=[f"{x:.2f}" for x in xi])
+axes[0].set_yticks(np.arange(len(yi)), labels=[f"{y:.2f}" for y in yi])
+axes[0].add_patch(
     Rectangle((y_bf - 0.5, x_bf - 0.5), 1, 1, fill=False, edgecolor="red", lw=3)
 )
-fig.colorbar(p)
+
+
+fig.colorbar(p, ax=axes[0])
+
+# Perform bilinear interpolation to upscale by a factor of 2
+upsampled_image = zoom(
+    avg_heatmap, zoom=1000, order=1
+)  # order=1 for bilinear interpolation
+
+# Plot the upsampled image
+p = axes[1].imshow(10*np.log10(upsampled_image), vmin=-60, interpolation="nearest")
+axes[1].set_xticks([])
+axes[1].set_yticks([])
+
+fig.colorbar(p, ax=axes[1])
+
 fig.tight_layout()
 plt.show()

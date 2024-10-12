@@ -4,7 +4,7 @@ from Positioner import PositionerValues
 import matplotlib.pyplot as pplt
 
 
-to_plot = ["bf-jarne"]
+to_plot = ["bf", "bf-dwars"]
 plt = TechtilePlotter()
 
 for tp in to_plot:
@@ -13,6 +13,5 @@ for tp in to_plot:
     values = np.load(f"values-{tp}.npy", allow_pickle=True)
 
     plt.measurements(positions, values)
-    plt.add_ref(positions[0], values[0])
 
 plt.show()
