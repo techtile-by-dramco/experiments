@@ -54,7 +54,7 @@ def wait_till_go_from_server(ip="10.128.52.53"):
 
     return meas_id, unique_id
 
-TIME_TO_MEAS_PER_EXP = 60*24.0 # 24 minutes
+TIME_TO_MEAS_PER_EXP = 60*24.0*4.0 # 24 *4.0 minutes
 
 try:
     while True:
@@ -80,9 +80,12 @@ try:
                 values.append(power_dBm)
                 plt.measurements_rt(pos.x, pos.y, pos.z, power_dBm)
             sleep(0.2)
-        meas_name = f"gausbf-ceiling-grid-{meas_id}-{unique_id}"
+        meas_name = f"bf-ceiling-grid-{meas_id}-{unique_id}"
         np.save(arr=positions, file=f"../data/positions-{meas_name}")
         np.save(arr=values, file=f"../data/values-{meas_name}")    
 finally:
     print("Ctrl+C pressed. Exiting loop and saving...")
+    meas_name = f"bf-ceiling-grid-{meas_id}-{unique_id}"
+    np.save(arr=positions, file=f"../data/positions-{meas_name}")
+    np.save(arr=values, file=f"../data/values-{meas_name}") 
     positioner.stop()
