@@ -31,9 +31,11 @@ print(f"{len(filenames)} files found.")
 
 BF_heatmap = None
 positions = np.load(
-    f"../data/positions-bf-ceiling-grid-9.npy", allow_pickle=True
+    f"../data/positions-bf-ceiling-grid-merged-20241013074614.npy", allow_pickle=True
 )
-values = np.load(f"../data/values-bf-ceiling-grid-9.npy", allow_pickle=True)
+values = np.load(
+    f"../data/values-bf-ceiling-grid-merged-20241013074614.npy", allow_pickle=True
+)
 positions_list = PositionerValues(positions)
 grid_pos_ids, xi, yi = positions_list.group_in_grids(0.3/4.0, min_x=2.6, max_x=3.8, min_y=1.3, max_y=2.5)
 
@@ -123,4 +125,3 @@ ani = FuncAnimation(fig, update, frames=len(heatmaps), blit=True)
 # Save the animation as MP4 with the relative path to ffmpeg
 writer = animation.FFMpegWriter(fps=1, metadata=dict(artist="Gilles Callebaut"))
 ani.save("animation_gausbf_gain.mp4", writer=writer)
-

@@ -22,6 +22,11 @@ to_plot = [
     # "bf-ceiling-grid-9",
     "bf-ceiling-grid-2-20241012210548",
     "bf-ceiling-grid-3-20241012210548",
+    "bf-ceiling-grid-4-20241013074614",
+    "bf-ceiling-grid-5-20241013074614",
+    "bf-ceiling-grid-6-20241013074614",
+    "bf-ceiling-grid-7-20241013074614",
+    "bf-ceiling-grid-8-20241013074614",
 ]
 
 # to_plot = ["bf-ceiling-grid-2-20241012210548"]  # "bf-ceiling-grid",
@@ -83,3 +88,7 @@ ax.set_yticks(
 fig.colorbar(p)
 fig.tight_layout()
 plt.show()
+
+np.save("../data/positions-bf-ceiling-grid-merged-20241013074614", all_positions)
+
+np.save("../data/values-bf-ceiling-grid-merged-20241013074614", all_values)

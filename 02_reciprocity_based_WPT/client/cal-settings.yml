@@ -13,6 +13,6 @@ MIN_PLL_VAR: !!float 0.0001
 
 
 CAPTURE_TIME: !!float 5
-TX_TIME: !!float 6720 # 28*4 minutes
+TX_TIME: !!float 1200
 
 server_ip: "10.128.52.53"
