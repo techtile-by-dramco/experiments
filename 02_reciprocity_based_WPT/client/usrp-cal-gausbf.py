@@ -423,7 +423,7 @@ def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time=None):
     sample = (
         amplitude
         * np.exp(phase * 1j)
-        * np.exp(np.random.normal(loc=0, scale=np.pi / std_gaus) * 1j)
+        * np.exp(np.random.normal(loc=0, scale=std_gaus * np.pi / 180.0) * 1j)
     )
 
     # print(sample)
