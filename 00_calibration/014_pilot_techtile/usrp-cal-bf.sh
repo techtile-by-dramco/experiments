@@ -1,4 +1,5 @@
 #!/bin/bash
+
 git pull
 
 python3 usrp-cal.py
