@@ -60,7 +60,7 @@ while True:
         socks = dict(poller.poll(1000))  # Poll with a timeout of 100 ms
         if alive_socket in socks and socks[alive_socket] == zmq.POLLIN:
             message = alive_socket.recv_string()
-            print("Received message:", message)
+            print(f"{message} ({messages_received}/{num_subscribers})")
             messages_received += 1
             # Process the request (for example, you could perform some computation here)
             response = "Response from server"

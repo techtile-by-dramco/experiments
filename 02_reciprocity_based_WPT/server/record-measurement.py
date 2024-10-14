@@ -55,13 +55,15 @@ def wait_till_go_from_server(ip="10.128.52.53"):
     return meas_id, unique_id
 
 
-TIME_TO_MEAS_PER_EXP = 50.0 # 18 minutes
+TIME_TO_MEAS_PER_EXP = 30.0
+
+counter = 0
 
 try:
     while True:
         plt = TechtilePlotter(realtime=True)
         meas_id, unique_id = wait_till_go_from_server()
-        sleep(2)  # wake-up 10 seconds before rover starts to move
+        sleep(30.0)  # wake-up 10 seconds before rover starts to move
 
         # start to measure for XX long
         start = time()
@@ -80,8 +82,9 @@ try:
                 print(pos)
                 values.append(power_dBm)
                 plt.measurements_rt(pos.x, pos.y, pos.z, power_dBm)
-            sleep(0.2)
-        meas_name = f"gausbf-ceiling-grid-{meas_id}-{unique_id}-pidiv6"
+            sleep(0.1)
+        counter+= 1
+        meas_name = f"gausbf-ceiling-grid-{meas_id}-{unique_id}-{counter}"
         np.save(arr=positions, file=f"../data/positions-{meas_name}")
         np.save(arr=values, file=f"../data/values-{meas_name}")
 finally:
