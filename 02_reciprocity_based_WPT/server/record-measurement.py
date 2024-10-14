@@ -55,13 +55,13 @@ def wait_till_go_from_server(ip="10.128.52.53"):
     return meas_id, unique_id
 
 
-TIME_TO_MEAS_PER_EXP = 19.0 * 60.0 # 18 minutes
+TIME_TO_MEAS_PER_EXP = 50.0 # 18 minutes
 
 try:
     while True:
         plt = TechtilePlotter(realtime=True)
         meas_id, unique_id = wait_till_go_from_server()
-        sleep(50)  # wake-up 10 seconds before rover starts to move
+        sleep(2)  # wake-up 10 seconds before rover starts to move
 
         # start to measure for XX long
         start = time()
