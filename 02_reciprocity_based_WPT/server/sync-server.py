@@ -62,11 +62,7 @@ while True:
     while messages_received < num_subscribers:
         socks = dict(poller.poll(1000))  # Poll with a timeout of 100 ms
         if messages_received > 2 and time.time() - new_msg_received > WAIT_TIMEOUT:
-            print("time out reach, sending sync despite not having received it for all subscribers")
-            response = "Response from server"
-
-            # Send the response back to the client
-            alive_socket.send_string(response)
+            break
 
         if alive_socket in socks and socks[alive_socket] == zmq.POLLIN:
             new_msg_received = time.time()
