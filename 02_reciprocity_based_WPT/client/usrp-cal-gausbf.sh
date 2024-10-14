@@ -4,8 +4,8 @@ git pull
 # Initialize variables
 phase=0
 counter=0
-std=0.5
-max_std=180        # 1 degree
+std=0
+max_std=181        # 1 degrees
 
 while true; do
   echo "Start with  $std and counter: $counter"
@@ -20,7 +20,7 @@ while true; do
 
   # Every 10 iterations, increment std by 0.1
   if [ $((counter % 10)) -eq 0 ]; then
-    std=$std + 2
+    std=$std + 1
     # Ensure std doesn't exceed 2*pi
     if ($std >= $max_std); then
       echo "std reached the min value of one degree"
