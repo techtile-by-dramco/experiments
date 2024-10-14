@@ -23,8 +23,9 @@ while true; do
     std=$std + 1
     # Ensure std doesn't exceed 2*pi
     if ($std >= $max_std); then
-      echo "std reached the min value of one degree"
-      exit 0
+      echo "std reached the min value of one degree, restarting"
+      # restarting
+      std=0
     fi
   fi
 
