@@ -26,7 +26,7 @@ max_std=180        # 1 degree
 
 while true; do
   echo "Start with  $std and counter: $counter"
-  python3 usrp-cal-gausbf.py --std $std --adaptive True
+  python3 usrp-cal-gausbf.py --std $std --adaptive
   if [ $? -ne 0 ]; then
     echo "your script encountered an error."
     # Optionally, you can add a break or continue statement here to handle errors
