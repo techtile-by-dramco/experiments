@@ -654,7 +654,7 @@ def parse_arguments():
     # parser.add_argument("--gain", type=int, nargs="+", help="gain_db", required=True)
 
     parser.add_argument("--std", type=float, help="STD phase", required=True)
-    parser.add_argument("--adaptive", type=bool, help="change phase adaptively", action="store_true")
+    parser.add_argument("--adaptive", help="change phase adaptively", action="store_true")
 
     # # Parse the arguments
     args = parser.parse_args()
