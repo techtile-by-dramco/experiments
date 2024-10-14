@@ -28,6 +28,9 @@ meas_id = 0
 exp_id = 0
 results = []
 
+adaptive_gaus = False
+std_gaus = 0
+
 SWITCH_LOOPBACK_MODE = 0x00000006 # which is 110
 SWITCH_RESET_MODE = 0x00000000
 
@@ -417,7 +420,11 @@ def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time=None):
 
     phase = np.asarray(phase)
 
-    sample = amplitude * np.exp(phase * 1j) * np.exp(np.random.normal(loc=0, scale=np.pi/6) * 1j)
+    sample = (
+        amplitude
+        * np.exp(phase * 1j)
+        * np.exp(np.random.normal(loc=0, scale=np.pi / std_gaus) * 1j)
+    )
 
     # print(sample)
 
@@ -450,6 +457,19 @@ def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time=None):
     try:
 
         while not quit_event.is_set():
+            if adaptive_gaus:
+                sample = (
+                    amplitude
+                    * np.exp(phase * 1j)
+                    * np.exp(np.random.normal(loc=0, scale=np.pi / std_gaus) * 1j)
+                )
+
+                transmit_buffer = np.ones(
+                    (num_channels, 1000 * max_samps_per_packet), dtype=np.complex64
+                )
+
+                transmit_buffer[0, :] *= sample[0]
+                transmit_buffer[1, :] *= sample[0]
             tx_streamer.send(transmit_buffer, tx_md)
 
     except KeyboardInterrupt:
@@ -623,37 +643,39 @@ def tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr, at_time, long_time=T
 def parse_arguments():
     import argparse
 
-    global meas_id, gains_bash, exp_id
+    global std_gaus, adaptive_gaus
 
     # Create the parser
     parser = argparse.ArgumentParser(description="Transmit with phase difference.")
 
-    # Add the --phase argument
-    parser.add_argument("--meas", type=int, help="measurement ID", required=True)
+    # # Add the --phase argument
+    # parser.add_argument("--meas", type=int, help="measurement ID", required=True)
 
-    parser.add_argument("--gain", type=int, nargs="+", help="gain_db", required=True)
+    # parser.add_argument("--gain", type=int, nargs="+", help="gain_db", required=True)
 
-    parser.add_argument("--exp", type=str, help="exp ID", required=True)
+    parser.add_argument("--std", type=float, help="STD phase", required=True)
+    parser.add_argument("--adaptive", type=bool, help="change phase adaptively", action="store_true")
 
-    # Parse the arguments
+    # # Parse the arguments
     args = parser.parse_args()
 
-    # Set the global variable tx_phase to the value of --phase
-    meas_id = args.meas
+    # # Set the global variable tx_phase to the value of --phase
+    # meas_id = args.meas
 
-    # Access the gain values
-    gains = args.gain
+    # # Access the gain values
+    # gains = args.gain
 
-    # Handle cases where either one or two gain values are provided
-    if len(gains) == 1:
-        gains_bash = [gains[0], gains[0]]
-    elif len(gains) == 2:
-        gains_bash = gains
-        print(f"Gain 1: {gains_bash[0]}, Gain 2: {gains_bash[1]}")
-    else:
-        print("Error: Too many gain values provided.")
+    # # Handle cases where either one or two gain values are provided
+    # if len(gains) == 1:
+    #     gains_bash = [gains[0], gains[0]]
+    # elif len(gains) == 2:
+    #     gains_bash = gains
+    #     print(f"Gain 1: {gains_bash[0]}, Gain 2: {gains_bash[1]}")
+    # else:
+    #     print("Error: Too many gain values provided.")
 
-    exp_id = args.exp
+    std_gaus = args.std
+    adaptive_gaus = args.adaptive
 
 
 def main():
@@ -661,7 +683,7 @@ def main():
 
     # unique_id = datetime.utcnow().strftime("%Y%m%d%H%M%S")
 
-    # # parse_arguments()
+    parse_arguments()
 
     # file_name = f"data_{HOSTNAME}_{unique_id}"
 
