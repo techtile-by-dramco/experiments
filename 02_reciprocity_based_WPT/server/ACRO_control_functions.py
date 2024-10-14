@@ -86,8 +86,8 @@ def wait_till_go_from_server():
 
     alive_socket = context.socket(zmq.REQ)
 
-    sync_socket.connect(f"tcp://{"10.128.52.53"}:{5557}")
-    alive_socket.connect(f"tcp://{"10.128.52.53"}:{5558}")
+    sync_socket.connect(f"tcp://10.128.52.53:{5557}")
+    alive_socket.connect(f"tcp://10.128.52.53:{5558}")
     # Subscribe to topics
     sync_socket.subscribe("")
 
@@ -110,10 +110,8 @@ if __name__ == "__main__":
 
     ACRO.move_ACRO(600 + 80, 600 - 40, wait_idle=True)
 
-    input("Press to start moving")
-
-    x = np.arange(0, 1200, 300 / 8) + 10  # np.arange(25, 1200, 300/100) + 25
-    y = np.arange(0, 1200, 300 / 8) + 10
+    x = np.arange(0, 1250, 300 / 4) + 10  # np.arange(25, 1200, 300/100) + 25
+    y = np.arange(0, 1250, 300 / 4) + 10
 
     xx, yy = np.meshgrid(x, y)
     xx[1::2] = xx[
@@ -122,13 +120,17 @@ if __name__ == "__main__":
     xx, yy = xx.ravel(), yy.ravel()
 
     while True:
+
+        ACRO.move_ACRO(600 + 80, 600 - 40, wait_idle=True)
         wait_till_go_from_server()
-        time.sleep(60) # be sure that calibration is done
+        time.sleep(60)  # be sure that calibration is done
+
         for x, y in zip(xx, yy):
             ACRO.move_ACRO(x, y, wait_idle=True)
             time.sleep(0.1)
-        
-        
+
+        xx = xx[::-1]  # alternate between starting at the beginning and end
+        yy = yy[::-1]  # alternate between starting at the beginning and end
 
     # Return to origin
     ACRO.move_ACRO_to_origin()
