@@ -50,15 +50,26 @@ script_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)))
 poller = zmq.Poller()
 poller.register(alive_socket, zmq.POLLIN)
 
+new_msg_received = 0
+WAIT_TIMEOUT = 60.0
 
 print(f"Starting experiment: {unique_id}")
 while True:
     # Wait for specified number of subscribers to send a message
     print(f"Waiting for {num_subscribers} subscribers to send a message...")
     messages_received = 0
+    start_processing = None
     while messages_received < num_subscribers:
         socks = dict(poller.poll(1000))  # Poll with a timeout of 100 ms
+        if messages_received > 2 and time.time() - new_msg_received > WAIT_TIMEOUT:
+            print("time out reach, sending sync despite not having received it for all subscribers")
+            response = "Response from server"
+
+            # Send the response back to the client
+            alive_socket.send_string(response)
+
         if alive_socket in socks and socks[alive_socket] == zmq.POLLIN:
+            new_msg_received = time.time()
             message = alive_socket.recv_string()
             messages_received += 1
             print(f"{message} ({messages_received}/{num_subscribers})")
