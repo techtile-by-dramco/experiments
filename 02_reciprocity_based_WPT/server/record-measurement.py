@@ -7,7 +7,7 @@ from TechtileScope import Scope
 from Positioner import PositionerClient
 from TechtilePlotter.TechtilePlotter import TechtilePlotter
 
-import os 
+import os
 from yaml_utils import read_yaml_file
 from time import sleep, time
 import numpy as np
@@ -54,13 +54,14 @@ def wait_till_go_from_server(ip="10.128.52.53"):
 
     return meas_id, unique_id
 
-TIME_TO_MEAS_PER_EXP = 60*24.0*4.0 # 24 *4.0 minutes
+
+TIME_TO_MEAS_PER_EXP = 19.0 * 60.0 # 18 minutes
 
 try:
     while True:
         plt = TechtilePlotter(realtime=True)
         meas_id, unique_id = wait_till_go_from_server()
-        sleep(50) # wake-up 10 seconds before rover starts to move
+        sleep(50)  # wake-up 10 seconds before rover starts to move
 
         # start to measure for XX long
         start = time()
@@ -68,7 +69,7 @@ try:
         positions = []
         values = []
 
-        while time()-start < TIME_TO_MEAS_PER_EXP:
+        while time() - start < TIME_TO_MEAS_PER_EXP:
 
             power_dBm = scope.get_power_dBm()
             pos = positioner.get_data()
@@ -80,12 +81,12 @@ try:
                 values.append(power_dBm)
                 plt.measurements_rt(pos.x, pos.y, pos.z, power_dBm)
             sleep(0.2)
-        meas_name = f"bf-ceiling-grid-{meas_id}-{unique_id}"
+        meas_name = f"gausbf-ceiling-grid-{meas_id}-{unique_id}-pidiv6"
         np.save(arr=positions, file=f"../data/positions-{meas_name}")
-        np.save(arr=values, file=f"../data/values-{meas_name}")    
+        np.save(arr=values, file=f"../data/values-{meas_name}")
 finally:
     print("Ctrl+C pressed. Exiting loop and saving...")
-    meas_name = f"bf-ceiling-grid-{meas_id}-{unique_id}"
+    meas_name = f"gausbf-ceiling-grid-{meas_id}-{unique_id}-pidiv6"
     np.save(arr=positions, file=f"../data/positions-{meas_name}")
-    np.save(arr=values, file=f"../data/values-{meas_name}") 
+    np.save(arr=values, file=f"../data/values-{meas_name}")
     positioner.stop()
