@@ -8,7 +8,7 @@ std=0
 max_std=180        # 1 degrees
 
 while true; do
-  echo "Start with  $std and counter: $counter"
+  echo "Start with $std and counter: $counter"
   python3 usrp-cal-gausbf.py --std $std --adaptive
   if [ $? -ne 0 ]; then
     echo "your script encountered an error."
@@ -20,7 +20,7 @@ while true; do
 
   # Every 10 iterations, increment std by 0.1
   if [ $((counter % 1)) -eq 0 ]; then
-    std=$std + 5
+    std=$(std+5)
     # Ensure std doesn't exceed 2*pi
     if ($std > $max_std); then
       echo "std reached the min value of one degree, restarting"
