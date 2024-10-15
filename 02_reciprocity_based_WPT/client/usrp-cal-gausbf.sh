@@ -20,7 +20,7 @@ while true; do
 
   # Every 10 iterations, increment std by 0.1
   if [ $((counter % 1)) -eq 0 ]; then
-    std=$(std+5)
+    std=$((std+5))
     # Ensure std doesn't exceed 2*pi
     if ($std > $max_std); then
       echo "std reached the min value of one degree, restarting"
