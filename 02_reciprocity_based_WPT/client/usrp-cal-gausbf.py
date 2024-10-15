@@ -622,6 +622,7 @@ def tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr, at_time, long_time=T
         amplitude=amplitudes,
         phase=phases,
         start_time=start_time,
+        loopback=False
     )
 
     tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)
