@@ -412,6 +412,7 @@ def tx_thread(
 
 
 def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, loopback, start_time=None):
+    global std_gaus
     num_channels = tx_streamer.get_num_channels()
 
     max_samps_per_packet = tx_streamer.get_max_num_samps()
@@ -426,7 +427,11 @@ def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, loopback, start_time
     )
 
     if not loopback:
-        sample *= np.exp(np.random.normal(loc=0, scale=std_gaus * np.pi / 180.0) * 1j)
+        logger.debug(f"starting with gaus value {std_gaus}")
+        sample[0] *= np.exp(np.random.normal(loc=0, scale=std_gaus * np.pi / 180.0) * 1j)
+        sample[1] *= np.exp(
+            np.random.normal(loc=0, scale=std_gaus * np.pi / 180.0) * 1j
+        )
 
     # print(sample)
 
@@ -460,10 +465,10 @@ def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, loopback, start_time
 
         while not quit_event.is_set():
             if adaptive_gaus and not loopback:
-                sample = (
-                    amplitude
-                    * np.exp(phase * 1j)
-                    * np.exp(np.random.normal(loc=0, scale=std_gaus * np.pi / 180.0) * 1j)
+                sample = amplitude * np.exp(phase * 1j)
+                sample[0] *= np.exp(np.random.normal(loc=0, scale=std_gaus * np.pi / 180.0) * 1j)
+                sample[1] *= np.exp(
+                    np.random.normal(loc=0, scale=std_gaus * np.pi / 180.0) * 1j
                 )
 
                 transmit_buffer = np.ones(
@@ -471,7 +476,7 @@ def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, loopback, start_time
                 )
 
                 transmit_buffer[0, :] *= sample[0]
-                transmit_buffer[1, :] *= sample[0]
+                transmit_buffer[1, :] *= sample[1]
             tx_streamer.send(transmit_buffer, tx_md)
 
     except KeyboardInterrupt:
