@@ -662,7 +662,7 @@ def parse_arguments():
 
     # parser.add_argument("--gain", type=int, nargs="+", help="gain_db", required=True)
 
-    parser.add_argument("--std", type=float, help="STD phase", required=True)
+    parser.add_argument("--std", type=float, help="std phase", required=True)
     parser.add_argument("--adaptive", help="change phase adaptively", action="store_true")
 
     # # Parse the arguments
@@ -684,7 +684,9 @@ def parse_arguments():
     #     print("Error: Too many gain values provided.")
 
     std_gaus = args.std
+
     adaptive_gaus = args.adaptive
+    print(f"Adaptive Gauss {adaptive_gaus} with std: {std_gaus}")
 
 
 def main():
