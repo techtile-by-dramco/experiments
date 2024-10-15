@@ -686,7 +686,7 @@ def parse_arguments():
     std_gaus = args.std
 
     adaptive_gaus = args.adaptive
-    print(f"Adaptive Gauss {adaptive_gaus} with std: {std_gaus}")
+    logger.debug(f"Adaptive Gauss {adaptive_gaus} with std: {std_gaus}")
 
 
 def main():
