@@ -15,11 +15,10 @@ from matplotlib.patches import Rectangle
 
 to_plot = [
     "randombf-ceiling-grid-2",
-    "bf-ceiling-grid-7",
+    "bf-ceiling-grid-merged-20241013074614",
     "nobf-ceiling-E08-grid-1",
     "nobf-ceiling-E07-grid-1",
     "nobf-ceiling-D07-grid-1",
-    "bf-ceiling-grid-10s-1",
 ]  # "bf-ceiling-grid",
 heatmap = None
 
