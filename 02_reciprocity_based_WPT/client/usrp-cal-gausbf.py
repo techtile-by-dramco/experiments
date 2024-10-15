@@ -398,11 +398,11 @@ def get_current_time(usrp):
 
 
 def tx_thread(
-    usrp, tx_streamer, quit_event, phase=[0, 0], amplitude=[0.8, 0.8], start_time=None
+    usrp, tx_streamer, quit_event, loopback, phase=[0, 0], amplitude=[0.8, 0.8],  start_time=None
 ):
     tx_thr = threading.Thread(
         target=tx_ref,
-        args=(usrp, tx_streamer, quit_event, phase, amplitude, start_time),
+        args=(usrp, tx_streamer, quit_event, phase, amplitude, loopback, start_time),
     )
 
     tx_thr.setName("TX_thread")
@@ -411,7 +411,7 @@ def tx_thread(
     return tx_thr
 
 
-def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time=None):
+def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, loopback, start_time=None):
     num_channels = tx_streamer.get_num_channels()
 
     max_samps_per_packet = tx_streamer.get_max_num_samps()
@@ -423,8 +423,10 @@ def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time=None):
     sample = (
         amplitude
         * np.exp(phase * 1j)
-        * np.exp(np.random.normal(loc=0, scale=std_gaus * np.pi / 180.0) * 1j)
     )
+
+    if not loopback:
+        sample *= np.exp(np.random.normal(loc=0, scale=std_gaus * np.pi / 180.0) * 1j)
 
     # print(sample)
 
@@ -457,7 +459,7 @@ def tx_ref(usrp, tx_streamer, quit_event, phase, amplitude, start_time=None):
     try:
 
         while not quit_event.is_set():
-            if adaptive_gaus:
+            if adaptive_gaus and not loopback:
                 sample = (
                     amplitude
                     * np.exp(phase * 1j)
@@ -569,6 +571,7 @@ def measure_loopback(
         amplitude=amplitudes,
         phase=[0.0, 0.0],
         start_time=start_time,
+        loopback=True,
     )
 
     tx_meta_thr = tx_meta_thread(tx_streamer, quit_event)

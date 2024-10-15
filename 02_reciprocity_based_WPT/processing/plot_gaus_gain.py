@@ -18,18 +18,20 @@ from scipy.ndimage import zoom
 
 heatmap = None
 
-stds = np.rad2deg([np.pi / j for j in np.arange(0.5, 180, 2) for _ in range(10)])
+stds = np.rad2deg(
+    [j * np.pi / 180.0 for j in np.arange(0, 181, 1) for _ in range(10)]
+)
 
 
 plt.figure()
-for i in range(15):
+for i in range(330):
 
     positions = np.load(
-        f"../data/positions-gausbf-ceiling-grid-{i+1}-20241014132605-{i+1}.npy",
+        f"../data/positions-gausbf-ceiling-grid-{i+1}-20241014211156-{i+1}.npy",
         allow_pickle=True,
     )
     values = np.load(
-        f"../data/values-gausbf-ceiling-grid-{i+1}-20241014132605-{i+1}.npy",
+        f"../data/values-gausbf-ceiling-grid-{i+1}-20241014211156-{i+1}.npy",
         allow_pickle=True,
     )
     plt.scatter(stds[i], 10*np.log10(np.mean(10**(values/10))))

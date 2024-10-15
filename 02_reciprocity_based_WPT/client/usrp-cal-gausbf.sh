@@ -5,7 +5,7 @@ git pull
 phase=0
 counter=0
 std=0
-max_std=181        # 1 degrees
+max_std=180        # 1 degrees
 
 while true; do
   echo "Start with  $std and counter: $counter"
@@ -19,10 +19,10 @@ while true; do
   counter=$((counter+1))
 
   # Every 10 iterations, increment std by 0.1
-  if [ $((counter % 10)) -eq 0 ]; then
-    std=$std + 1
+  if [ $((counter % 2)) -eq 0 ]; then
+    std=$std + 2
     # Ensure std doesn't exceed 2*pi
-    if ($std >= $max_std); then
+    if ($std > $max_std); then
       echo "std reached the min value of one degree, restarting"
       # restarting
       std=0
