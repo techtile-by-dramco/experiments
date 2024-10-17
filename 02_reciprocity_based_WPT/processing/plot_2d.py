@@ -12,9 +12,7 @@ from matplotlib.patches import Rectangle
 #     "bf-ceiling-2",
 #     "bf-ceiling-3"]
 
-to_plot = [
-    "randombf-ceiling-grid-2"
-]  # "bf-ceiling-grid",
+to_plot = ["bf-ceiling-grid-merged-20241013074614"]  # "bf-ceiling-grid",
 
 log_heatmap = np.zeros(len(to_plot)).tolist()
 

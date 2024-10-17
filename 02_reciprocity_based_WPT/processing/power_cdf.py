@@ -4,7 +4,7 @@ import numpy as np
 from Positioner import PositionerValues
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
-
+import matplotlib.colors as mcolors
 
 # to_plot = [
 #     "nobf-D07-ceiling",
@@ -22,14 +22,19 @@ to_plot = [
     # "nobf-ceiling-D07-grid-1",
 ]  # "bf-ceiling-grid",
 
-labels= ["BF","AS","SISO","G-BF (pi/2)"]
+labels = ["BF", "AS", "SISO E08", "SISO E07", "SISO D07"]
+
+
 heatmap = None
 
 fig, axes = plt.subplots()
 
 wavelen = 3e8 / 920e6
 
-for i, (tp, label) in enumerate(zip(to_plot, labels)):
+colors = list(mcolors.TABLEAU_COLORS)
+
+
+for i, (tp, label) in enumerate(zip(to_plot,labels)):
 
     positions = np.load(f"../data/positions-{tp}.npy", allow_pickle=True)
     values = np.load(f"../data/values-{tp}.npy", allow_pickle=True)
@@ -54,7 +59,7 @@ for i, (tp, label) in enumerate(zip(to_plot, labels)):
     for i_x, grid_along_y in enumerate(grid_pos_ids):
         for i_y, grid_along_xy_ids in enumerate(grid_along_y):
             heatmap[i_x][i_y].extend(values[grid_along_xy_ids])
-            if i == 0:
+            if i == 0: #THIS IS BF CASE
                 if np.median(values[grid_along_xy_ids]) > max_power:
                     max_power = np.median(values[grid_along_xy_ids])
                     x_bf = i_x
@@ -63,12 +68,6 @@ for i, (tp, label) in enumerate(zip(to_plot, labels)):
     _all = []
     for ix, row in enumerate(heatmap):
         for iy, cell in enumerate(row):
-            print(len(cell))
-            # axes[0].plot(
-            #     np.sort(cell),
-            #     np.linspace(0, 1, len(cell), endpoint=False),
-            #     # label=f"({ix},{iy})",
-            # )
             _all.extend(cell)
 
     _all_nobf = []
@@ -82,12 +81,25 @@ for i, (tp, label) in enumerate(zip(to_plot, labels)):
 
     x = np.sort(_all_nobf)
     y = np.linspace(0, 1, len(_all_nobf), endpoint=False)
-    axes.plot(
-        x,
-        y,
-        label=f"outside BF - {label}",
-        ls="--"
-    )
+    axes.plot(x, y, label=f"outside BF - {label}", c=colors[i], ls="--")
+    idx_intersect = np.argmin(np.abs(y-0.5))
+    # plt.vlines(x[idx_intersect], ymax=y[idx_intersect], ymin=0, ls="--", color="gray")
+
+    x = np.sort(_all_bf)
+    y = np.linspace(0, 1, len(_all_bf), endpoint=False)
+    axes.plot(x, y, label=f"inside BF - {label}", c=colors[i])
+    idx_intersect = np.argmin(np.abs(y - 0.5))
+    # plt.vlines(
+    #     x[idx_intersect], ymax=y[idx_intersect], ymin=0, ls="--", color="gray"
+    # )
+
+    # x = np.sort(_all)
+    # y = np.linspace(0, 1, len(_all), endpoint=False)
+    # axes.plot(
+    #     x,
+    #     y,
+    #     label=f"{tp}",
+    # )
     # idx_intersect = np.argmin(np.abs(y-0.5))
     # plt.vlines(x[idx_intersect], ymax=y[idx_intersect], ymin=0, ls="--", color="gray")
 
@@ -115,6 +127,7 @@ for i, (tp, label) in enumerate(zip(to_plot, labels)):
 
 # plt.hlines(0.5, ls="--", xmax=-42, xmin=-70)
 # heatmap = heatmap / len(to_plot)
+plt.xlim(xmin=-80)
 plt.legend()
 fig.tight_layout()
 
