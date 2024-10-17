@@ -28,7 +28,7 @@ std_options = np.arange(0, 185, 5)
 
 sols = [0] * len(std_options)
 plt.figure()
-for i in range(743):
+for i in range(1053):
 
     idx = int(i % len(std_options))
 
@@ -50,11 +50,15 @@ for i in range(743):
 upper_stds = [0]*len(std_options)
 down_stds = [0] * len(std_options)
 means = [0] * len(std_options)
+print(f"x, y")
 for i, std_opt in enumerate(std_options):
     upper_stds[i] = 10 * np.log10(np.mean(sols[i]) + np.std(sols[i]))
     down_stds[i] = 10 * np.log10(np.mean(sols[i]) - np.std(sols[i]))
     means[i] = 10 * np.log10(np.median(sols[i]))
-    plt.scatter(np.rad2deg(std_options[i] * np.pi / 180.0), 10 * np.log10(np.mean(sols[i])), c="blue")
+    plt.scatter(np.rad2deg(std_options[i] * np.pi / 180.0), 10 * np.log10(np.median(sols[i])), c="blue")
+    print(
+        f"{np.rad2deg(std_options[i] * np.pi / 180.0)}, {10 * np.log10(np.median(sols[i])):.4f}"
+    )
 
 plt.plot(np.rad2deg(std_options*np.pi / 180.0), means, color="blue", alpha=0.5)
 # plt.fill_between(
@@ -64,5 +68,5 @@ plt.plot(np.rad2deg(std_options*np.pi / 180.0), means, color="blue", alpha=0.5)
 #     color="blue",
 #     alpha=0.2,
 # )
-
+plt.hlines(10 * np.log10(np.max(sols[0])), xmin=0, xmax=180)
 plt.show()

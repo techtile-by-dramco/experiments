@@ -14,19 +14,22 @@ from matplotlib.patches import Rectangle
 #     "bf-ceiling-3"]
 
 to_plot = [
-    "randombf-ceiling-grid-2",
     "bf-ceiling-grid-merged-20241013074614",
+    "randombf-ceiling-grid-2",
     "nobf-ceiling-E08-grid-1",
-    "nobf-ceiling-E07-grid-1",
-    "nobf-ceiling-D07-grid-1",
+    "gausbf-ceiling-grid-pidiv2",
+    # "nobf-ceiling-E07-grid-1",
+    # "nobf-ceiling-D07-grid-1",
 ]  # "bf-ceiling-grid",
+
+labels= ["BF","AS","SISO","G-BF (pi/2)"]
 heatmap = None
 
 fig, axes = plt.subplots()
 
 wavelen = 3e8 / 920e6
 
-for i, tp in enumerate(to_plot):
+for i, (tp, label) in enumerate(zip(to_plot, labels)):
 
     positions = np.load(f"../data/positions-{tp}.npy", allow_pickle=True)
     values = np.load(f"../data/values-{tp}.npy", allow_pickle=True)
@@ -51,10 +54,11 @@ for i, tp in enumerate(to_plot):
     for i_x, grid_along_y in enumerate(grid_pos_ids):
         for i_y, grid_along_xy_ids in enumerate(grid_along_y):
             heatmap[i_x][i_y].extend(values[grid_along_xy_ids])
-            if np.median(values[grid_along_xy_ids]) > max_power:
-                max_power = np.median(values[grid_along_xy_ids])
-                x_bf = i_x
-                y_bf = i_y
+            if i == 0:
+                if np.median(values[grid_along_xy_ids]) > max_power:
+                    max_power = np.median(values[grid_along_xy_ids])
+                    x_bf = i_x
+                    y_bf = i_y
 
     _all = []
     for ix, row in enumerate(heatmap):
@@ -67,50 +71,57 @@ for i, tp in enumerate(to_plot):
             # )
             _all.extend(cell)
 
-    if i == 1:
-        _all_nobf = []
-        _all_bf = []
-        for ix, row in enumerate(heatmap):
-            for iy, cell in enumerate(row):
-                if ix == x_bf and iy == y_bf:
-                    _all_bf.extend(cell)
-                else:
-                    _all_nobf.extend(cell)
+    _all_nobf = []
+    _all_bf = []
+    for ix, row in enumerate(heatmap):
+        for iy, cell in enumerate(row):
+            if ix == x_bf and iy == y_bf:
+                _all_bf.extend(cell)
+            else:
+                _all_nobf.extend(cell)
 
-        x = np.sort(_all_nobf)
-        y = np.linspace(0, 1, len(_all_nobf), endpoint=False)
-        axes.plot(
-            x,
-            y,
-            label="outside BF",
-        )
-        idx_intersect = np.argmin(np.abs(y-0.5))
-        plt.vlines(x[idx_intersect], ymax=y[idx_intersect], ymin=0, ls="--", color="gray")
-
-        x = np.sort(_all_bf)
-        y = np.linspace(0, 1, len(_all_bf), endpoint=False)
-        axes.plot(
-            x,
-            y,
-            label="inside BF",
-        )
-        idx_intersect = np.argmin(np.abs(y - 0.5))
-        plt.vlines(
-            x[idx_intersect], ymax=y[idx_intersect], ymin=0, ls="--", color="gray"
-        )
-
-    x = np.sort(_all)
-    y = np.linspace(0, 1, len(_all), endpoint=False)
+    x = np.sort(_all_nobf)
+    y = np.linspace(0, 1, len(_all_nobf), endpoint=False)
     axes.plot(
         x,
         y,
-        label=f"{tp}",
+        label=f"outside BF - {label}",
+        ls="--"
     )
-    idx_intersect = np.argmin(np.abs(y-0.5))
-    plt.vlines(x[idx_intersect], ymax=y[idx_intersect], ymin=0, ls="--", color="gray")
+    # idx_intersect = np.argmin(np.abs(y-0.5))
+    # plt.vlines(x[idx_intersect], ymax=y[idx_intersect], ymin=0, ls="--", color="gray")
 
-plt.hlines(0.5, ls="--", xmax=-42, xmin=-70)
+    x = np.sort(_all_bf)
+    y = np.linspace(0, 1, len(_all_bf), endpoint=False)
+    axes.plot(
+        x,
+        y,
+        label=f"inside BF - {label}",
+    )
+    # idx_intersect = np.argmin(np.abs(y - 0.5))
+    # plt.vlines(
+    #     x[idx_intersect], ymax=y[idx_intersect], ymin=0, ls="--", color="gray"
+    # )
+
+    # x = np.sort(_all)
+    # y = np.linspace(0, 1, len(_all), endpoint=False)
+    # axes.plot(
+    #     x,
+    #     y,
+    #     label=f"{tp}",
+    # )
+    # # idx_intersect = np.argmin(np.abs(y-0.5))
+    # plt.vlines(x[idx_intersect], ymax=y[idx_intersect], ymin=0, ls="--", color="gray")
+
+# plt.hlines(0.5, ls="--", xmax=-42, xmin=-70)
 # heatmap = heatmap / len(to_plot)
 plt.legend()
 fig.tight_layout()
+
+import tikzplotlib
+
+tikzplotlib.clean_figure()
+tikzplotlib.save("power-cdf.tex", float_format=".4g")
+
+
 plt.show()

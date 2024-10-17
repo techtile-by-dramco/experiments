@@ -13,7 +13,7 @@ from matplotlib.patches import Rectangle
 #     "bf-ceiling-3"]
 
 to_plot = [
-    "bf-ceiling-grid-1-20241013074614"
+    "randombf-ceiling-grid-2"
 ]  # "bf-ceiling-grid",
 
 log_heatmap = np.zeros(len(to_plot)).tolist()
@@ -49,7 +49,7 @@ for i, tp in enumerate(to_plot):
     fig, ax = plt.subplots()
     plt.title(tp)
     log_heatmap[i] = 10 * np.log10(heatmap)
-    p = ax.imshow(10 * np.log10(heatmap), vmin=-60,cmap="viridis")
+    p = ax.imshow(10 * np.log10(heatmap), vmin=-68, vmax=-43,cmap="viridis")
     ax.set_xticks(np.arange(len(xi)), labels=[f"{(x-xi[0])/wavelen:.2f}" for x in xi])
     ax.set_yticks(np.arange(len(yi)), labels=[f"{(y-yi[0])/wavelen:.2f}" for y in yi])
     ax.add_patch(Rectangle((y_bf-0.5, x_bf-0.5), 1, 1, fill=False, edgecolor="red", lw=3))
