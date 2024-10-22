@@ -45,7 +45,10 @@ for i in range(1053):
     if type(sols[idx]) is not list:
         sols[idx] = []
     sols[idx].append(_mean)
-    plt.scatter(np.rad2deg(std), 10 * np.log10(_mean), color="black")
+    if idx == len(std_options) - 1 or idx == 0:
+        continue
+    plt.scatter(np.rad2deg(std), 10 * np.log10(_mean), color="black", s=2.0)
+    scatter_points.append((np.rad2deg(std), 10 * np.log10(_mean)))
 
 upper_stds = [0]*len(std_options)
 down_stds = [0] * len(std_options)
@@ -55,12 +58,14 @@ for i, std_opt in enumerate(std_options):
     upper_stds[i] = 10 * np.log10(np.mean(sols[i]) + np.std(sols[i]))
     down_stds[i] = 10 * np.log10(np.mean(sols[i]) - np.std(sols[i]))
     means[i] = 10 * np.log10(np.median(sols[i]))
-    plt.scatter(np.rad2deg(std_options[i] * np.pi / 180.0), 10 * np.log10(np.median(sols[i])), c="blue")
-    print(
-        f"{np.rad2deg(std_options[i] * np.pi / 180.0)}, {10 * np.log10(np.median(sols[i])):.4f}"
+    plt.scatter(
+        np.rad2deg(std_options[i] * np.pi / 180.0),
+        10 * np.log10(np.mean(sols[i])),
+        c="blue",
+        s=2.0,
     )
 
-plt.plot(np.rad2deg(std_options*np.pi / 180.0), means, color="blue", alpha=0.5)
+# plt.plot(np.rad2deg(std_options*np.pi / 180.0), means, color="blue", alpha=0.5)
 # plt.fill_between(
 #     np.rad2deg(std_options * np.pi / 180.0),
 #     y1=upper_stds,
@@ -68,5 +73,61 @@ plt.plot(np.rad2deg(std_options*np.pi / 180.0), means, color="blue", alpha=0.5)
 #     color="blue",
 #     alpha=0.2,
 # )
-plt.hlines(10 * np.log10(np.max(sols[0])), xmin=0, xmax=180)
+plt.hlines(
+    10 * np.log10(np.max(sols[0])),
+    xmin=0,
+    xmax=180,
+    label="BF" + f" { 10 * np.log10(np.max(sols[0])):.2f}dB",
+)
+
+to_plot = [
+    "randombf-ceiling-grid-2",
+    "nobf-ceiling-E08-grid-1",
+    "nobf-ceiling-E07-grid-1",
+    "nobf-ceiling-D07-grid-1",
+] 
+
+labels = [
+    "AS",
+    "SISO E08",
+    "SISO E07",
+    "SISO D07"
+]
+colors = ["red", "blue", "blue", "blue"]
+
+for label, tp, c in zip(labels, to_plot, colors):
+    values = np.load(
+            f"../data/values-{tp}.npy",
+            allow_pickle=True,
+        )
+    positions = np.load(
+        f"../data/positions-{tp}.npy",
+        allow_pickle=True,
+    )
+    valid_idx = []
+    p0 = positions[0]
+    for i, p in enumerate(positions):
+        if p0.x- 0.05 > p.x <  p0.x + 0.05 and  p0.y- 0.05 > p.y < p0.y + 0.05:
+            valid_idx.append(i)
+
+    print(len(valid_idx))
+    plt.hlines(
+        10 * np.log10(np.mean(10 ** (values[valid_idx] / 10))), xmin=0, xmax=180, label=label+f" {10 * np.log10(np.mean(10 ** (values[valid_idx] / 10))):.2f}dB", color=c
+    )
+plt.ylabel("RSS")
+plt.xlabel("Applied std in degrees")
+
+plt.tight_layout()
+
+# import tikzplotlib
+
+# tikzplotlib.save("plot_gaus_gain.tex", float_format=".2g")
+
+import csv
+
+with open("gaus_gain.csv", "w") as f:
+    f.write("x, y\\\\\n")
+    for row in scatter_points:
+        f.write(f"{row[0]}, {row[1]}\\\\\n")
+
 plt.show()

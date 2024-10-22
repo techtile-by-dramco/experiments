@@ -1,0 +1,28 @@
+% This file was created with tikzplotlib v0.10.1.
+\begin{tikzpicture}
+
+\definecolor{darkgray176}{RGB}{176,176,176}
+
+\begin{axis}[
+colorbar,
+colorbar style={ylabel={}},
+colormap/viridis,
+point meta max=-42.9938799584875,
+point meta min=-65,
+tick align=outside,
+tick pos=left,
+x grid style={darkgray176},
+xmin=-0.5, xmax=299.5,
+xtick style={color=black},
+xtick={0,40,80,120,160,200,240,280},
+xticklabels={0.00,0.50,1.00,1.50,2.00,2.50,3.00,3.50},
+y grid style={darkgray176},
+ymin=-0.5, ymax=299.5,
+ytick style={color=black},
+ytick={0,40,80,120,160,200,240,280},
+yticklabels={0.00,0.50,1.00,1.50,2.00,2.50,3.00,3.50}
+]
+\addplot graphics [includegraphics cmd=\pgfimage,xmin=-0.5, xmax=299.5, ymin=-0.5, ymax=299.5] {heatmap-power-spot-001.png};
+\end{axis}
+
+\end{tikzpicture}
