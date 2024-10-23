@@ -1,0 +1,18 @@
+RX_TX_SAME_CHANNEL: !!bool True  # if loopback is done from one channel to the other channel
+CLOCK_TIMEOUT: !!float 1000  # 1000mS timeout for external clock locking
+INIT_DELAY: !!float 0.2  # 200ms initial delay before transmit
+RATE: !!float 250e3
+
+LOOPBACK_TX_GAIN: !!float 50 
+FREE_TX_GAIN: !!float 70
+LOOPBACK_RX_GAIN: !!float 45 #23  # empirical determined
+REF_RX_GAIN: !!float 45 #28  # empirical determined
+
+FREQ: !!float 920e6
+MIN_PLL_VAR: !!float 0.0001
+
+
+CAPTURE_TIME: !!float 5
+TX_TIME: !!float 7200
+
+server_ip: "10.128.52.53"

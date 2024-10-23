@@ -1,0 +1,155 @@
+ansible:
+  copy_client_script: copy_client_script.yaml
+  inventory: hosts.yaml
+  start_client_script: start_client_script.yaml
+  stop_client_script: kill_script.yaml
+client:
+  enable_client_script: true
+  hosts:
+    A05:
+      freq: 920000000.0
+    A06:
+      freq: 920000000.0
+    A07:
+      freq: 920000000.0
+    A08:
+      freq: 920000000.0
+    A09:
+      freq: 920000000.0
+    A10:
+      freq: 920000000.0
+    B05:
+      freq: 920000000.0
+    B06:
+      freq: 920000000.0
+    B07:
+      freq: 920000000.0
+    B08:
+      freq: 920000000.0
+    B09:
+      freq: 920000000.0
+    B10:
+      freq: 920000000.0
+    C05:
+      freq: 920000000.0
+    C06:
+      freq: 920000000.0
+    C07:
+      freq: 920000000.0
+    C08:
+      freq: 920000000.0
+    C09:
+      freq: 920000000.0
+    C10:
+      freq: 920000000.0
+    D05:
+      freq: 920000000.0
+    D06:
+      freq: 920000000.0
+    D07:
+      freq: 920000000.0
+    D08:
+      freq: 920000000.0
+    D09:
+      freq: 920000000.0
+    D10:
+      freq: 920000000.0
+    E05:
+      freq: 920000000.0
+    E06:
+      freq: 920000000.0
+    E07:
+      freq: 920000000.0
+    E08:
+      freq: 920000000.0
+    E09:
+      freq: 920000000.0
+    E10:
+      freq: 920000000.0
+    F05:
+      freq: 920000000.0
+    F06:
+      freq: 920000000.0
+    F07:
+      freq: 920000000.0
+    F08:
+      freq: 920000000.0
+    F09:
+      freq: 920000000.0
+    F10:
+      freq: 920000000.0
+    G05:
+      freq: 920000000.0
+    G06:
+      freq: 920000000.0
+    G07:
+      freq: 920000000.0
+    G08:
+      freq: 920000000.0
+    G09:
+      freq: 920000000.0
+    G10:
+      freq: 920000000.0
+    all:
+      channels:
+      - 0
+      - 1
+      duration: 5
+      freq: 920000000.0
+      gain: 85
+      lo_offsets:
+      - 0
+      - 0
+  ip: 10.128.51.250
+  script: tx_waveforms_random_phase.py
+  tiles: ceiling
+control:
+  duration: 1800
+  transmission: auto
+ep:
+  csv_header:
+  - timestamp
+  - buffer_voltage_mv
+  - resistance
+  - pwr_pw
+  enabled: true
+  ip: 192.108.0.13
+  port: 5656
+  protocol: zmq
+info:
+  data_save_path: data/one_tone_phase_duration_5_m1/
+  description: Measurement one tone signals
+  exp_name: phase_85
+  ip: 10.128.51.250
+  port: 5558
+  server_user_name: jarne
+positioning:
+  csv_header:
+  - x
+  - y
+  - z
+  - utc
+  - rm
+  enabled: false
+  ip: 192.108.0.13
+  port: 5555
+  protocol: zmq
+  system: QUALYSIS
+  xaxisoffset: 0
+  yaxisoffset: 0
+  zaxisoffset: 0
+  wanted_body: "Robot_Fan"
+  capture_time_per_pos: 0.4 # in seconds only for direct method
+scope:
+  termination: 50
+  spectrum_view: true
+  bandwidth_hz: 2E9
+  cable_loss: 0
+  center_hz: 920000000.0
+  csv_header:
+  - timestamp
+  - dbm
+  enabled: true
+  ip: 192.108.0.251
+  rbw_hz: 20.0
+  span_hz: 10000.0
