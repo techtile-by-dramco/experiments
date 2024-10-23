@@ -709,7 +709,7 @@ def main():
                     phi_cable = phases_dict[HOSTNAME]
                     logger.debug(f"Applying CABLE phase: {phi_cable}")
                 else:
-                    logger.error("Phase not found in phases.yml")
+                    logger.error("Phase not found in config-phase-offsets.yml")
             except yaml.YAMLError as exc:
                 print(exc)
 
@@ -724,7 +724,7 @@ def main():
                     tx_phase = phases_dict[HOSTNAME]
                     logger.debug(f"Applying TX phase: {phi_cable}")
                 else:
-                    logger.error("Phase not found in phases.yml")
+                    logger.error("Phase not found in config-phase-friis.yml")
             except yaml.YAMLError as exc:
                 print(exc)
 
