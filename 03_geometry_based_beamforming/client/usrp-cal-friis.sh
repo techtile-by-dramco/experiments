@@ -7,7 +7,7 @@ counter=0
 
 
 while true; do
-  python3 usrp-cal-bf.py
+  python3 usrp-cal-friis.py
   if [ $? -ne 0 ]; then
     echo "your script encountered an error."
     # Optionally, you can add a break or continue statement here to handle errors

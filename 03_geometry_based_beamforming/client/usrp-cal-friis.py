@@ -28,7 +28,7 @@ meas_id = 0
 exp_id = 0
 results = []
 
-SWITCH_LOOPBACK_MODE = 0x00000006 # which is 110
+SWITCH_LOOPBACK_MODE = 0x00000006  # which is 110
 SWITCH_RESET_MODE = 0x00000000
 
 import zmq
@@ -159,7 +159,9 @@ def rx_ref(usrp, rx_streamer, quit_event, duration, result_queue, start_time=Non
         phase_ch0, freq_slope_ch0 = tools.get_phases_and_apply_bandpass(
             iq_samples[0, :]
         )
-        phase_ch1, freq_slope_ch1 = tools.get_phases_and_apply_bandpass(iq_samples[1, :])
+        phase_ch1, freq_slope_ch1 = tools.get_phases_and_apply_bandpass(
+            iq_samples[1, :]
+        )
 
         logger.debug("Frequency offset CH0: %.4f", freq_slope_ch0 / (2 * np.pi))
         logger.debug("Frequency offset CH1: %.4f", freq_slope_ch1 / (2 * np.pi))
@@ -485,9 +487,7 @@ def measure_pilot(usrp, rx_streamer, quit_event, result_queue, at_time=None):
 
     logger.debug(starting_in(usrp, at_time))
 
-    usrp.set_rx_antenna(
-        "TX/RX", 1
-    )
+    usrp.set_rx_antenna("TX/RX", 1)
 
     # user_settings = usrp.get_user_settings_iface(1)
 
@@ -683,16 +683,6 @@ def main():
 
         result_queue = queue.Queue()
 
-        file_name_state = file_name + "_pilot"
-
-        measure_pilot(
-            usrp, rx_streamer, quit_event, result_queue, at_time=start_next_cmd
-        )
-
-        phi_P = result_queue.get()
-
-        start_next_cmd += cmd_time + 1.0
-
         file_name_state = file_name + "_loopback"
 
         measure_loopback(
@@ -710,12 +700,29 @@ def main():
 
         phi_cable = 0
 
-        with open(os.path.join(os.path.dirname(__file__), "config-phase-offsets.yml"), "r") as phases_yaml:
+        with open(
+            os.path.join(os.path.dirname(__file__), "config-phase-offsets.yml"), "r"
+        ) as phases_yaml:
             try:
                 phases_dict = yaml.safe_load(phases_yaml)
                 if HOSTNAME in phases_dict.keys():
                     phi_cable = phases_dict[HOSTNAME]
-                    logger.debug(f"Applying phase: {phi_cable}")
+                    logger.debug(f"Applying CABLE phase: {phi_cable}")
+                else:
+                    logger.error("Phase not found in phases.yml")
+            except yaml.YAMLError as exc:
+                print(exc)
+
+        tx_phase = 0
+
+        with open(
+            os.path.join(os.path.dirname(__file__), "config-phase-friis.yml"), "r"
+        ) as phases_yaml:
+            try:
+                phases_dict = yaml.safe_load(phases_yaml)
+                if HOSTNAME in phases_dict.keys():
+                    tx_phase = phases_dict[HOSTNAME]
+                    logger.debug(f"Applying TX phase: {phi_cable}")
                 else:
                     logger.error("Phase not found in phases.yml")
             except yaml.YAMLError as exc:
@@ -726,20 +733,10 @@ def main():
             usrp,
             tx_streamer,
             quit_event,
-            phase_corr=phi_LB + phi_P + np.deg2rad(phi_cable),
+            phase_corr=phi_LB + np.deg2rad(tx_phase) + np.deg2rad(phi_cable),
             at_time=start_next_cmd,
             long_time=True,
         )
-
-        # start_next_cmd += cmd_time + 14.0
-
-        # tx_phase_coh(
-        #     usrp,
-        #     tx_streamer,
-        #     quit_event,
-        #     phase_corr=phi_LB + phi_P,
-        #     at_time=start_next_cmd,
-        # )
 
         print("DONE")
     except Exception as e:

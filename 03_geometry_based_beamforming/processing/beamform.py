@@ -123,7 +123,7 @@ for gg in range(Ng):
     dag = np.linalg.norm(rag, axis=0)  # Scalar distances (L x 1)
 
     # Channel vector at grid point
-    hg = lambda_ / (np.sqrt(4 * np.pi) * dag) * np.exp(-1j * 2 * np.pi / lambda_ * dag)
+    hg = lambda_ / (4 * np.pi * dag) * np.exp(-1j * 2 * np.pi / lambda_ * dag)
 
     # Path gain at grid point
     y.flat[gg] = np.dot(w.T, hg)
