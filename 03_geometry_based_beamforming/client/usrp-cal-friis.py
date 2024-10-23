@@ -287,7 +287,7 @@ def wait_till_go_from_server(ip, _connect=True):
     sync_socket.subscribe("")
 
     logger.debug("Sending ALIVE")
-    alive_socket.send_string("ALIVE")
+    alive_socket.send_string(HOSTNAME)
     # Receives a string format message
     logger.debug("Waiting on SYNC from server %s.", ip)
 
@@ -722,7 +722,7 @@ def main():
                 phases_dict = yaml.safe_load(phases_yaml)
                 if HOSTNAME in phases_dict.keys():
                     tx_phase = phases_dict[HOSTNAME]
-                    logger.debug(f"Applying TX phase: {phi_cable}")
+                    logger.debug(f"Applying TX phase: {tx_phase}")
                 else:
                     logger.error("Phase not found in config-phase-friis.yml")
             except yaml.YAMLError as exc:
