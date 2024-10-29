@@ -1,0 +1,37 @@
+---
+# - name: Kill client script
+#   hosts: T02
+#   become: yes  # Run with sudo
+#   gather_facts: no  # Disable fact gathering
+#   tasks:
+#     - name: Kill the background script process
+#       shell: "ps aux | grep uhd_siggen | grep -v grep | awk '{print $2}' | xargs kill -9"
+#       ignore_errors: yes
+#       become: yes
+#       become_method: sudo
+# - name: Kill pilot script
+#   hosts: T01
+#   become: yes  # Run with sudo
+#   gather_facts: no  # Disable fact gathering
+#   tasks:
+#     - name: Kill the background script process
+#       shell: "ps aux | grep usrp-pilot | grep -v grep | awk '{print $2}' | xargs kill -9"
+#       ignore_errors: yes
+#       become: yes
+#       become_method: sudo
+#     - name: Kill the process listening on 0.0.0.0:50001
+#       shell: "sudo kill -9 $(sudo netstat -ltnp | grep '0.0.0.0:50001' | awk '{print $7}' | cut -d'/' -f1)"
+#       ignore_errors: yes  # Ignore errors in case no process is found
+- name: Kill client script
+  hosts: "{{ tiles }}"
+  become: yes  # Run with sudo
+  gather_facts: no  # Disable fact gathering
+  tasks:
+    - name: Kill the background script process
+      shell: "ps aux | grep usrp-cal | grep -v grep | awk '{print $2}' | xargs kill -9"
+      ignore_errors: yes
+      become: yes
+      become_method: sudo
+    - name: Kill the process listening on 0.0.0.0:50001
+      shell: "sudo kill -9 $(sudo netstat -ltnp | grep '0.0.0.0:50001' | awk '{print $7}' | cut -d'/' -f1)"
+      ignore_errors: yes  # Ignore errors in case no process is found

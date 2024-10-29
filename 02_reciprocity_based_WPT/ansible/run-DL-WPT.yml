@@ -1,0 +1,32 @@
+---
+- import_playbook: kill-DL-WPT.yml
+# - import_playbook: start-ref.yml
+# - import_playbook: start-pilot.yml
+- name: Start client script
+  hosts: "{{ tiles }}"
+  gather_facts: no
+  serial: 0
+  environment:
+    PYTHONPATH: "/usr/local/lib/python3/dist-packages"
+    UHD_IMAGES_DIR: "/usr/share/uhd/images" # no idea why we need to include this as it is defined .bashrc
+  vars:
+    bf: "bf" # options: bf, nobf, randombf
+  tasks:
+    - name: Change to experiments directory and pull latest code from git
+      shell: "git pull"
+      args:
+        chdir: ~/experiments/
+    - name: chmod +x to be sure
+      ansible.builtin.shell:
+        cmd: "chmod +x usrp-cal-{{ bf }}.sh"
+        chdir: ~/experiments/02_reciprocity_based_WPT/client
+    - name: remove windows errors 
+      ansible.builtin.shell:
+        cmd: sed -i -e 's/\r$//' ./usrp-cal-{{ bf }}.sh
+        chdir: ~/experiments/02_reciprocity_based_WPT/client
+    - name: Run DL BF beamforming
+      ansible.builtin.shell:
+        cmd: nohup ./usrp-cal-{{ bf }}.sh > log.txt 2>&1 &
+        chdir: ~/experiments/02_reciprocity_based_WPT/client
+        executable: /bin/bash
+     
