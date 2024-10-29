@@ -1,6 +1,9 @@
-# Upcoming experiments in Techtile testbed
+# Techtile Experiments
 
 <img src="https://github.com/techtile-by-dramco/experiments/blob/main/techtile_picture.png" alt="Techtile">
+
+
+## Experiment overview
 
 | Experiment number | Name | Short description | Status |
 |-|-|-|-|
@@ -10,3 +13,9 @@
 | 03 | Geometry based beamforming | | ❌ |
 | 04 | Backscatter communication | Uplink communication | 🤏 |
 | 05 | END demodulation | Downlink communication | ❌ |
+
+
+## How to start an experiment
+
+- Get the VM installed.
+- 
