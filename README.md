@@ -17,5 +17,6 @@
 
 ## How to start an experiment
 
-- Get the VM installed.
-- 
+- Get the VM installed
+- Get to know Ansible
+- Get to know UHD
