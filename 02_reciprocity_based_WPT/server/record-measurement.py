@@ -55,11 +55,9 @@ def wait_till_go_from_server(ip="10.128.52.53"):
     return meas_id, unique_id
 
 
-TIME_TO_MEAS_PER_EXP = 5.0
-
 plt = TechtilePlotter(realtime=True)
-meas_id, unique_id = wait_till_go_from_server()
-sleep(29.0)  # wake-up 10 seconds before rover starts to move
+# meas_id, unique_id = wait_till_go_from_server()
+# sleep(29.0)  # wake-up 10 seconds before rover starts to move
 
 # start to measure for XX long
 start = time()
@@ -67,7 +65,7 @@ start = time()
 positions = []
 values = []
 
-while time() - start < TIME_TO_MEAS_PER_EXP:
+while True:
 
     power_dBm = scope.get_power_dBm()
     pos = positioner.get_data()
@@ -80,7 +78,7 @@ while time() - start < TIME_TO_MEAS_PER_EXP:
         plt.measurements_rt(pos.x, pos.y, pos.z, power_dBm)
     sleep(0.1)
 print("Ctrl+C pressed. Exiting loop and saving...")
-meas_name = f"nobf-ceiling-grid-A05"
+meas_name = f"bf-ceiling-grid-20241024"
 np.save(arr=positions, file=f"../data/positions-{meas_name}")
 np.save(arr=values, file=f"../data/values-{meas_name}")
 positioner.stop()

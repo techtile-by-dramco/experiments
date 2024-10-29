@@ -51,33 +51,44 @@ poller = zmq.Poller()
 poller.register(alive_socket, zmq.POLLIN)
 
 new_msg_received = 0
-WAIT_TIMEOUT = 60.0
+WAIT_TIMEOUT = 60.0*10.0
 
 print(f"Starting experiment: {unique_id}")
-while True:
-    # Wait for specified number of subscribers to send a message
-    print(f"Waiting for {num_subscribers} subscribers to send a message...")
-    messages_received = 0
-    start_processing = None
-    while messages_received < num_subscribers:
-        socks = dict(poller.poll(1000))  # Poll with a timeout of 100 ms
-        if messages_received > 2 and time.time() - new_msg_received > WAIT_TIMEOUT:
-            break
+output_path = f"../data/exp-{unique_id}.yml"
+with open(output_path, "w") as f:
+    f.write(f"experiment: {unique_id}\n")
+    f.write(f"num_subscribers: {num_subscribers}\n")
+    f.write(f"measurments:\n")
 
-        if alive_socket in socks and socks[alive_socket] == zmq.POLLIN:
-            new_msg_received = time.time()
-            message = alive_socket.recv_string()
-            messages_received += 1
-            print(f"{message} ({messages_received}/{num_subscribers})")
-            # Process the request (for example, you could perform some computation here)
-            response = "Response from server"
+    while True:
+        # Wait for specified number of subscribers to send a message
+        print(f"Waiting for {num_subscribers} subscribers to send a message...")
+        f.write(f"  - meas_id: {meas_id}\n")
+        f.write("    active_tiles:\n")
+        messages_received = 0
+        start_processing = None
+        while messages_received < num_subscribers:
+            socks = dict(poller.poll(1000))  # Poll with a timeout of 100 ms
+            if messages_received > 2 and time.time() - new_msg_received > WAIT_TIMEOUT:
+                break
 
-            # Send the response back to the client
-            alive_socket.send_string(response)
+            if alive_socket in socks and socks[alive_socket] == zmq.POLLIN:
+                new_msg_received = time.time()
+                message = alive_socket.recv_string()
+                messages_received += 1
+                print(f"{message} ({messages_received}/{num_subscribers})")
+                f.write(f"     - {message}\n")
+                # Process the request (for example, you could perform some computation here)
+                response = "Response from server"
 
-    print(f"sending 'SYNC' message in {delay}s...")
-    time.sleep(delay)
+                # Send the response back to the client
+                alive_socket.send_string(response)
 
-    meas_id = meas_id + 1
-    sync_socket.send_string(f"{meas_id} {unique_id}")  # str(meas_id)
-    print(f"SYNC {meas_id}")
+        print(f"sending 'SYNC' message in {delay}s...")
+        f.flush()
+        time.sleep(delay)
+
+        meas_id = meas_id + 1
+        sync_socket.send_string(f"{meas_id} {unique_id}")  # str(meas_id)
+        print(f"SYNC {meas_id}")
+        # storing this
