@@ -63,7 +63,7 @@ ssh pi@rpi-pilot.local
 
 ```bash
 # on VM
-ansible-playbook -i inventory/hosts.yaml ../experiments/run-DL-WPT.yml -e tiles=ceiling -e bf="bf"
+ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory/hosts.yaml ../experiments/run-DL-WPT.yml -e tiles=ceiling -e bf="bf"
 ```
 
 Note, everything should be included in the ansible file in later stages.
