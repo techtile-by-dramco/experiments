@@ -588,7 +588,7 @@ def tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr, at_time, long_time=T
     phases[LOOPBACK_TX_CH] = phase_corr
     amplitudes[LOOPBACK_TX_CH] = 0.8
 
-    usrp.set_tx_gain(FREE_TX_GAIN, FREE_TX_CH)
+    usrp.set_tx_gain(FREE_TX_GAIN,  LOOPBACK_TX_CH)
 
     start_time = uhd.types.TimeSpec(at_time)
 
