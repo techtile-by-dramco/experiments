@@ -1,13 +1,11 @@
 ---
 - import_playbook: kill-DL-WPT.yml
 - import_playbook: start-ref.yml
+
 - name: Playbook to get IP and start server on localhost
   hosts: localhost
   gather_facts: yes
   tasks:
-    - name: Set local IP address as a fact
-      ansible.builtin.set_fact:
-        local_ip: "{{ ansible_default_ipv4.address }}"
     - name: Define variables for delay_time and num_sub
       vars:
         delay_time: 2
@@ -45,7 +43,7 @@
         chdir: ~/experiments/02_reciprocity_based_WPT/client
     - name: Run DL BF beamforming
       ansible.builtin.shell:
-        cmd: nohup ./usrp-cal-{{ bf }}.sh -- ip {{ local_ip }} > log.txt 2>&1 &
+        cmd: nohup ./usrp-cal-{{ bf }}.sh -- ip {{ ansible_default_ipv4.address }} > log.txt 2>&1 &
         chdir: ~/experiments/02_reciprocity_based_WPT/client
         executable: /bin/bash
      
