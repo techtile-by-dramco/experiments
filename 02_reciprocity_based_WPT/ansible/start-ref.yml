@@ -1,0 +1,27 @@
+---
+- name: Start REF USRP
+  hosts: REF
+  gather_facts: no
+  serial: 0
+  environment:
+    PYTHONPATH: "/usr/local/lib/python3/dist-packages"
+    UHD_IMAGES_DIR: "/usr/share/uhd/images" # no idea why we need to include this as it is defined .bashrc
+  tasks:
+    - name: Change to experiments directory and pull latest code from git
+      shell: "git pull"
+      args:
+        chdir: ~/experiments/
+    - name: Kill the background script process
+      shell: "ps aux | grep start-ref.sh | grep -v grep | awk '{print $2}' | xargs kill -9"
+      ignore_errors: yes
+      become: yes
+      become_method: sudo
+    - name: Start REF
+      ansible.builtin.shell:
+        cmd: nohup ./start-ref.sh > log.txt 2>&1 &
+        chdir: ~/experiments/02_reciprocity_based_WPT/client
+        executable: /bin/bash
+     
+     
+
+     

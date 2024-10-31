@@ -1,7 +1,7 @@
 ---
 - import_playbook: kill-DL-WPT.yml
-# - import_playbook: start-ref.yml
-# - import_playbook: start-pilot.yml
+- import_playbook: start-ref.yml
+- import_playbook: start-pilot.yml
 - name: Start client script
   hosts: "{{ tiles }}"
   gather_facts: no
