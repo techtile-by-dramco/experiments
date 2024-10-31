@@ -6,6 +6,8 @@
   environment:
     PYTHONPATH: "/usr/local/lib/python3/dist-packages"
     UHD_IMAGES_DIR: "/usr/share/uhd/images" # no idea why we need to include this as it is defined .bashrc
+  vars_files:
+    - vars.yml  # Import the variable file
   tasks:
     - name: Change to experiments directory and pull latest code from git
       shell: "git pull"
@@ -21,7 +23,7 @@
       ignore_errors: yes  # Ignore errors in case no process is found
     - name: Start PILOT
       ansible.builtin.shell:
-        cmd: nohup ./usrp-pilot.sh > log.txt 2>&1 &
+        cmd: nohup ./usrp-pilot.sh --ip {{ server_ip }} > log.txt 2>&1 &
         chdir: ~/experiments/02_reciprocity_based_WPT/client
         executable: /bin/bash
      
