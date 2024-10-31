@@ -14,7 +14,6 @@
         cmd: nohup ./sync-server {{ delay_time }} {{ num_sub }} > log.txt 2>&1 &
         chdir: ~/experiments/02_reciprocity_based_WPT/server
         executable: /bin/bash
-      delegate_to: localhost
 
 - import_playbook: start-pilot.yml
 
