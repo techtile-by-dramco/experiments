@@ -2,8 +2,6 @@
 - import_playbook: start-ref.yml
 - import_playbook: start-sync.yml
 - import_playbook: start-pilot.yml
-
-
 - import_playbook: kill-DL-WPT.yml
 - name: Start client script
   hosts: "{{ tiles }}"
