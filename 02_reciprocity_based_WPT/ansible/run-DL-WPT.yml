@@ -21,7 +21,7 @@
 
 - name: Start client script
   hosts: "{{ tiles }}"
-  gather_facts: no
+  gather_facts: yes
   serial: 0
   environment:
     PYTHONPATH: "/usr/local/lib/python3/dist-packages"
