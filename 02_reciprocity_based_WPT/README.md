@@ -22,22 +22,16 @@ All scripts are run in the experiment folder, unless mentioned otherwise.
 0. Enable Techtile VPN
     - On your VM in the home dir: `./start_vpn.sh`
 
-1. Start the reference USRP. This USRP distributes an RF signal, used to distributed the same phase reference to all USRPs. 
-
-```bash
-# on rpi-ref
-ssh pi@rpi-ref.local
-uhd_siggen --args "mode_n=integer" --freq 920e6 --clock-source 'external' --sync 'pps' --const -g 60 --offset 0 -m 0.8
- ```
-
-2. Start the Qualisys system and start the script on the Qualisys server.
+1. Start the Qualisys system and start the script on the Qualisys server.
 
 ```bash
 # on Qualisys server
 python Python_Stream_QTM_to_ZMQ\python_qualisys_streamQTM_to_ZMQ.py
 ```
 
-3. Start the server. Change the `<wait seconds before sending START>` and `<NUM SUBSCRIBERS>` to your own configuration. Know that `<NUM SUBSCRIBERS>`  contains both the RPIs (USRPs) and the pilot and rover. Example: `python ./server/sync_server.py 2 42` waits for 42 subscribers, after receiving `42` messages, it sends a `start` after `2` seconds.
+2. Start the server. Change the `<wait seconds before sending START>` and `<NUM SUBSCRIBERS>` to your own configuration. Know that `<NUM SUBSCRIBERS>`  contains both the RPIs (USRPs) and the pilot and rover. Example: `python ./server/sync_server.py 2 42` waits for 42 subscribers, after receiving `42` messages, it sends a `start` after `2` seconds.
+
+**TODO** start sync server auto in VM and distribute `server-ip` to all hosts.
 
 ```bash
 # on VM
@@ -51,19 +45,12 @@ python ./server/sync_server.py <wait seconds before sending START> <NUM SUBSCRIB
 python ./server/ACRO_control_functions.py
 ```
 
-5. Start the pilot USRP ``. This is the UE USRP, sending a pilot to do the reciprocity calibration. It also waits for the server, prior to starting.
-
-```bash
-# on rpi-pilot
-ssh pi@rpi-pilot.local
-./client/usrp-pilot.sh
-```
-
-6. Run the RPIs from the ansible (clone it), assuming in same root dir as the experiments folder: 
+5. Run the RPIs from the ansible (clone it), assuming in same root dir as the experiments folder: 
 
 ```bash
 # on VM
-ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory/hosts.yaml ../experiments/run-DL-WPT.yml -e tiles=ceiling -e bf="bf"
+cd $HOME/ansible
+ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory/hosts.yaml ../experiments/02_reciprocity_based_WPT/ansible/run-DL-WPT.yml -e tiles=ceiling -e bf="bf"
 ```
 
 Note, everything should be included in the ansible file in later stages.
