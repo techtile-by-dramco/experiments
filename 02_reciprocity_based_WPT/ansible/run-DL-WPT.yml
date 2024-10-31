@@ -1,22 +1,24 @@
 ---
 - import_playbook: kill-DL-WPT.yml
 - import_playbook: start-ref.yml
-
-- name: Define variables for delay_time and num_sub
-  vars:
-    delay_time: 2
-    num_sub: 3
-- name: Get local IP address
-  ansible.builtin.set_fact:
-    local_ip: "{{ ansible_default_ipv4.address }}"
-  delegate_to: localhost
-
-- name: Run local sync-server script
-  ansible.builtin.shell:
-    cmd: nohup ./sync-server {{ delay_time }} {{ num_sub }} > log.txt 2>&1 &
-    chdir: ~/experiments/02_reciprocity_based_WPT/server
-    executable: /bin/bash
-  delegate_to: localhost
+- name: Playbook to get IP and start server on localhost
+  hosts: localhost
+  gather_facts: yes
+  tasks:
+    - name: Set local IP address as a fact
+      ansible.builtin.set_fact:
+        local_ip: "{{ ansible_default_ipv4.address }}"
+      cacheable: yes
+    - name: Define variables for delay_time and num_sub
+      vars:
+        delay_time: 2
+        num_sub: 3
+    - name: Run local sync-server script
+      ansible.builtin.shell:
+        cmd: nohup ./sync-server {{ delay_time }} {{ num_sub }} > log.txt 2>&1 &
+        chdir: ~/experiments/02_reciprocity_based_WPT/server
+        executable: /bin/bash
+      delegate_to: localhost
 
 - import_playbook: start-pilot.yml
 
