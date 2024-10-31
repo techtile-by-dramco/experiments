@@ -5,11 +5,10 @@
 - name: Playbook to get IP and start server on localhost
   hosts: localhost
   gather_facts: yes
+  vars:
+        delay_time: 2  # in seconds
+        num_sub: 1 # in number of subscribers in total
   tasks:
-    - name: Define variables for delay_time and num_sub
-      vars:
-        delay_time: 2
-        num_sub: 3
     - name: Run local sync-server script
       ansible.builtin.shell:
         cmd: nohup ./sync-server {{ delay_time }} {{ num_sub }} > log.txt 2>&1 &
