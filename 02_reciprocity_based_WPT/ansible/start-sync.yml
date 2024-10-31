@@ -18,6 +18,6 @@
 
     - name: Run local sync-server script
       ansible.builtin.shell:
-        cmd: nohup ./sync-server {{ delay_time }} {{ num_sub }} > log.txt 2>&1 &
+        cmd: nohup python3 sync-server.py {{ delay_time }} {{ num_sub }} > log.txt 2>&1 &
         chdir: ~/experiments/02_reciprocity_based_WPT/server
         executable: /bin/bash
