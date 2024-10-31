@@ -12,7 +12,7 @@
       args:
         chdir: ~/experiments/
     - name: Kill the background script process
-      shell: "ps aux | grep start-ref.sh | grep -v grep | awk '{print $2}' | xargs -r kill -9"
+      shell: "ps aux | grep start-ref | grep -v grep | awk '{print $2}' | xargs -r kill -9"
       ignore_errors: yes
       become: yes
       become_method: sudo
