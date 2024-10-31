@@ -8,7 +8,6 @@
     - name: Set local IP address as a fact
       ansible.builtin.set_fact:
         local_ip: "{{ ansible_default_ipv4.address }}"
-      cacheable: yes
     - name: Define variables for delay_time and num_sub
       vars:
         delay_time: 2
