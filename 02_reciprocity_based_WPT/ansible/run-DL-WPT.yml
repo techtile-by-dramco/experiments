@@ -1,7 +1,25 @@
 ---
 - import_playbook: kill-DL-WPT.yml
 - import_playbook: start-ref.yml
+
+- name: Define variables for delay_time and num_sub
+  vars:
+    delay_time: 2
+    num_sub: 3
+- name: Get local IP address
+  ansible.builtin.set_fact:
+    local_ip: "{{ ansible_default_ipv4.address }}"
+  delegate_to: localhost
+
+- name: Run local sync-server script
+  ansible.builtin.shell:
+    cmd: nohup ./sync-server {{ delay_time }} {{ num_sub }} > log.txt 2>&1 &
+    chdir: ~/experiments/02_reciprocity_based_WPT/server
+    executable: /bin/bash
+  delegate_to: localhost
+
 - import_playbook: start-pilot.yml
+
 - name: Start client script
   hosts: "{{ tiles }}"
   gather_facts: no
@@ -26,7 +44,7 @@
         chdir: ~/experiments/02_reciprocity_based_WPT/client
     - name: Run DL BF beamforming
       ansible.builtin.shell:
-        cmd: nohup ./usrp-cal-{{ bf }}.sh > log.txt 2>&1 &
+        cmd: nohup ./usrp-cal-{{ bf }}.sh -- ip {{ local_ip }} > log.txt 2>&1 &
         chdir: ~/experiments/02_reciprocity_based_WPT/client
         executable: /bin/bash
      
