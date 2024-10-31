@@ -14,6 +14,8 @@
         cmd: nohup ./sync-server {{ delay_time }} {{ num_sub }} > log.txt 2>&1 &
         chdir: ~/experiments/02_reciprocity_based_WPT/server
         executable: /bin/bash
+    - set_fact:  
+        ip_addr: "{{ ansible_default_ipv4.address }}" 
 
 - import_playbook: start-pilot.yml
 
@@ -41,7 +43,7 @@
         chdir: ~/experiments/02_reciprocity_based_WPT/client
     - name: Run DL BF beamforming
       ansible.builtin.shell:
-        cmd: nohup ./usrp-cal-{{ bf }}.sh -- ip {{ ansible_default_ipv4.address }} > log.txt 2>&1 &
+        cmd: nohup ./usrp-cal-{{ bf }}.sh -- ip {{ hostvars[localhost]['ip_addr'] }} > log.txt 2>&1 &
         chdir: ~/experiments/02_reciprocity_based_WPT/client
         executable: /bin/bash
      
