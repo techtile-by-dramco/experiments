@@ -22,11 +22,11 @@
       become_method: sudo
     - name: chmod +x to be sure
       ansible.builtin.shell:
-        cmd: "chmod +x usrp-ref.sh"
+        cmd: "chmod +x start-ref.sh"
         chdir: ~/experiments/02_reciprocity_based_WPT/client
     - name: remove windows errors 
       ansible.builtin.shell:
-        cmd: sed -i -e 's/\r$//' ./usrp-ref.sh
+        cmd: sed -i -e 's/\r$//' ./start-ref.sh
         chdir: ~/experiments/02_reciprocity_based_WPT/client
     - name: Start REF
       ansible.builtin.shell:
