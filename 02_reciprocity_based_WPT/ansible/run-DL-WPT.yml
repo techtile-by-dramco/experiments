@@ -34,7 +34,7 @@
         chdir: ~/experiments/02_reciprocity_based_WPT/client
     - name: Run DL BF beamforming
       ansible.builtin.shell:
-        cmd: nohup ./usrp-cal-{{ bf }}.sh -- ip {{ server_ip }} > log.txt 2>&1 &
+        cmd: nohup ./usrp-cal-{{ bf }}.sh --ip {{ server_ip }} > log.txt 2>&1 &
         chdir: ~/experiments/02_reciprocity_based_WPT/client
         executable: /bin/bash
      
