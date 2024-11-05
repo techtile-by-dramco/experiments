@@ -620,40 +620,64 @@ def tx_phase_coh(usrp, tx_streamer, quit_event, phase_corr, at_time, long_time=T
     return tx_thr, tx_meta_thr
 
 
+# def parse_arguments():
+#     import argparse
+
+#     global meas_id, gains_bash, exp_id, server_ip
+
+#     # Create the parser
+#     parser = argparse.ArgumentParser(description="Transmit with phase difference.")
+
+#     # Add the --phase argument
+#     parser.add_argument("--meas", type=int, help="measurement ID", required=True)
+
+#     parser.add_argument("--gain", type=int, nargs="+", help="gain_db", required=True)
+
+#     parser.add_argument("--exp", type=str, help="exp ID", required=True)
+
+#     parser.add_argument(
+#         "-i", "--ip", type=str, help="ip address of the server", required=False
+#     )
+
+#     # Parse the arguments
+#     args = parser.parse_args()
+
+#     # Set the global variable tx_phase to the value of --phase
+#     meas_id = args.meas
+
+#     # Access the gain values
+#     gains = args.gain
+
+#     # Handle cases where either one or two gain values are provided
+#     if len(gains) == 1:
+#         gains_bash = [gains[0], gains[0]]
+#     elif len(gains) == 2:
+#         gains_bash = gains
+#         print(f"Gain 1: {gains_bash[0]}, Gain 2: {gains_bash[1]}")
+#     else:
+#         print("Error: Too many gain values provided.")
+
+#     exp_id = args.exp
+
+
 def parse_arguments():
     import argparse
 
-    global meas_id, gains_bash, exp_id
+    global server_ip
 
     # Create the parser
-    parser = argparse.ArgumentParser(description="Transmit with phase difference.")
+    parser = argparse.ArgumentParser(description="BF")
 
-    # Add the --phase argument
-    parser.add_argument("--meas", type=int, help="measurement ID", required=True)
-
-    parser.add_argument("--gain", type=int, nargs="+", help="gain_db", required=True)
-
-    parser.add_argument("--exp", type=str, help="exp ID", required=True)
+    parser.add_argument(
+        "-i", "--ip", type=str, help="ip address of the server", required=False
+    )
 
     # Parse the arguments
     args = parser.parse_args()
 
-    # Set the global variable tx_phase to the value of --phase
-    meas_id = args.meas
-
-    # Access the gain values
-    gains = args.gain
-
-    # Handle cases where either one or two gain values are provided
-    if len(gains) == 1:
-        gains_bash = [gains[0], gains[0]]
-    elif len(gains) == 2:
-        gains_bash = gains
-        print(f"Gain 1: {gains_bash[0]}, Gain 2: {gains_bash[1]}")
-    else:
-        print("Error: Too many gain values provided.")
-
-    exp_id = args.exp
+    if args.ip is not None:
+        if not args.pi:  # and not empty
+            server_ip = args.ip
 
 
 def main():
@@ -661,7 +685,7 @@ def main():
 
     # unique_id = datetime.utcnow().strftime("%Y%m%d%H%M%S")
 
-    # # parse_arguments()
+    parse_arguments()
 
     # file_name = f"data_{HOSTNAME}_{unique_id}"
 

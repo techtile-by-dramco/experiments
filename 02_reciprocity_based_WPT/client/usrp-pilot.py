@@ -939,7 +939,7 @@ def get_current_time(usrp):
 
 
 def parse_arguments():
-    global tx_phase
+    global tx_phase, server_ip
 
     # Create the parser
     parser = argparse.ArgumentParser(description="Transmit with phase difference.")
@@ -948,12 +948,20 @@ def parse_arguments():
     parser.add_argument(
         "--phase", type=int, help="Phase value for transmission", required=True
     )
+    parser.add_argument(
+        "-i", "--ip", type=str, help="ip address of the server", required=False
+    )
 
     # Parse the arguments
     args = parser.parse_args()
 
     # Set the global variable tx_phase to the value of --phase
     tx_phase = args.phase
+
+    if args.ip is not None:
+        if not args.pi: # and not empty
+            server_ip = args.ip
+
 
 
 def main():
