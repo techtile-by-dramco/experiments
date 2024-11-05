@@ -58,9 +58,7 @@ Note, everything should be included in the ansible file in later stages.
 ### Interesting captures
 
 
-#### exp-20241105192151.yml 
-
-bf-ceiling-grid-20241105-70db-tx
+#### 20241105202156
 
 BF with TX gain of 70dB
 
