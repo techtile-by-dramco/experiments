@@ -3,7 +3,7 @@
   gather_facts: yes
   vars:
         delay_time: 2  # in seconds
-        num_sub: 1 # in number of subscribers in total
+        num_sub: 43 # in number of subscribers in total
   vars_files:
     - vars.yml  # Import the variable file
   tasks:
