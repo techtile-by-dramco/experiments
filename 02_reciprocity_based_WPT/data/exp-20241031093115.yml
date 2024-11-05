@@ -1,0 +1,15 @@
+experiment: 20241031093115
+num_subscribers: 43
+measurments:
+  - meas_id: 0
+    active_tiles:
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE

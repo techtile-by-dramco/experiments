@@ -1,0 +1,51 @@
+experiment: 20241030145023
+num_subscribers: 42
+measurments:
+  - meas_id: 0
+    active_tiles:
+     - PILOT
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+     - ALIVE
+  - meas_id: 1
+    active_tiles:
+     - ALIVE
+     - PILOT
