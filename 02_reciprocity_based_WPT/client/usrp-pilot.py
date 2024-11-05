@@ -34,6 +34,7 @@ REF_RX_GAIN = 22  # empirical determined 22 without splitter, 27 with splitter
 CAPTURE_TIME = 10
 # server_ip = "10.128.52.53"
 MAX_RETRIES = 10
+server_ip = ""
 
 
 MEAS_TYPE_LOOPBACK = "LB"
@@ -47,11 +48,6 @@ meas_id = 0
 tx_phase = None
 
 results = []
-
-
-with open(os.path.join(os.path.dirname(__file__), "cal-settings-pilot.yml"), 'r') as file:
-    vars = yaml.safe_load(file)
-    globals().update(vars)  # update the global variables with the vars in yaml
 
 
 # Setup the logger with our custom timestamp formatting
@@ -102,6 +98,14 @@ formatter = LogFormatter(
     fmt="[%(asctime)s] [%(levelname)s] (%(threadName)-10s) %(message)s")
 
 console.setFormatter(formatter)
+
+
+with open(
+    os.path.join(os.path.dirname(__file__), "cal-settings-pilot.yml"), "r"
+) as file:
+    logger.debug("Loading all default conf values...")
+    vars = yaml.safe_load(file)
+    globals().update(vars)  # update the global variables with the vars in yaml
 
 TOPIC_CH0 = b"CH0"
 TOPIC_CH1 = b"CH1"
