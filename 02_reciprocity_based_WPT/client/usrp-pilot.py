@@ -962,10 +962,8 @@ def parse_arguments():
     # Set the global variable tx_phase to the value of --phase
     tx_phase = args.phase
 
-    logger.debug("Setting server IP to: " + args.ip)
-
     if args.ip is not None:
-        if not args.ip: # and not empty
+        if args.ip: # and not empty
             logger.debug("Setting server IP to: " + args.ip)
             server_ip = args.ip
 
