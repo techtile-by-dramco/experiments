@@ -33,6 +33,7 @@ fi
 while true; do
   # Check if the --ip argument was provided
   if [[ -n "$ip" ]]; then
+      echo "Running with IP address: $ip"
       python3 usrp-pilot.py --phase 0 --ip "$ip"
   else
       python3 usrp-pilot.py --phase 0
