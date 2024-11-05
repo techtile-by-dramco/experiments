@@ -9,17 +9,23 @@
   vars_files:
     - vars.yml  # Import the variable file
   tasks:
+    - name: "Reset GIT to be sure"
+      shell: "git fetch origin && git reset --hard origin/main"
+      args:
+        chdir: ~/experiments/
     - name: Change to experiments directory and pull latest code from git
       shell: "git pull"
       args:
         chdir: ~/experiments/
     - name: Kill the background script process
-      shell: "ps aux | grep usrp-pilot | grep -v grep | awk '{print $2}' | xargs -r kill -9"
+      shell: "sudo ps aux | grep usrp-pilot | grep -v grep | awk '{print $2}' | xargs -r kill -9"
       ignore_errors: yes
       become: yes
       become_method: sudo
     - name: Kill the process listening on 0.0.0.0:50001
       shell: "sudo netstat -ltnp | grep '0.0.0.0:50001' | awk '{print $7}' | cut -d'/' -f1 | xargs -r sudo kill -9"
+      become: yes
+      become_method: sudo
       ignore_errors: yes  # Ignore errors in case no process is found
     - name: chmod +x to be sure
       ansible.builtin.shell:
