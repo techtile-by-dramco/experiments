@@ -677,6 +677,7 @@ def parse_arguments():
 
     if args.ip is not None:
         if not args.ip:  # and not empty
+            logger.debug("Setting server IP to: "+args.ip)
             server_ip = args.ip
 
 
