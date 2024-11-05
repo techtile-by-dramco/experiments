@@ -21,6 +21,10 @@
     - name: Kill the process listening on 0.0.0.0:50001
       shell: "sudo netstat -ltnp | grep '0.0.0.0:50001' | awk '{print $7}' | cut -d'/' -f1 | xargs -r sudo kill -9"
       ignore_errors: yes  # Ignore errors in case no process is found
+    - name: chmod +x to be sure
+      ansible.builtin.shell:
+        cmd: "chmod +x usrp-pilot.sh"
+        chdir: ~/experiments/02_reciprocity_based_WPT/client
     - name: Start PILOT
       ansible.builtin.shell:
         cmd: nohup ./usrp-pilot.sh --ip {{ server_ip }} > log.txt 2>&1 &
