@@ -1,1 +1,1 @@
-uhd_siggen --args 'mode_n=integer' --freq 920e6 --clock-source 'external' --sync 'pps' --const -g 60 --offset 0 -m 0.8
+uhd_siggen --args 'mode_n=integer' --freq 920e6 --clock-source 'external' --sync 'pps' --const -g 60 --offset 0 -m 0.8 < /dev/zero
