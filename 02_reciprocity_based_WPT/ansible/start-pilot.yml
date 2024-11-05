@@ -27,10 +27,13 @@
       become: yes
       become_method: sudo
       ignore_errors: yes  # Ignore errors in case no process is found
+    - name: chmod +x to be sure
+      ansible.builtin.shell:
+        cmd: "chmod +x usrp-pilot.sh"
+        chdir: ~/experiments/02_reciprocity_based_WPT/client
     - name: remove windows errors 
       ansible.builtin.shell:
         cmd: sed -i -e 's/\r$//' ./usrp-cal-pilot.sh
-        chdir: ~/experiments/02_reciprocity_based_WPT/client
     - name: Start PILOT
       ansible.builtin.shell:
         cmd: nohup ./usrp-pilot.sh --ip {{ server_ip }} > log.txt 2>&1 &
