@@ -676,7 +676,7 @@ def parse_arguments():
     args = parser.parse_args()
 
     if args.ip is not None:
-        if not args.pi:  # and not empty
+        if not args.ip:  # and not empty
             server_ip = args.ip
 
 

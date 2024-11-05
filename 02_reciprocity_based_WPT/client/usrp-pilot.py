@@ -959,7 +959,7 @@ def parse_arguments():
     tx_phase = args.phase
 
     if args.ip is not None:
-        if not args.pi: # and not empty
+        if not args.ip: # and not empty
             server_ip = args.ip
 
 
