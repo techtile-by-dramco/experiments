@@ -1,11 +1,14 @@
 ---
+- import_playbook: start-ref.yml
+- import_playbook: start-sync.yml
+- import_playbook: start-pilot.yml
 - import_playbook: kill-DL-WPT.yml
-# - import_playbook: start-ref.yml
-# - import_playbook: start-pilot.yml
 - name: Start client script
   hosts: "{{ tiles }}"
-  gather_facts: no
+  gather_facts: yes
   serial: 0
+  vars_files:
+    - vars.yml  # Import the variable file
   environment:
     PYTHONPATH: "/usr/local/lib/python3/dist-packages"
     UHD_IMAGES_DIR: "/usr/share/uhd/images" # no idea why we need to include this as it is defined .bashrc
@@ -26,7 +29,7 @@
         chdir: ~/experiments/02_reciprocity_based_WPT/client
     - name: Run DL BF beamforming
       ansible.builtin.shell:
-        cmd: nohup ./usrp-cal-{{ bf }}.sh > log.txt 2>&1 &
+        cmd: nohup ./usrp-cal-{{ bf }}.sh -- ip {{ server_ip }} > log.txt 2>&1 &
         chdir: ~/experiments/02_reciprocity_based_WPT/client
         executable: /bin/bash
      

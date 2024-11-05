@@ -28,10 +28,10 @@
   gather_facts: no  # Disable fact gathering
   tasks:
     - name: Kill the background script process
-      shell: "ps aux | grep usrp-cal | grep -v grep | awk '{print $2}' | xargs kill -9"
+      shell: "ps aux | grep usrp-cal | grep -v grep | awk '{print $2}' | xargs -r kill -9"
       ignore_errors: yes
       become: yes
       become_method: sudo
     - name: Kill the process listening on 0.0.0.0:50001
-      shell: "sudo kill -9 $(sudo netstat -ltnp | grep '0.0.0.0:50001' | awk '{print $7}' | cut -d'/' -f1)"
+      shell: "sudo netstat -ltnp | grep '0.0.0.0:50001' | awk '{print $7}' | cut -d'/' -f1 | xargs -r sudo kill -9"
       ignore_errors: yes  # Ignore errors in case no process is found
