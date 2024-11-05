@@ -949,7 +949,7 @@ def parse_arguments():
         "--phase", type=int, help="Phase value for transmission", required=True
     )
     parser.add_argument(
-        "-i", "--ip", type=str, help="ip address of the server", required=False
+        "--ip", type=str, help="ip address of the server", required=False
     )
 
     # Parse the arguments
@@ -957,6 +957,8 @@ def parse_arguments():
 
     # Set the global variable tx_phase to the value of --phase
     tx_phase = args.phase
+
+    logger.debug("Setting server IP to: " + args.ip)
 
     if args.ip is not None:
         if not args.ip: # and not empty
