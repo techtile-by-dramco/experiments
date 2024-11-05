@@ -285,7 +285,7 @@ def wait_till_go_from_server(ip, _connect=True):
     sync_socket.subscribe("")
 
     logger.debug("Sending ALIVE")
-    alive_socket.send_string("ALIVE")
+    alive_socket.send_string(HOSTNAME)
     # Receives a string format message
     logger.debug("Waiting on SYNC from server %s.", ip)
 
@@ -676,7 +676,7 @@ def parse_arguments():
     args = parser.parse_args()
 
     if args.ip is not None:
-        if not args.ip:  # and not empty
+        if args.ip:  # and not empty
             logger.debug("Setting server IP to: "+args.ip)
             server_ip = args.ip
 

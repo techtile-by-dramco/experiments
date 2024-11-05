@@ -1,11 +1,12 @@
 ---
-- import_playbook: start-ref.yml
-- import_playbook: start-sync.yml
-- import_playbook: start-pilot.yml
 - import_playbook: kill-DL-WPT.yml
+# - import_playbook: start-ref.yml
+# - import_playbook: start-sync.yml
+- import_playbook: get-ip-sync.yml
+- import_playbook: start-pilot.yml
 - name: Start client script
   hosts: "{{ tiles }}"
-  gather_facts: yes
+  gather_facts: no
   serial: 0
   vars_files:
     - vars.yml  # Import the variable file
@@ -33,7 +34,7 @@
         chdir: ~/experiments/02_reciprocity_based_WPT/client
     - name: Run DL BF beamforming
       ansible.builtin.shell:
-        cmd: nohup ./usrp-cal-{{ bf }}.sh -- ip {{ server_ip }} > log.txt 2>&1 &
+        cmd: nohup ./usrp-cal-{{ bf }}.sh --ip {{ server_ip }} > log.txt 2>&1 &
         chdir: ~/experiments/02_reciprocity_based_WPT/client
         executable: /bin/bash
      

@@ -20,6 +20,14 @@
       ignore_errors: yes
       become: yes
       become_method: sudo
+    - name: chmod +x to be sure
+      ansible.builtin.shell:
+        cmd: "chmod +x start-ref.sh"
+        chdir: ~/experiments/02_reciprocity_based_WPT/client
+    - name: remove windows errors 
+      ansible.builtin.shell:
+        cmd: sed -i -e 's/\r$//' ./start-ref.sh
+        chdir: ~/experiments/02_reciprocity_based_WPT/client
     - name: Start REF
       ansible.builtin.shell:
         cmd: nohup ./start-ref.sh > log.txt 2>&1 &

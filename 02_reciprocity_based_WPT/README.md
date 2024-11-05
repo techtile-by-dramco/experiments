@@ -55,5 +55,12 @@ ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory/hosts.yaml ../expe
 
 Note, everything should be included in the ansible file in later stages.
 
+### Interesting captures
 
+
+#### exp-20241105192151.yml 
+
+bf-ceiling-grid-20241105-70db-tx
+
+BF with TX gain of 70dB
 

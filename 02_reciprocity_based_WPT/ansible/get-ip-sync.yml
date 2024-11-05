@@ -1,0 +1,17 @@
+- name: Playbook to get IP and start server on localhost
+  hosts: localhost
+  gather_facts: yes
+  vars:
+        delay_time: 2  # in seconds
+        num_sub: 43 # in number of subscribers in total
+  vars_files:
+    - vars.yml  # Import the variable file
+  tasks:
+    - name: Get local IP variable
+      set_fact:
+        local_ip: "{{ ansible_default_ipv4.address }}"
+
+    - name: Update variable file
+      copy:
+        content: "server_ip: '{{ local_ip }}'\n"
+        dest: vars.yml
