@@ -16,7 +16,7 @@
     bf: "bf" # options: bf, nobf, randombf
   tasks:
     - name: "Reset GIT to be sure"
-      shell: "git fetch origin && git reset --hard origin/master"
+      shell: "git fetch origin && git reset --hard origin/main"
       args:
         chdir: ~/experiments/
     - name: Change to experiments directory and pull latest code from git
