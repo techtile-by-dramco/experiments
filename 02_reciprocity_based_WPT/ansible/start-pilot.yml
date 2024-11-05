@@ -33,7 +33,7 @@
         chdir: ~/experiments/02_reciprocity_based_WPT/client
     - name: remove windows errors 
       ansible.builtin.shell:
-        cmd: sed -i -e 's/\r$//' ./usrp-cal-pilot.sh
+        cmd: sed -i -e 's/\r$//' ./usrp-pilot.sh
     - name: Start PILOT
       ansible.builtin.shell:
         cmd: nohup ./usrp-pilot.sh --ip {{ server_ip }} > log.txt 2>&1 &
