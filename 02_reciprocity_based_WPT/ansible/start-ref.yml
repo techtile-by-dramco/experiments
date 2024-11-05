@@ -7,6 +7,10 @@
     PYTHONPATH: "/usr/local/lib/python3/dist-packages"
     UHD_IMAGES_DIR: "/usr/share/uhd/images" # no idea why we need to include this as it is defined .bashrc
   tasks:
+    - name: "Reset GIT to be sure"
+      shell: "git fetch origin && git reset --hard origin/master"
+      args:
+        chdir: ~/experiments/
     - name: Change to experiments directory and pull latest code from git
       shell: "git pull"
       args:
