@@ -6,7 +6,7 @@
 - import_playbook: start-pilot.yml
 - name: Start client script
   hosts: "{{ tiles }}"
-  gather_facts: yes
+  gather_facts: no
   serial: 0
   vars_files:
     - vars.yml  # Import the variable file
