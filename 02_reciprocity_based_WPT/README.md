@@ -62,3 +62,7 @@ Note, everything should be included in the ansible file in later stages.
 
 BF with TX gain of 70dB
 
+
+![heatmap-dBm](https://github.com/techtile-by-dramco/experiments/blob/74e286ac5447069129e0acbe486fbcd957288f2b/02_reciprocity_based_WPT/results/20241105202156/heatmap-dBm.png)
+![heatmap-nW](https://github.com/techtile-by-dramco/experiments/blob/74e286ac5447069129e0acbe486fbcd957288f2b/02_reciprocity_based_WPT/results/20241105202156/heatmap-nW.png)
+
