@@ -13,6 +13,7 @@ PLOT_ONLE_ACTIVE_TILES = True
 
 positions_url = r"https://raw.githubusercontent.com/techtile-by-dramco/plotter/refs/heads/main/src/TechtilePlotter/positions.yml"
 
+# TODO extract from experiment description file
 active_tiles = [
     "A05",
     "A06",
@@ -67,7 +68,7 @@ for c in config["antennes"]:
 antenna_positions = np.asarray(antenna_positions)
 
 # UE position (energy neutral device)
-p_EN = np.array([3.14234423828125, 1.9168280029296876, 0.2558418731689453])
+p_EN = np.array([3.172191162109375, 1.7955023193359374, 0.2552783966064453])
 
 # Constants
 f = 920e6  # Antenna frequency (Hz)
@@ -78,8 +79,8 @@ L = len(antenna_positions)  # Number of antennas
 
 
 if PLOT_ONLY_XY_PLANE:
-    X_MIN, X_MAX = 2.6, 3.9
-    Y_MIN, Y_MAX = 1.20, 2.45
+    X_MIN, X_MAX = 2.6, 3.8
+    Y_MIN, Y_MAX = 1.25, 2.4
 else:
     # Grid limits and resolution
     X_MIN, X_MAX = 0, 8  # x-limits within the floorplan
@@ -141,14 +142,14 @@ print(f"Path Gain at UE is {PG_EN:.2f} dB")
 # Plot scenario
 plt.figure(figsize=(8, 5))
 PG_dB = 10 * np.log10(np.abs(y) ** 2)
-plt.imshow(PG_dB, extent=[X_MIN, X_MAX, Y_MIN, Y_MAX], origin="lower", aspect="auto")
-plt.plot(p_EN[0], p_EN[1], "bo", markersize=10)
-plt.colorbar(label="PG in dB")
+plt.imshow(PG_dB+3.6, extent=[X_MIN, X_MAX, Y_MIN, Y_MAX], origin="upper", aspect="auto")
+# plt.plot(p_EN[0], p_EN[1], "bo", markersize=10)
+plt.colorbar(label="Rx power in dBm")
 
 
 # Add rectangle around specified position
-min_x, max_x = 2.6, 3.9
-min_y, max_y = 1.20, 2.45
+min_x, max_x = 2.6, 3.8
+min_y, max_y = 1.25, 2.4
 rect = Rectangle(
     (min_x, min_y),
     max_x - min_x,
@@ -162,7 +163,42 @@ plt.gca().add_patch(rect)
 
 plt.xlabel("x in m")
 plt.ylabel("y in m")
-plt.clim(np.max(PG_dB) - 25, np.max(PG_dB))
-plt.title("Path Gain (PG)")
-plt.grid(True)
+plt.clim(-48, None)
+plt.title("Friis [tx 3.6dBm]")
+# plt.grid(True)
+plt.tight_layout()
+plt.savefig(f"../results/ideal/heatmap-dBm.png", bbox_inches="tight")
+plt.show()
+
+
+plt.figure(figsize=(8, 5))
+PG_dB = 10 * np.log10(np.abs(y) ** 2)
+plt.imshow(
+    10**((PG_dB + 3.6)/10)*1000, extent=[X_MIN, X_MAX, Y_MIN, Y_MAX], origin="upper", aspect="auto"
+)
+# plt.plot(p_EN[0], p_EN[1], "bo", markersize=10)
+plt.colorbar(label="PG in nW")
+
+
+# Add rectangle around specified position
+min_x, max_x = 2.6, 3.8
+min_y, max_y = 1.25, 2.4
+rect = Rectangle(
+    (min_x, min_y),
+    max_x - min_x,
+    max_y - min_y,
+    linewidth=2,
+    edgecolor="r",
+    facecolor="none",
+)
+plt.gca().add_patch(rect)
+
+
+plt.xlabel("x in m")
+plt.ylabel("y in m")
+plt.clim(0.001, None)
+plt.title("Friis [tx 3.6dBm]")
+# plt.grid(True)
+plt.tight_layout()
+plt.savefig(f"../results/ideal/heatmap-nW.png", bbox_inches="tight")
 plt.show()
