@@ -1,0 +1,50 @@
+experiment: 20241105202156
+num_subscribers: 42
+measurments:
+  - meas_id: 0
+    active_tiles:
+     - ROVER
+     - PILOT
+     - A09
+     - A06
+     - A05
+     - A08
+     - A10
+     - B06
+     - B08
+     - B09
+     - C05
+     - C09
+     - D08
+     - D10
+     - E06
+     - E07
+     - E10
+     - E09
+     - F07
+     - F09
+     - G07
+     - G09
+     - G08
+     - A07
+     - C06
+     - D05
+     - D06
+     - D07
+     - D09
+     - E08
+     - B05
+     - F06
+     - B07
+     - G05
+     - B10
+     - C07
+     - G06
+     - C08
+     - C10
+     - E05
+     - F08
+     - F10
+  - meas_id: 1
+    active_tiles:
+     - PILOT
