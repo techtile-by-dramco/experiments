@@ -50,29 +50,29 @@ for i, tp in enumerate(to_plot):
     fig, ax = plt.subplots()
     plt.title(tp)
     upsampled_heatmap = zoom(heatmap, zoom=zoom_val, order=1)
-    p = ax.imshow(
+    plt.imshow(
         10 * np.log10(upsampled_heatmap) + 10,  # + 10 to account for the cable loss
-        vmin=-48+10,
-        vmax=-22+10,
+        vmin=-48 + 10,
+        vmax=-22 + 10,
         cmap="viridis",
         origin="lower",
     )
-    ax.set_xticks(
+    plt.gca().set_xticks(
         zoom_val * np.arange(len(xi))[::4],
         labels=[f"{(x-xi[0])/wavelen:.2f}" for x in xi][::4],
     )
-    ax.set_yticks(
+    plt.gca().set_yticks(
         zoom_val * np.arange(len(yi))[::4],
         labels=[f"{(y-yi[0])/wavelen:.2f}" for y in yi][::4],
     )
     # ax.add_patch(Rectangle((y_bf-0.5, x_bf-0.5), 1, 1, fill=False, edgecolor="red", lw=3))
-    cbar = fig.colorbar(p)
-    cbar.ax.set_ylabel("dBm")
-    ax.set_xlabel("distance in wavelengths")
-    ax.set_ylabel("distance in wavelengths")
+    plt.colorbar(label="dBm")
+    # cbar.ax.set_ylabel("dBm")
+    plt.xlabel("distance in wavelengths")
+    plt.ylabel("distance in wavelengths")
     fig.tight_layout()
     plt.savefig(f"../results/{tp}/heatmap-dBm.png", bbox_inches="tight")
-    # plt.show()
+    plt.show()
 
     fig, ax = plt.subplots()
     plt.title(tp)
@@ -94,6 +94,7 @@ for i, tp in enumerate(to_plot):
     ax.set_xlabel("distance in wavelengths")
     ax.set_ylabel("distance in wavelengths")
     fig.tight_layout()
+
     plt.savefig(f"../results/{tp}/heatmap-nW.png", bbox_inches="tight")
     # plt.show()
 
