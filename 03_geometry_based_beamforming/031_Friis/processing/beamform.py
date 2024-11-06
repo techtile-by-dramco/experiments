@@ -13,6 +13,9 @@ PLOT_ONLE_ACTIVE_TILES = True
 
 positions_url = r"https://raw.githubusercontent.com/techtile-by-dramco/plotter/refs/heads/main/src/TechtilePlotter/positions.yml"
 
+cmap = "inferno"
+
+
 # TODO extract from experiment description file
 active_tiles = [
     "A05",
@@ -142,7 +145,7 @@ print(f"Path Gain at UE is {PG_EN:.2f} dB")
 # Plot scenario
 plt.figure()
 PG_dB = 10 * np.log10(np.abs(y) ** 2)
-plt.imshow(PG_dB+3.6, extent=[X_MIN, X_MAX, Y_MIN, Y_MAX], origin="upper", aspect="auto")
+plt.imshow(PG_dB+3.6, extent=[X_MIN, X_MAX, Y_MIN, Y_MAX], origin="upper", aspect="auto", cmap=cmap)
 # plt.plot(p_EN[0], p_EN[1], "bo", markersize=10)
 plt.colorbar(label="Rx power in dBm")
 
@@ -163,7 +166,7 @@ plt.gca().add_patch(rect)
 
 plt.xlabel("x in m")
 plt.ylabel("y in m")
-plt.clim(-48, None)
+plt.clim(np.max(PG_dB) - 25, None)
 plt.title("Friis [tx 3.6dBm]")
 # plt.grid(True)
 plt.tight_layout()
@@ -174,7 +177,7 @@ plt.show()
 plt.figure()
 PG_dB = 10 * np.log10(np.abs(y) ** 2)
 plt.imshow(
-    10**((PG_dB + 3.6)/10)*1000, extent=[X_MIN, X_MAX, Y_MIN, Y_MAX], origin="upper", aspect="auto"
+    10**((PG_dB + 3.6)/10)*1000, extent=[X_MIN, X_MAX, Y_MIN, Y_MAX], origin="upper", aspect="auto",cmap=cmap
 )
 # plt.plot(p_EN[0], p_EN[1], "bo", markersize=10)
 plt.colorbar(label="Rx power in uW")
