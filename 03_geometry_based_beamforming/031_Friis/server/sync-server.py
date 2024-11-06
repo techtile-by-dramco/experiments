@@ -6,7 +6,7 @@ import time
 import sys
 import numpy as np
 import os
-from datetime import datetime
+from datetime import datetime, UTC
 
 import csv
 
@@ -42,7 +42,7 @@ data_socket.bind("tcp://{}:{}".format(host, data_port))
 
 
 meas_id = 0
-unique_id = str(datetime.now(datetime.UTC).strftime("%Y%m%d%H%M%S"))
+unique_id = str(datetime.now(UTC).strftime("%Y%m%d%H%M%S"))
 
 script_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)))
 
