@@ -45,7 +45,7 @@ for i, tp in enumerate(to_plot):
                 x_bf = i_x
                 y_bf = i_y
 
-    zoom_val = 50
+    zoom_val = 1
 
     fig, ax = plt.subplots()
     plt.title(tp)
@@ -65,19 +65,19 @@ for i, tp in enumerate(to_plot):
         zoom_val * np.arange(len(yi))[::4],
         labels=[f"{(y-yi[0])/wavelen:.2f}" for y in yi][::4],
     )
-    # ax.add_patch(Rectangle((y_bf-0.5, x_bf-0.5), 1, 1, fill=False, edgecolor="red", lw=3))
+    ax.add_patch(Rectangle((y_bf-0.5, x_bf-0.5), 1, 1, fill=False, edgecolor="red", lw=3))
     plt.colorbar(label="dBm")
     # cbar.ax.set_ylabel("dBm")
     plt.xlabel("distance in wavelengths")
     plt.ylabel("distance in wavelengths")
     fig.tight_layout()
     plt.savefig(f"../results/{tp}/heatmap-dBm.png", bbox_inches="tight")
-    plt.show()
+    # plt.show()
 
     fig, ax = plt.subplots()
     plt.title(tp)
     upsampled_heatmap = zoom(heatmap, zoom=zoom_val, order=1)
-    p = ax.imshow(upsampled_heatmap * 1000 * 10, vmin=0.001,  cmap="viridis", origin="lower") # * 10 to account for the cable loss
+    p = ax.imshow(upsampled_heatmap * 1000 * 10, vmax=80, vmin=0.001,  cmap="viridis", origin="lower") # * 10 to account for the cable loss
     ax.set_xticks(
         zoom_val * np.arange(len(xi))[::4],
         labels=[f"{(x-xi[0])/wavelen:.2f}" for x in xi][::4],
@@ -86,9 +86,9 @@ for i, tp in enumerate(to_plot):
         zoom_val * np.arange(len(yi))[::4],
         labels=[f"{(y-yi[0])/wavelen:.2f}" for y in yi][::4],
     )
-    # ax.add_patch(
-    #     Rectangle((y_bf - 0.5, x_bf - 0.5), 1, 1, fill=False, edgecolor="red", lw=3)
-    # )
+    ax.add_patch(
+        Rectangle((y_bf - 0.5, x_bf - 0.5), 1, 1, fill=False, edgecolor="red", lw=3)
+    )
     cbar = fig.colorbar(p)
     cbar.ax.set_ylabel("uW")
     ax.set_xlabel("distance in wavelengths")
@@ -96,7 +96,7 @@ for i, tp in enumerate(to_plot):
     fig.tight_layout()
 
     plt.savefig(f"../results/{tp}/heatmap-uW.png", bbox_inches="tight")
-    # plt.show()
+    plt.show()
 
 
 # fig, ax = plt.subplots()

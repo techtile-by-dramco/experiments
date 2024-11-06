@@ -134,13 +134,13 @@ print("Done.")
 # Compute path gain at EN device
 raEN = np.tile(p_EN.reshape(3, 1), (1, L)) - P_array
 daEN = np.linalg.norm(raEN, axis=0)
-hEN = lambda_ / (np.sqrt(4 * np.pi) * daEN) * np.exp(-1j * 2 * np.pi / lambda_ * daEN)
+hEN = lambda_ / (4 * np.pi * daEN) * np.exp(-1j * 2 * np.pi / lambda_ * daEN)
 y_EN = np.dot(w.T, hEN)
 PG_EN = 10 * np.log10(np.abs(y_EN) ** 2)
 print(f"Path Gain at UE is {PG_EN:.2f} dB")
 
 # Plot scenario
-plt.figure(figsize=(8, 5))
+plt.figure()
 PG_dB = 10 * np.log10(np.abs(y) ** 2)
 plt.imshow(PG_dB+3.6, extent=[X_MIN, X_MAX, Y_MIN, Y_MAX], origin="upper", aspect="auto")
 # plt.plot(p_EN[0], p_EN[1], "bo", markersize=10)
@@ -171,13 +171,13 @@ plt.savefig(f"../results/ideal/heatmap-dBm.png", bbox_inches="tight")
 plt.show()
 
 
-plt.figure(figsize=(8, 5))
+plt.figure()
 PG_dB = 10 * np.log10(np.abs(y) ** 2)
 plt.imshow(
     10**((PG_dB + 3.6)/10)*1000, extent=[X_MIN, X_MAX, Y_MIN, Y_MAX], origin="upper", aspect="auto"
 )
 # plt.plot(p_EN[0], p_EN[1], "bo", markersize=10)
-plt.colorbar(label="PG in nW")
+plt.colorbar(label="Rx power in uW")
 
 
 # Add rectangle around specified position
@@ -200,5 +200,5 @@ plt.clim(0.001, None)
 plt.title("Friis [tx 3.6dBm]")
 # plt.grid(True)
 plt.tight_layout()
-plt.savefig(f"../results/ideal/heatmap-nW.png", bbox_inches="tight")
+plt.savefig(f"../results/ideal/heatmap-uW.png", bbox_inches="tight")
 plt.show()
