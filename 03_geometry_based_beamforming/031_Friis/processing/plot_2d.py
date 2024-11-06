@@ -94,11 +94,11 @@ for i, tp in enumerate(to_plot):
     #     Rectangle((y_bf - 0.5, x_bf - 0.5), 1, 1, fill=False, edgecolor="red", lw=3)
     # )
     cbar = fig.colorbar(p)
-    cbar.ax.set_ylabel("nW")
+    cbar.ax.set_ylabel("uW")
     ax.set_xlabel("distance in wavelengths")
     ax.set_ylabel("distance in wavelengths")
     fig.tight_layout()
-    plt.savefig(f"../results/{tp}/heatmap-nW.png", bbox_inches="tight")
+    plt.savefig(f"../results/{tp}/heatmap-uW.png", bbox_inches="tight")
     # plt.show()
 
 
