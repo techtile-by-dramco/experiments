@@ -10,9 +10,4 @@ In contrast to experiments in 02, here the phase is not determined by an uplink 
 ansible-playbook -i inventory/hosts.yaml "../experiments/03_geometry_based_beamforming/ansible/run-DL-WPT.yml" -e tiles=ceiling
 ```
 
-### Interesting captures
 
-
-#### 20241106081231
-
-Friis based DL transmission
