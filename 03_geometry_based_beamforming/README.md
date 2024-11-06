@@ -15,5 +15,5 @@ Approach | heatmap-dBm             |  heatmap-nW
 :-------------------------:| :-------------------------:|:-------------------------:
 Reciprocity | ![heatmap-dBm](https://github.com/techtile-by-dramco/experiments/blob/main/02_reciprocity_based_WPT/results/20241105202156/heatmap-dBm.png)  | ![heatmap-nW](https://github.com/techtile-by-dramco/experiments/blob/main/02_reciprocity_based_WPT/results/20241105202156/heatmap-nW.png)
 Friis (ideal) | ![heatmap-dBm](https://github.com/techtile-by-dramco/experiments/blob/main/03_geometry_based_beamforming/031_Friis/results/ideal/heatmap-dBm.png) | ![heatmap-nW](https://github.com/techtile-by-dramco/experiments/blob/main/03_geometry_based_beamforming/031_Friis/results/ideal/heatmap-nW.png)
-LoS BF | ![](03_geometry_based_beamforming/031_Friis/results/20241106101220/heatmap-dBm.png) | ![](03_geometry_based_beamforming/031_Friis/results/20241106101220/heatmap-nW.png)
+LoS BF | ![heatmap-dBm](https://github.com/techtile-by-dramco/experiments/blob/main/03_geometry_based_beamforming/031_Friis/results/20241106101220/heatmap-dBm.png) | ![heatmap-nW](https://github.com/techtile-by-dramco/experiments/blob/main/03_geometry_based_beamforming/031_Friis/results/20241106101220/heatmap-nW.png)
 SMC | 
