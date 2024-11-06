@@ -17,14 +17,14 @@
     - name: chmod +x to be sure
       ansible.builtin.shell:
         cmd: "chmod +x usrp-cal-friis.sh"
-        chdir: ~/experiments/03_geometry_based_beamforming/client
+        chdir: ~/experiments/03_geometry_based_beamforming/031_Friis/client
     - name: remove windows errors 
       ansible.builtin.shell:
         cmd: sed -i -e 's/\r$//' ./usrp-cal-friis.sh
-        chdir: ~/experiments/03_geometry_based_beamforming/client
+        chdir: ~/experiments/03_geometry_based_beamforming/031_Friis/client
     - name: Run DL BF beamforming
       ansible.builtin.shell:
         cmd: nohup ./usrp-cal-friis.sh > log.txt 2>&1 &
-        chdir: ~/experiments/03_geometry_based_beamforming/client
+        chdir: ~/experiments/03_geometry_based_beamforming/031_Friis/client
         executable: /bin/bash
      
