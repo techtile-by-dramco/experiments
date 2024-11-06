@@ -13,7 +13,7 @@ from scipy.ndimage import zoom
 #     "bf-ceiling-2",
 #     "bf-ceiling-3"]
 
-to_plot = ["20241105202156"]  # "bf-ceiling-grid",
+to_plot = ["20241106101220"]  # "bf-ceiling-grid",
 
 log_heatmap = np.zeros(len(to_plot)).tolist()
 
@@ -54,8 +54,8 @@ for i, tp in enumerate(to_plot):
     upsampled_heatmap = zoom(heatmap, zoom=zoom_val, order=1)
     plt.imshow(
         10 * np.log10(upsampled_heatmap) + 10,  # + 10 to account for the cable loss
-        vmin=-48 + 10,
-        vmax=-22 + 10,
+        vmin=-48,
+        vmax=None,
         cmap="viridis",
         origin="lower",
     )
@@ -80,7 +80,7 @@ for i, tp in enumerate(to_plot):
     plt.title(tp)
     upsampled_heatmap = zoom(heatmap, zoom=zoom_val, order=1)
     p = ax.imshow(
-        upsampled_heatmap * 1000 * 10, vmin=0.001, cmap="viridis", origin="lower"
+        upsampled_heatmap * 1000 * 10, cmap="viridis", origin="lower"
     )  # * 10 to account for the cable loss
     ax.set_xticks(
         zoom_val * np.arange(len(xi))[::4],
