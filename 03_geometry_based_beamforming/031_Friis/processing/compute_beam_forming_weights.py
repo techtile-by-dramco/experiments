@@ -31,7 +31,7 @@ for c in config["antennes"]:
     }
 
 # UE position (energy neutral device)
-p_EN = np.array([3.14234423828125, 1.9168280029296876, 0.2558418731689453])
+p_EN = np.array([3.172191162109375, 1.7955023193359374, 0.2552783966064453])
 
 # Constants
 f = 920e6  # Antenna frequency (Hz)
