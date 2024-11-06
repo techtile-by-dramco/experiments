@@ -42,7 +42,7 @@ data_socket.bind("tcp://{}:{}".format(host, data_port))
 
 
 meas_id = 0
-unique_id = str(datetime.utcnow().strftime("%Y%m%d%H%M%S"))
+unique_id = str(datetime.datetime.now(datetime.UTC).strftime("%Y%m%d%H%M%S"))
 
 script_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)))
 
