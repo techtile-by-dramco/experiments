@@ -14,6 +14,7 @@ import numpy as np
 import zmq
 
 # Get the current directory of the script
+SAVE_EVERY = 5 * 60
 server_dir = os.path.dirname(os.path.abspath(__file__))
 
 config = read_yaml_file("config.yml")
@@ -33,7 +34,7 @@ iq_socket = context.socket(zmq.PUB)
 iq_socket.bind(f"tcp://*:{50001}")
 
 
-def wait_till_go_from_server(ip="10.128.52.53"):
+def wait_till_go_from_server(ip="10.128.48.13"):
 
     global meas_id, file_open, data_file, file_name
     # Connect to the publisher's address
@@ -55,8 +56,6 @@ def wait_till_go_from_server(ip="10.128.52.53"):
     return meas_id, unique_id
 
 
-TIME_TO_MEAS_PER_EXP = 5.0
-
 plt = TechtilePlotter(realtime=True)
 meas_id, unique_id = wait_till_go_from_server()
 sleep(29.0)  # wake-up 10 seconds before rover starts to move
@@ -67,7 +66,9 @@ start = time()
 positions = []
 values = []
 
-while time() - start < TIME_TO_MEAS_PER_EXP:
+last_save = -1
+
+while True:
 
     power_dBm = scope.get_power_dBm()
     pos = positioner.get_data()
@@ -79,8 +80,13 @@ while time() - start < TIME_TO_MEAS_PER_EXP:
         values.append(power_dBm)
         plt.measurements_rt(pos.x, pos.y, pos.z, power_dBm)
     sleep(0.1)
+
+    if last_save + SAVE_EVERY < time():
+        np.save(arr=positions, file=f"../data/positions-{unique_id}")
+        np.save(arr=values, file=f"../data/values-{unique_id}")
+        last_save = time()
 print("Ctrl+C pressed. Exiting loop and saving...")
-meas_name = f"nobf-ceiling-grid-A05"
-np.save(arr=positions, file=f"../data/positions-{meas_name}")
-np.save(arr=values, file=f"../data/values-{meas_name}")
+# meas_name = f"bf-ceiling-grid-20241105-70db-tx"
+np.save(arr=positions, file=f"../data/positions-{unique_id}")
+np.save(arr=values, file=f"../data/values-{unique_id}")
 positioner.stop()
