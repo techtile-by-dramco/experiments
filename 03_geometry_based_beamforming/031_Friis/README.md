@@ -10,3 +10,5 @@ The weights are computed in [compute_beam_forming_weights.py](https://github.com
 Friis based DL transmission
 `p_EN = np.array([3.172191162109375, 1.7955023193359374, 0.2552783966064453])`
 
+
+### 20241106115348
