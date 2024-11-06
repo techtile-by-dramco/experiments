@@ -47,7 +47,7 @@ for i, tp in enumerate(to_plot):
                 x_bf = i_x
                 y_bf = i_y
 
-    zoom_val = 1
+    zoom_val = 100
 
     fig, ax = plt.subplots()
     plt.title(tp)
