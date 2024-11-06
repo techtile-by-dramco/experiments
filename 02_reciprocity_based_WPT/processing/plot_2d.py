@@ -3,6 +3,7 @@ import numpy as np
 from Positioner import PositionerValues
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
+from scipy.ndimage import zoom
 
 
 # to_plot = [
@@ -12,7 +13,7 @@ from matplotlib.patches import Rectangle
 #     "bf-ceiling-2",
 #     "bf-ceiling-3"]
 
-to_plot = ["bf-ceiling-grid-merged-20241013074614"]  # "bf-ceiling-grid",
+to_plot = ["20241105202156"]  # "bf-ceiling-grid",
 
 log_heatmap = np.zeros(len(to_plot)).tolist()
 
@@ -33,7 +34,7 @@ for i, tp in enumerate(to_plot):
     positions_list = PositionerValues(positions)
 
     grid_pos_ids, xi, yi = positions_list.group_in_grids(
-        0.05, min_x=2.6, max_x=3.9, min_y=1.20, max_y=2.45
+        0.05, min_x=2.6, max_x=3.8, min_y=1.25, max_y=2.4
     )
     heatmap = np.zeros(shape=(len(yi), len(xi))) - 200
 
@@ -44,16 +45,57 @@ for i, tp in enumerate(to_plot):
                 x_bf = i_x
                 y_bf = i_y
 
+    zoom_val = 50
+
     fig, ax = plt.subplots()
     plt.title(tp)
-    log_heatmap[i] = 10 * np.log10(heatmap)
-    p = ax.imshow(10 * np.log10(heatmap), vmin=-68, vmax=-43,cmap="viridis")
-    ax.set_xticks(np.arange(len(xi)), labels=[f"{(x-xi[0])/wavelen:.2f}" for x in xi])
-    ax.set_yticks(np.arange(len(yi)), labels=[f"{(y-yi[0])/wavelen:.2f}" for y in yi])
-    ax.add_patch(Rectangle((y_bf-0.5, x_bf-0.5), 1, 1, fill=False, edgecolor="red", lw=3))
-    fig.colorbar(p)
+    upsampled_heatmap = zoom(heatmap, zoom=zoom_val, order=1)
+    p = ax.imshow(
+        10 * np.log10(upsampled_heatmap) + 10,  # + 10 to account for the cable loss
+        vmin=-48+10,
+        vmax=-22+10,
+        cmap="viridis",
+        origin="lower",
+    )
+    ax.set_xticks(
+        zoom_val * np.arange(len(xi))[::4],
+        labels=[f"{(x-xi[0])/wavelen:.2f}" for x in xi][::4],
+    )
+    ax.set_yticks(
+        zoom_val * np.arange(len(yi))[::4],
+        labels=[f"{(y-yi[0])/wavelen:.2f}" for y in yi][::4],
+    )
+    # ax.add_patch(Rectangle((y_bf-0.5, x_bf-0.5), 1, 1, fill=False, edgecolor="red", lw=3))
+    cbar = fig.colorbar(p)
+    cbar.ax.set_ylabel("dBm")
+    ax.set_xlabel("distance in wavelengths")
+    ax.set_ylabel("distance in wavelengths")
     fig.tight_layout()
-    plt.show()
+    plt.savefig(f"../results/{tp}/heatmap-dBm.png", bbox_inches="tight")
+    # plt.show()
+
+    fig, ax = plt.subplots()
+    plt.title(tp)
+    upsampled_heatmap = zoom(heatmap, zoom=zoom_val, order=1)
+    p = ax.imshow(upsampled_heatmap * 1000 * 10, vmin=0.001,  cmap="viridis", origin="lower") # * 10 to account for the cable loss
+    ax.set_xticks(
+        zoom_val * np.arange(len(xi))[::4],
+        labels=[f"{(x-xi[0])/wavelen:.2f}" for x in xi][::4],
+    )
+    ax.set_yticks(
+        zoom_val * np.arange(len(yi))[::4],
+        labels=[f"{(y-yi[0])/wavelen:.2f}" for y in yi][::4],
+    )
+    # ax.add_patch(
+    #     Rectangle((y_bf - 0.5, x_bf - 0.5), 1, 1, fill=False, edgecolor="red", lw=3)
+    # )
+    cbar = fig.colorbar(p)
+    cbar.ax.set_ylabel("nW")
+    ax.set_xlabel("distance in wavelengths")
+    ax.set_ylabel("distance in wavelengths")
+    fig.tight_layout()
+    plt.savefig(f"../results/{tp}/heatmap-nW.png", bbox_inches="tight")
+    # plt.show()
 
 
 # fig, ax = plt.subplots()
