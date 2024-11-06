@@ -13,6 +13,6 @@ ansible-playbook -i inventory/hosts.yaml "../experiments/03_geometry_based_beamf
 ### Interesting captures
 
 
-#### 20241106074129
+#### 20241106081231
 
 Friis based DL transmission
