@@ -14,7 +14,7 @@ import numpy as np
 import zmq
 
 # Get the current directory of the script
-SAVE_EVERY = 5 * 60
+SAVE_EVERY = 1.0 * 60
 server_dir = os.path.dirname(os.path.abspath(__file__))
 
 config = read_yaml_file("config.yml")
