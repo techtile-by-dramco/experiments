@@ -142,7 +142,7 @@ print(f"Path Gain at UE is {PG_EN:.2f} dB")
 # Plot scenario
 plt.figure(figsize=(8, 5))
 PG_dB = 10 * np.log10(np.abs(y) ** 2)
-plt.imshow(PG_dB+3.6, extent=[X_MIN, X_MAX, Y_MIN, Y_MAX], origin="lower", aspect="auto")
+plt.imshow(PG_dB+3.6, extent=[X_MIN, X_MAX, Y_MIN, Y_MAX], origin="upper", aspect="auto")
 # plt.plot(p_EN[0], p_EN[1], "bo", markersize=10)
 plt.colorbar(label="Rx power in dBm")
 
@@ -174,7 +174,7 @@ plt.show()
 plt.figure(figsize=(8, 5))
 PG_dB = 10 * np.log10(np.abs(y) ** 2)
 plt.imshow(
-    10**((PG_dB + 3.6)/10)*1000, extent=[X_MIN, X_MAX, Y_MIN, Y_MAX], origin="lower", aspect="auto"
+    10**((PG_dB + 3.6)/10)*1000, extent=[X_MIN, X_MAX, Y_MIN, Y_MAX], origin="upper", aspect="auto"
 )
 # plt.plot(p_EN[0], p_EN[1], "bo", markersize=10)
 plt.colorbar(label="PG in nW")
