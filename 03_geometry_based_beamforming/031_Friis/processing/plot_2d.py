@@ -54,8 +54,8 @@ for i, tp in enumerate(to_plot):
     upsampled_heatmap = zoom(heatmap, zoom=zoom_val, order=1)
     plt.imshow(
         10 * np.log10(upsampled_heatmap) + 10,  # + 10 to account for the cable loss
-        vmin=-48,
-        vmax=None,
+        # vmin=-48,
+        # vmax=None,
         cmap="viridis",
         origin="lower",
     )
