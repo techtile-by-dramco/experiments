@@ -36,7 +36,7 @@ for i, tp in enumerate(to_plot):
     positions_list = PositionerValues(positions)
 
     grid_pos_ids, xi, yi = positions_list.group_in_grids(
-        0.05, min_x=2.6, max_x=3.8, min_y=1.25, max_y=2.4
+        0.03, min_x=2.6, max_x=3.8, min_y=1.25, max_y=2.4
     )
     heatmap = np.zeros(shape=(len(yi), len(xi))) - 200
 
@@ -49,7 +49,7 @@ for i, tp in enumerate(to_plot):
                 x_bf = i_x
                 y_bf = i_y
 
-    zoom_val = 100
+    zoom_val = 50
 
     fig, ax = plt.subplots()
     plt.title(tp)
@@ -78,7 +78,10 @@ for i, tp in enumerate(to_plot):
     plt.ylabel("distance in wavelengths")
     fig.tight_layout()
     plt.savefig(
-        f"../results/{tp}/heatmap-dBm.png", bbox_inches="tight", transparent=True
+        f"../results/{tp}/heatmap-dBm.png",
+        bbox_inches="tight",
+        transparent=True,
+        dpi=600,
     )
     # plt.show()
 
@@ -105,7 +108,10 @@ for i, tp in enumerate(to_plot):
     ax.set_ylabel("distance in wavelengths")
     fig.tight_layout()
     plt.savefig(
-        f"../results/{tp}/heatmap-uW.png", bbox_inches="tight", transparent=True
+        f"../results/{tp}/heatmap-uW.png",
+        bbox_inches="tight",
+        transparent=True,
+        dpi=600,
     )
     plt.show()
 

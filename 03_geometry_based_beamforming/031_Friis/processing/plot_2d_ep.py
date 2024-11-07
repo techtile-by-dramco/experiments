@@ -7,15 +7,7 @@ from scipy.ndimage import zoom
 
 from ep import RFEP
 
-
-# to_plot = [
-#     "nobf-D07-ceiling",
-#     "nobf-ceiling",
-#     "bf-ceiling",
-#     "bf-ceiling-2",
-#     "bf-ceiling-3"]
-
-to_plot = ["20241107091548"]  # "bf-ceiling-grid",
+to_plot = ["20241107114752"]  # 20241107124328 20241107091548
 
 cmap = "inferno"
 
@@ -55,7 +47,16 @@ for i, tp in enumerate(to_plot):
                 x_bf = i_x
                 y_bf = i_y
 
-    zoom_val = 50
+    zoom_val = 2
+
+    ue_position = Rectangle(
+        ((y_bf - 0.5) * zoom_val, (x_bf - 0.5) * zoom_val),
+        1,
+        1,
+        fill=False,
+        edgecolor="red",
+        lw=3,
+    )
 
     fig, ax = plt.subplots()
     plt.title(tp)
@@ -69,16 +70,14 @@ for i, tp in enumerate(to_plot):
         zoom_val * np.arange(len(yi))[::4],
         labels=[f"{(y-yi[0])/wavelen:.2f}" for y in yi][::4],
     )
-    # ax.add_patch(
-    #     Rectangle((y_bf - 0.5, x_bf - 0.5), 1, 1, fill=False, edgecolor="red", lw=3)
-    # )
+    ax.add_patch(ue_position)
     cbar = fig.colorbar(p)
     cbar.ax.set_ylabel("uW")
     ax.set_xlabel("distance in wavelengths")
     ax.set_ylabel("distance in wavelengths")
     fig.tight_layout()
     plt.savefig(
-        f"../results/{tp}/heatmap-uW.png", bbox_inches="tight", transparent=True
+        f"../results/{tp}/heatmap-uW.png", bbox_inches="tight", transparent=True, dpi=600
     )
 
     fig, ax = plt.subplots()
@@ -106,7 +105,10 @@ for i, tp in enumerate(to_plot):
     plt.ylabel("distance in wavelengths")
     fig.tight_layout()
     plt.savefig(
-        f"../results/{tp}/heatmap-dBm.png", bbox_inches="tight", transparent=True
+        f"../results/{tp}/heatmap-dBm.png",
+        bbox_inches="tight",
+        transparent=True,
+        dpi=600,
     )
 
     values = [v.buffer_voltage_mv if v.buffer_voltage_mv<3000 else 0 for v in o_values]
@@ -141,7 +143,7 @@ for i, tp in enumerate(to_plot):
     ax.set_ylabel("distance in wavelengths")
     fig.tight_layout()
     plt.savefig(
-        f"../results/{tp}/heatmap-V.png", bbox_inches="tight", transparent=True
+        f"../results/{tp}/heatmap-V.png", bbox_inches="tight", transparent=True, dpi=600
     )
 
     fig, ax = plt.subplots()
@@ -164,6 +166,11 @@ for i, tp in enumerate(to_plot):
     ax.set_xlabel("distance in wavelengths")
     ax.set_ylabel("distance in wavelengths")
     fig.tight_layout()
-    plt.savefig(f"../results/{tp}/heatmap-Vth.png", bbox_inches="tight", transparent=True)
+    plt.savefig(
+        f"../results/{tp}/heatmap-Vth.png",
+        bbox_inches="tight",
+        transparent=True,
+        dpi=600,
+    )
 
     plt.show()

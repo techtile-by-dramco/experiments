@@ -1,0 +1,17 @@
+# overview of experiments
+
+## 20241106115848
+
+Los BF - RF
+
+## 20241107091548
+
+LoS BF - DC
+
+## 20241107114752
+
+SMC 1 - DC 
+
+## 20241107124328
+
+SMC 2 - DC 
