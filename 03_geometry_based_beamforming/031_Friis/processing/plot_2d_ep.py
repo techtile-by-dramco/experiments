@@ -123,7 +123,7 @@ for i, tp in enumerate(to_plot):
     fig, ax = plt.subplots()
     plt.title(tp)
     upsampled_heatmap = zoom(heatmap, zoom=zoom_val, order=1)
-    p = ax.imshow(upsampled_heatmap/1e3, cmap=cmap, origin="lower")
+    p = ax.imshow(upsampled_heatmap/1e3, cmap=cmap, vmin=1.2, origin="lower")
     ax.set_xticks(
         zoom_val * np.arange(len(xi))[::4],
         labels=[f"{(x-xi[0])/wavelen:.2f}" for x in xi][::4],
