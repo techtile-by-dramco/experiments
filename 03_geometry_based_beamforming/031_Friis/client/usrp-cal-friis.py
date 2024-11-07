@@ -716,7 +716,7 @@ def main():
         tx_phase = 0
 
         with open(
-            os.path.join(os.path.dirname(__file__), "config-phase-friis.yml"), "r"
+            os.path.join(os.path.dirname(__file__), "config-phase-friis-sim1.yml"), "r"
         ) as phases_yaml:
             try:
                 phases_dict = yaml.safe_load(phases_yaml)
@@ -724,7 +724,7 @@ def main():
                     tx_phase = phases_dict[HOSTNAME]
                     logger.debug(f"Applying TX phase: {tx_phase}")
                 else:
-                    logger.error("Phase not found in config-phase-friis.yml")
+                    logger.error("Phase not found in config-phase-friis-sim1.yml")
             except yaml.YAMLError as exc:
                 print(exc)
 
