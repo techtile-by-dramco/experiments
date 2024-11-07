@@ -16,5 +16,5 @@ Approach | heatmap-dBm (RF)            |  heatmap-uW (RF) |  heatmap-uW (DC)
 Reciprocity | ![heatmap-dBm](https://github.com/techtile-by-dramco/experiments/blob/main/02_reciprocity_based_WPT/results/20241105202156/heatmap-dBm.png)  | ![heatmap-uW](https://github.com/techtile-by-dramco/experiments/blob/main/02_reciprocity_based_WPT/results/20241105202156/heatmap-uW.png) 
 Friis (ideal) | ![heatmap-dBm](https://github.com/techtile-by-dramco/experiments/blob/main/03_geometry_based_beamforming/031_Friis/results/ideal/heatmap-dBm.png) | ![heatmap-uW](https://github.com/techtile-by-dramco/experiments/blob/main/03_geometry_based_beamforming/031_Friis/results/ideal/heatmap-uW.png) 
 LoS BF | ![heatmap-dBm](https://github.com/techtile-by-dramco/experiments/blob/main/03_geometry_based_beamforming/031_Friis/results/20241106115848/heatmap-dBm.png) | ![heatmap-uW](https://github.com/techtile-by-dramco/experiments/blob/main/03_geometry_based_beamforming/031_Friis/results/20241106115848/heatmap-uW.png) | ![](https://github.com/techtile-by-dramco/experiments/blob/main/03_geometry_based_beamforming/031_Friis/results/20241107091548/heatmap-uW.png)
-SMC 1st order | 
-SMC 2nd order | 
+SMC 1st order |  |  | ![](https://github.com/techtile-by-dramco/experiments/blob/main/03_geometry_based_beamforming/031_Friis/results/20241107114752/heatmap-uW.png)
+SMC 2nd order |  |  | ![](https://github.com/techtile-by-dramco/experiments/blob/main/03_geometry_based_beamforming/031_Friis/results/20241107124328/heatmap-uW.png)
