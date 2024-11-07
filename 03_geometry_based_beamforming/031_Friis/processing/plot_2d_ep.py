@@ -7,7 +7,7 @@ from scipy.ndimage import zoom
 
 from ep import RFEP
 
-to_plot = ["20241107114752"]  # 20241107124328 20241107091548
+to_plot = ["20241107114752", "20241107124328","20241107091548"]  # 20241107124328 20241107091548
 
 cmap = "inferno"
 
@@ -27,7 +27,14 @@ for i, tp in enumerate(to_plot):
     # positions = positions[valid_values_idx]
     # values = values[valid_values_idx]
 
-    positions_list = PositionerValues(positions)
+    print("CHANGE OF X POSITION DUE TO QTM position not same as antenna position")
+    y_positions = [p.y+0.1 for p in positions]
+
+    temp_pos_list = PositionerValues(positions)
+
+    positions_list = PositionerValues.from_xyz(
+        temp_pos_list.get_x_positions(), y_positions, temp_pos_list.get_z_positions()
+    )
 
     values = [v.pwr_nw / 10**6 for v in o_values]
 
