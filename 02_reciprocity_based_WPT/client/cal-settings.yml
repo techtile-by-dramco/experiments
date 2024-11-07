@@ -4,7 +4,7 @@ INIT_DELAY: !!float 0.2  # 200ms initial delay before transmit
 RATE: !!float 250e3
 
 LOOPBACK_TX_GAIN: !!float 50 
-FREE_TX_GAIN: !!float 85
+FREE_TX_GAIN: !!float 90
 LOOPBACK_RX_GAIN: !!float 45 #23  # empirical determined
 REF_RX_GAIN: !!float 45 #28  # empirical determined
 
