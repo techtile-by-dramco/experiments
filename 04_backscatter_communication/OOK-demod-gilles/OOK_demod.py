@@ -55,11 +55,13 @@ def decimate_signal(y, decimation_factor):
 
     remaining_dec = decimation_factor
 
+    MAX_Q = 10
+
     while remaining_dec > 1:
-        if remaining_dec < 10: 
+        if remaining_dec < MAX_Q:
             q = remaining_dec
         else:
-            q = 10  # max decimation is 13 https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.decimate.html
+            q = MAX_Q  # max decimation is 13 https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.decimate.html
         y = decimate(y, q)
         assert remaining_dec % q == 0, f"Decimation factor should be divisible by {q}"
         remaining_dec = remaining_dec//q
