@@ -157,7 +157,7 @@ preamble_bits = 80
 FFT_SIZE = 2048*32
 
 samples_per_bit = int(fs / baudrate)
-decimation_factor = samples_per_bit // 2  # Decimate to oversampling
+decimation_factor = samples_per_bit // 10  # Decimate to oversampling
 
 samples_per_symb = samples_per_bit // decimation_factor
 
@@ -169,12 +169,22 @@ plt.figure(figsize=(12, 10))
 plt.subplot(6, 1, 1)
 
 AVG_PSD = np.asarray([0]*FFT_SIZE, dtype=np.float64)
-for iq in np.split(iq_samples, NUM_AVG):
+waterfall = np.zeros((NUM_AVG, FFT_SIZE))
+for i, iq in enumerate(np.split(iq_samples, NUM_AVG)):
     AVG_PSD += np.abs(np.fft.fft(iq)) ** 2 / (FFT_SIZE * fs)
+    waterfall[i, :] = np.abs(np.fft.fft(iq)) ** 2 / (FFT_SIZE * fs)
+
 
 AVG_PSD /= NUM_AVG
 PSD_log = 10.0 * np.log10(AVG_PSD)
 PSD_shifted = np.fft.fftshift(PSD_log)
+
+
+waterfall_dB = np.fft.fftshift(10.0 * np.log10(waterfall), axes=-1)
+
+plt.figure()
+plt.imshow(waterfall_dB)
+plt.show()
 
 f = np.arange(fs/-2.0, fs/2.0, fs/FFT_SIZE) # start, stop, step
 
@@ -203,6 +213,17 @@ fc =  f_1 if f_1 > 0 else f_2
 filtered_signal = bandpass_filter(
     iq_samples, fc - bandwidth / 2, fc + bandwidth / 2, fs
 ) 
+
+
+waterfall = np.zeros((NUM_AVG, FFT_SIZE))
+for i, iq in enumerate(np.split(filtered_signal, NUM_AVG)):
+    waterfall[i, :] = np.abs(np.fft.fft(iq)) ** 2 / (FFT_SIZE * fs)
+
+waterfall_dB = np.fft.fftshift(10.0 * np.log10(waterfall), axes=-1)
+
+plt.figure()
+plt.imshow(waterfall_dB)
+plt.show()
 
 filtered_signal /= np.max(np.abs(filtered_signal)) # scale so max = 1
 
@@ -277,7 +298,8 @@ plt.plot(iq_power)
 # Example usage
 file_path = 'pseudorandombinarysequence.txt'
 print(len(read_bin_to_seq(file_path)))
-sequence = read_bin_to_seq(file_path)[:100]
+total_sequence = read_bin_to_seq(file_path)
+sequence = total_sequence[:100]
 
 # preamble = np.asarray(
 #     [[1] * samples_per_symb + [-1] * samples_per_symb] * 40
@@ -308,7 +330,7 @@ plt.show()
 
 # %%
 # now we need to extract the positive power and negative power
-over_sampled_preamble = np.repeat(sequence[:80], samples_per_symb)
+over_sampled_preamble = np.repeat(sequence[:250], samples_per_symb)
 
 signal = iq_power[start_idx:]
 
@@ -317,29 +339,67 @@ signal_preamble = signal[:len(over_sampled_preamble)]
 zero_power = np.median(signal_preamble[over_sampled_preamble==-1])
 one_power = np.median(signal_preamble[over_sampled_preamble==1])
 
+threshold = (one_power - zero_power) / 2.0
+
 R = len(signal) // samples_per_symb
 
-signal= signal[: int(R * samples_per_symb)]
+signal = signal[: int(R * samples_per_symb)]
 
 reshaped_data = signal.reshape(-1, samples_per_symb)
 
+num_symb, _ = reshaped_data.shape
+
+# %%
+
+interval_len = 1000
+total_symb = (num_symb // interval_len) * interval_len
+
+
+num_intervals = total_symb// interval_len
+
+
+demod = np.zeros(total_symb)
+thresholds = [0] * num_intervals
+
+# lets start from the beginning, including the preamble #TODO change this behavior
+for i in range(num_intervals):
+    thresholds[i] = threshold
+    start_i = i*interval_len
+    end_i = start_i+interval_len
+    samples = reshaped_data[start_i:end_i, :]
+
+    avg_signal = samples.mean(axis=1)
+
+    demod_interval = np.zeros_like(avg_signal)
+    demod_interval[avg_signal > threshold] = 1.0
+
+    demod[start_i:end_i] = demod_interval
+
+    # now that we have demodulated the signal, let re-compute the zero and one power
+
+    # update threshold with new data
+    zero_power = np.median(avg_signal[demod_interval == 0]) #here it is zero as per above, instead of -1 above
+    one_power = np.median(avg_signal[demod_interval == 1])
+    new_threshold = (one_power - zero_power) / 2.0
+
+    threshold = 0.1*threshold + 0.9*new_threshold
+
+
 # Compute the mean along axis 1 (row-wise average)
-avg_signal = reshaped_data.mean(axis=1)
+# avg_signal = reshaped_data.mean(axis=1)
 
 
-threshold = (one_power-zero_power) / 2.0
+# demod[avg_signal > threshold] = 1.0
+# %%
+plt.figure()
+plt.plot(thresholds)
+plt.show()
+# %%
 
-demod = np.zeros_like(avg_signal)
-
-demod[avg_signal > threshold] = 1.0
-
-
-oversampled_sequence_bin = [0 if ui==-1 else 1 for ui in oversampled_sequence]
+oversampled_sequence_bin = [0 if ui == -1 else 1 for ui in oversampled_sequence]
 
 sequence_bin = oversampled_sequence_bin[::samples_per_symb]
 
-
-# %%
 
 # %matplotlib widget
 
@@ -359,14 +419,20 @@ plt.show()
 
 sequence_bin_full = read_bin_to_seq(file_path, binary=True)
 plt.figure()
-plt.plot(demod[:1000], label="demod")
-plt.plot(sequence_bin_full[:1000], label="sequence")
+plt.plot(demod[:1000], label="demod", linestyle="None", marker="o")
+plt.plot(sequence_bin_full[:1000], label="sequence", linestyle="None", marker="o")
 plt.legend()
 plt.show()
 
 
-ber = 1- (np.sum([1 if a==b else 0 for a,b in zip(demod,sequence_bin_full)])/len(sequence_bin_full))
+correct_symb = [
+    1 if a == b else 0 for a, b in zip(demod[:1000], sequence_bin_full[:1000])
+]
+ber = 1 - (np.sum(correct_symb) / total_symb)
 
+plt.figure()
+plt.plot(correct_symb[:1000], linestyle="None", marker="o")
+plt.show()
 print(ber)
 
 print("done")
