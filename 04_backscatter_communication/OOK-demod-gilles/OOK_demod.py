@@ -428,7 +428,7 @@ plt.show()
 correct_symb = [
     1 if a == b else 0 for a, b in zip(demod[:1000], sequence_bin_full[:1000])
 ]
-ber = 1 - (np.sum(correct_symb) / total_symb)
+ber = 1 - (np.sum(correct_symb) / len(correct_symb))
 
 plt.figure()
 plt.plot(correct_symb[:1000], linestyle="None", marker="o")
