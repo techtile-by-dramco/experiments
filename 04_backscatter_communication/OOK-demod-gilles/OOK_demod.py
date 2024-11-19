@@ -130,7 +130,7 @@ def full_cross_correlation(arr, seq):
 
     return corr
 
-def read_bin_to_seq(file_path):
+def read_bin_to_seq(file_path, binary=False):
     # Open the file and read its contents
     with open(file_path, "r") as file:
         # Read the file contents and strip any whitespace or newline characters
@@ -139,8 +139,10 @@ def read_bin_to_seq(file_path):
     # Convert the string into a list of integers (0s and 1s)
     binary_list = [int(char) for char in binary_string if char in "01"]
 
-    res_list = [-1 if b==0 else 1 for b in binary_list]
-
+    if not binary:
+        res_list = [-1 if b==0 else 1 for b in binary_list]
+    else:
+        res_list = binary_list
     return res_list
 
 # %%
@@ -353,12 +355,17 @@ plt.show()
 # plt.legend()
 # plt.show()
 
-
+sequence_bin_full = read_bin_to_seq(file_path, binary=True)
 plt.figure()
-plt.plot(demod[: len(sequence_bin)], label="demod")
-plt.plot(sequence_bin, label="sequence")
+plt.plot(demod[:1000], label="demod")
+plt.plot(sequence_bin_full[:1000], label="sequence")
 plt.legend()
 plt.show()
+
+
+ber = 1- (np.sum([1 if a==b else 0 for a,b in zip(demod,sequence_bin_full)])/len(sequence_bin_full))
+
+print(ber)
 
 print("done")
 
