@@ -49,9 +49,14 @@ python ./server/ACRO_control_functions.py
 Two options:
     1. start manually
 `uhd_siggen --args "mode_n=integer" --freq 920e6 --clock-source 'external' --sync 'pps' --const -g 60 --offset 0 -m 0.8`
-    3. Use Ansible via [start-ref.yml](start-ref.yml) or direct [start_ref.sh](https://github.com/techtile-by-dramco/experiments/blob/main/02_reciprocity_based_WPT/client/start-ref.sh) 
+    3. Use Ansible via [start-ref.yml](start-ref.yml) or direct [start_ref.sh](https://github.com/techtile-by-dramco/experiments/blob/main/02_reciprocity_based_WPT/client/start-ref.sh)
+  
+```yml
+REF:
+  ansible_host: rpi-ref.local
+```
 
-5. Run the RPIs from the ansible (clone it), assuming in same root dir as the experiments folder: 
+6. Run the RPIs from the ansible (clone it), assuming in same root dir as the experiments folder: 
 
 ```bash
 # on VM
