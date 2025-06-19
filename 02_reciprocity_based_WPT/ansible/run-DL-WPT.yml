@@ -3,7 +3,7 @@
 # - import_playbook: start-ref.yml
 # - import_playbook: start-sync.yml
 - import_playbook: get-ip-sync.yml
-- import_playbook: start-pilot.yml
+# - import_playbook: start-pilot.yml
 - name: Start client script
   hosts: "{{ tiles }}"
   gather_facts: no
