@@ -40,7 +40,7 @@ The reindeer experiments 4aa should investigate how the END devices could captur
 
 | USRP Gain [dB] | 100 | 95 | 90 | 85 | 80 | 75 | 70 | 65 | 60 | 55 |
 |-|-|-|-|-|-|-|-|-|-|-|
-| Output power [dBm] |     |    |  |  15.7 | 11.7 | 7.04 | 2.41 | -2.71 | -7.8 | -12.8 |    
+| Output power [dBm] |     |    |  17.4  |  15.7 | 11.7 | 7.04 | 2.41 | -2.71 | -7.8 | -12.8 |    
 
 | USRP Gain [dB] | 50 | 45 | 40 | 35 | 30 | 25 | 20 | 15 | 10 | 5 | 0 |
 |-|-|-|-|-|-|-|-|-|-|-|-|
