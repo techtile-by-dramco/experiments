@@ -25,6 +25,8 @@ The reindeer experiments 4aa should investigate how the END devices could captur
 
 ## Mapping USRP gain to output power (Gain calibration)
 
+(Wave amplitude = 1 in these experiments)
+
 | USRP Gain [dB] | 100 | 95 | 90 | 85 | 80 | 75 | 70 | 65 | 60 | 55 |
 |-|-|-|-|-|-|-|-|-|-|-|
 | Output power [dBm] |  18.2   |  18.0  |  18.4  |  17.4  |  13.4  |  9.1  |  4.6  |  -0.4  |  -5.6  |  -10.8  |
